@@ -33,16 +33,29 @@ include(GitExternal)
 set( CMAKECOMMONTEMPLATE_DESCRIPTION "SimIL - Simulation Input/Output Library" )
 set( COMMON_PROJECT_DOMAIN gmrv.es )
 
+option( SIMIL_OPTIONALS_AS_REQUIRED
+  "Force optional dependencies as required" OFF )
+
+if( SIMIL_OPTIONALS_AS_REQUIRED )
+  set( SIMIL_OPTS_FIND_ARGS "REQUIRED" )
+else()
+  set( SIMIL_OPTS_FIND_ARGS "" )
+endif()
+
 include( Common )
 
-common_find_package( Brion REQUIRED )
+common_find_package( Brion ${SIMIL_OPTS_FIND_ARGS} )
 common_find_package( HDF5 REQUIRED COMPONENTS C CXX )
+common_find_package( Boost REQUIRED )
 common_find_package( ZeroEQ )
-common_find_package( Boost COMPONENTS unit_test_framework )
 
-list( APPEND SIMIL_DEPENDENT_LIBRARIES Brion HDF5 )
+list( APPEND SIMIL_DEPENDENT_LIBRARIES HDF5 Boost )
 
-if ( ZEROEQ_FOUND )
+if( BRION_FOUND )
+  list( APPEND SIMIL_DEPENDENT_LIBRARIES Brion )
+endif()
+
+if( ZEROEQ_FOUND )
 
   list(APPEND SIMIL_DEPENDENT_LIBRARIES ZeroEQ)
 

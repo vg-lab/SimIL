@@ -72,7 +72,8 @@ namespace simil
 
 
   void SimulationPlayer::LoadData( TDataType dataType,
-                                   const std::string& networkPath_ )
+                                   const std::string& networkPath_,
+                                   const std::string& )
   {
     Clear( );
 
@@ -266,15 +267,13 @@ namespace simil
     }
   }
 
-#ifdef VISIMPL_USE_ZEROEQ
-
-#ifdef VISIMPL_USE_GMRVLEX
+#ifdef SIMIL_USE_ZEROEQ
 
   ZeqEventsManager* SimulationPlayer::zeqEvents( void )
   {
     return _zeqEvents;
   }
-#endif
+
 
   void SimulationPlayer::connectZeq( const std::string& zeqUri )
   {

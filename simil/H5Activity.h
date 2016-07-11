@@ -7,8 +7,8 @@
  *					Do not distribute without further notice.
  */
 
-#ifndef __H5ACTIVITY_H__
-#define __H5ACTIVITY_H__
+#ifndef __SIMIL__H5ACTIVITY_H__
+#define __SIMIL__H5ACTIVITY_H__
 
 #include "types.h"
 #include "H5Network.h"
@@ -75,4 +75,4 @@ namespace simil
 
 }
 
-#endif /* __H5ACTIVITY_H__ */
+#endif /* __SIMIL__H5ACTIVITY_H__ */

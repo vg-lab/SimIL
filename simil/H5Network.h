@@ -7,8 +7,8 @@
  *					Do not distribute without further notice.
  */
 
-#ifndef __H5NETWORK_H__
-#define __H5NETWORK_H__
+#ifndef __SIMIL__H5NETWORK_H__
+#define __SIMIL__H5NETWORK_H__
 
 #include <string>
 #include <vector>
@@ -74,4 +74,4 @@ namespace simil
 
 }
 
-#endif /* __H5NETWORK_H__ */
+#endif /* __SIMIL__H5NETWORK_H__ */
