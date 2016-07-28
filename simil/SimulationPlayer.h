@@ -61,7 +61,7 @@ namespace simil
     virtual void Frame( void );
 
     virtual void Play( void );
-    
+
     virtual void Reset( void );
 
     virtual void Pause( void );
@@ -178,6 +178,8 @@ namespace simil
     SpikesCRange spikesBetween( float startTime, float endTime );
 
     SpikesCRange spikesNow( void );
+
+    void spikesNowGIDs( std::vector< uint32_t >& );
 
   protected:
 
