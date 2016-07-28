@@ -61,6 +61,8 @@ namespace simil
     virtual void Frame( void );
 
     virtual void Play( void );
+    
+    virtual void Reset( void );
 
     virtual void Pause( void );
 

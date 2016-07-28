@@ -123,6 +123,12 @@ namespace simil
     }
   }
 
+  void SimulationPlayer::Reset( void )
+  {
+    Stop( );
+    Play( );
+  }
+
 
   void SimulationPlayer::Play( void )
   {
