@@ -179,7 +179,7 @@ namespace simil
 
     SpikesCRange spikesNow( void );
 
-    void spikesNowGIDs( std::vector< uint32_t >& );
+    void spikesNowVect( std::vector< uint32_t >& );
 
   protected:
 
