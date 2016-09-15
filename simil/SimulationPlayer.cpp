@@ -572,7 +572,7 @@ namespace simil
   void SpikesPlayer::spikesNowVect( std::vector< uint32_t >& gidsv )
   {
     auto spikes = this->spikesNow( );
-    gidsv.resize( spikes.size( ) );
+    gidsv.resize( std::distance( spikes.first, spikes.second ));
     std::vector< uint32_t >::iterator resultIt = gidsv.begin( );
     for(auto it = spikes.first; it != spikes.second; ++it, ++resultIt)
     {
