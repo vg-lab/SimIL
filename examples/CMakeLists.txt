@@ -6,8 +6,11 @@ set( SIMILLOADEXAMPLE_SOURCES loadExample.cpp )
 set( SIMILLOADEXAMPLE_HEADERS )
 set( SIMILLOADEXAMPLE_LINK_LIBRARIES ${EXAMPLESH5_LINK_LIBRARIES} SimIL )
 common_application( similLoadExample )
+            
 
-
-  
-   
-                       
+if( QT5CORE_FOUND)
+	set( SIMILCUSTOMPLAYERDEMO_SOURCES customPlayerDemo.cpp )
+	set( SIMILCUSTOMPLAYERDEMO_HEADERS )
+	set( SIMILCUSTOMPLAYERDEMO_LINK_LIBRARIES ${EXAMPLESH5_LINK_LIBRARIES} SimIL QSimIL )
+	common_application( similCustomPlayerDemo )
+endif( )
