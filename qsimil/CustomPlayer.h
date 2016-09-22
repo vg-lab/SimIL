@@ -20,6 +20,7 @@ namespace qsimil
 {
     class CustomPlayer: public QWidget
     {
+        Q_OBJECT
     public:
         CustomPlayer( QWidget *parent = 0 );
 
