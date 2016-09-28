@@ -85,52 +85,52 @@ namespace qsimil
         dockLayout->addWidget( stopButton, row, 11, 1, 1 );
 
         connect( _playButton, SIGNAL( clicked( )),
-                 this, SLOT( PlayPause( )));
+                 this, SLOT( _PlayPause( )));
 
         connect( stopButton, SIGNAL( clicked( )),
-                   this, SLOT( Stop( )));
+                   this, SLOT( _Stop( )));
 
         connect( nextButton, SIGNAL( clicked( )),
-                   this, SLOT( GoToEnd( )));
+                   this, SLOT( _GoToEnd( )));
 
         connect( prevButton, SIGNAL( clicked( )),
-                   this, SLOT( Restart( )));
+                   this, SLOT( _Restart( )));
 
         connect( _repeatButton, SIGNAL( clicked( )),
-                   this, SLOT( Repeat( )));
+                   this, SLOT( _Repeat( )));
 
         connect( _simSlider, SIGNAL( sliderPressed( )),
-                 this, SLOT( PlayAt( )));
+                 this, SLOT( _PlayAt( )));
     }
     void CustomPlayer::start() {
         this->_playButton->click();
     }
 
-    void CustomPlayer::PlayPause( bool notify )
+    void CustomPlayer::_PlayPause( bool notify )
     {
         if ( playing == true ) {
-            Play( notify );
+            _Play( notify );
         } else {
-            Pause( notify );
+            _Pause( notify );
         }
         playing = !playing;
     }
 
-    void CustomPlayer::Play( bool )
+    void CustomPlayer::_Play( bool )
     {
         _playButton->setIcon( _pauseIcon );
 
         onPlay();
     }
 
-    void CustomPlayer::Pause( bool )
+    void CustomPlayer::_Pause( bool )
     {
         _playButton->setIcon( _playIcon );
 
         onPause();
     }
 
-    void CustomPlayer::Stop( bool )
+    void CustomPlayer::_Stop( bool )
     {
         _playButton->setIcon( _playIcon );
         _startTimeLabel->setText( QString::number( 0.0 ) ); //(double)_openGLWidget->player( )->startTime( )));
@@ -138,18 +138,28 @@ namespace qsimil
         onStop();
     }
 
-    void CustomPlayer::Repeat( bool )
+    void CustomPlayer::_Repeat( bool )
     {
         bool repeat = _repeatButton->isChecked( );
         onRepeat( repeat );
     }
 
-    void CustomPlayer::PlayAt( bool notify )
+    void CustomPlayer::_PlayAt( bool notify )
     {
-        PlayAt(_simSlider->sliderPosition(), notify);
+        _PlayAt(_simSlider->sliderPosition(), notify);
     }
 
-    void CustomPlayer::PlayAt( float percentage, bool )
+
+    /*void CustomPlayer::playAt( float percentage )
+    {
+        int sliderPosition = percentage *
+                ( _simSlider->maximum( ) - _simSlider->minimum( )) +
+                _simSlider->minimum( );
+        _simSlider->setSliderPosition( sliderPosition );
+        _playButton->setIcon( _pauseIcon );
+    }*/
+
+    void CustomPlayer::_PlayAt( float percentage, bool )
     {
         int sliderPosition = percentage *
                 ( _simSlider->maximum( ) - _simSlider->minimum( )) +
@@ -160,7 +170,7 @@ namespace qsimil
         onPlayAt( percentage );
     }
 
-    void CustomPlayer::PlayAt( int sliderPosition, bool )
+    void CustomPlayer::_PlayAt( int sliderPosition, bool )
     {
         playing = true;
         int value = _simSlider->value( );
@@ -172,7 +182,7 @@ namespace qsimil
         onPlayAt( percentage );
     }
 
-    void CustomPlayer::Restart( bool )
+    void CustomPlayer::_Restart( bool )
     {
         _playButton->setIcon( _pauseIcon );
         if (playing) {
@@ -185,7 +195,7 @@ namespace qsimil
         onRestart();
     }
 
-    void CustomPlayer::GoToEnd( bool )
+    void CustomPlayer::_GoToEnd( bool )
     {
         _simSlider->setSliderPosition(_simSlider->maximum( ));
 

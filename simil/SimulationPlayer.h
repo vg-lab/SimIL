@@ -74,6 +74,8 @@ namespace simil
 
     virtual float GetRelativeTime( void );
 
+    bool isFinished( void );
+
     bool isPlaying( void );
 
     virtual void deltaTime( float deltaTime );

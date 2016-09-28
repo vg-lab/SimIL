@@ -69,6 +69,8 @@ namespace qsimil
          */
         void start();
 
+        //void playAt( float percentage );
+
         // TODO: void setStarTimeLabel( Qstring str );
 
     protected:
@@ -82,17 +84,17 @@ namespace qsimil
         QIcon _playIcon;
         QIcon _pauseIcon;
 
-    private slots:
-        void PlayPause( bool notify = true );
-        void Play( bool notify = true );
-        void Pause( bool notify = true );
-        void Stop( bool notify = true );
-        void Repeat( bool notify = true );
-        void PlayAt( bool notify = true );
-        void PlayAt( float, bool notify = true );
-        void PlayAt( int, bool notify = true );
-        void Restart( bool notify = true );
-        void GoToEnd( bool notify = true );
+    protected slots:
+        void _PlayPause( bool notify = true );
+        void _Play( bool notify = true );
+        void _Pause( bool notify = true );
+        void _Stop( bool notify = true );
+        void _Repeat( bool notify = true );
+        void _PlayAt( bool notify = true );
+        void _PlayAt( float, bool notify = true );
+        void _PlayAt( int, bool notify = true );
+        void _Restart( bool notify = true );
+        void _GoToEnd( bool notify = true );
     };  // CustomPlayer
 }; // qsimil
 

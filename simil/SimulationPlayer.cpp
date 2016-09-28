@@ -178,6 +178,11 @@ namespace simil
     return (( _currentTime - startTime( )) / (endTime( ) - startTime( )));
   }
 
+  bool SimulationPlayer::isFinished( void )
+  {
+    return _finished;
+  }
+
   bool SimulationPlayer::isPlaying( void )
   {
     return _playing;
