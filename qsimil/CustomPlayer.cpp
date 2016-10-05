@@ -108,7 +108,7 @@ namespace qsimil
 
     void CustomPlayer::_PlayPause( bool notify )
     {
-        if ( playing == true ) {
+        if ( playing == false ) {
             _Play( notify );
         } else {
             _Pause( notify );
@@ -118,24 +118,27 @@ namespace qsimil
 
     void CustomPlayer::_Play( bool )
     {
+        onPlay( );
+        playing = false;
         _playButton->setIcon( _pauseIcon );
-
-        onPlay();
     }
 
     void CustomPlayer::_Pause( bool )
     {
+        onPause( );
         _playButton->setIcon( _playIcon );
-
+        playing = true;
         onPause();
     }
 
     void CustomPlayer::_Stop( bool )
     {
+        onStop( );
         _playButton->setIcon( _playIcon );
-        _startTimeLabel->setText( QString::number( 0.0 ) ); //(double)_openGLWidget->player( )->startTime( )));
-
-        onStop();
+        _startTimeLabel->setText( QString::number( 0.0 ) );
+        _simSlider->setSliderPosition(_simSlider->minimum( ));
+        _Pause( );
+        playing = false;
     }
 
     void CustomPlayer::_Repeat( bool )
@@ -149,16 +152,6 @@ namespace qsimil
         _PlayAt(_simSlider->sliderPosition(), notify);
     }
 
-
-    /*void CustomPlayer::playAt( float percentage )
-    {
-        int sliderPosition = percentage *
-                ( _simSlider->maximum( ) - _simSlider->minimum( )) +
-                _simSlider->minimum( );
-        _simSlider->setSliderPosition( sliderPosition );
-        _playButton->setIcon( _pauseIcon );
-    }*/
-
     void CustomPlayer::_PlayAt( float percentage, bool )
     {
         int sliderPosition = percentage *
@@ -166,24 +159,22 @@ namespace qsimil
                 _simSlider->minimum( );
         _simSlider->setSliderPosition( sliderPosition );
         _playButton->setIcon( _pauseIcon );
-
         onPlayAt( percentage );
     }
 
     void CustomPlayer::_PlayAt( int sliderPosition, bool )
     {
-        playing = true;
         int value = _simSlider->value( );
         float percentage = float( value - _simSlider->minimum( )) /
                            float( _simSlider->maximum( ) - _simSlider->minimum( ));
         _simSlider->setSliderPosition( sliderPosition );
         _playButton->setIcon( _pauseIcon );
-
         onPlayAt( percentage );
     }
 
     void CustomPlayer::_Restart( bool )
     {
+        onRestart();
         _playButton->setIcon( _pauseIcon );
         if (playing) {
             _playButton->setIcon( _pauseIcon );
@@ -191,14 +182,20 @@ namespace qsimil
             _playButton->setIcon( _playIcon );
         }
         _simSlider->setSliderPosition(_simSlider->minimum( ));
-
-        onRestart();
     }
 
     void CustomPlayer::_GoToEnd( bool )
     {
-        _simSlider->setSliderPosition(_simSlider->maximum( ));
-
         onGoToEnd();
+        _simSlider->setSliderPosition(_simSlider->maximum( ));
+    }
+
+    void CustomPlayer::updateSlider( float percentage )
+    {
+        int sliderPosition = percentage *
+                ( _simSlider->maximum( ) - _simSlider->minimum( )) +
+                _simSlider->minimum( );
+        _simSlider->setSliderPosition( sliderPosition );
+        _startTimeLabel->setText( QString::number( std::floor(percentage * 100.0f * 100.) / 100. ) );
     }
 };

@@ -69,6 +69,8 @@ namespace qsimil
          */
         void start();
 
+        void updateSlider( float percentage );
+
         //void playAt( float percentage );
 
         // TODO: void setStarTimeLabel( Qstring str );
