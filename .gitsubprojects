@@ -1,2 +1,2 @@
 # -*- mode: cmake -*-
-git_subproject(Brion https://github.com/BlueBrain/Brion.git eb47d43)
+git_subproject(Brion https://github.com/BlueBrain/Brion.git b5d0508)
