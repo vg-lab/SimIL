@@ -46,18 +46,18 @@ namespace qsimil
 			QIcon prevIcon;
 			QIcon repeatIcon;
 
-			_playIcon.addFile( QStringLiteral( ":/icons/play.png" ), QSize( ),
-							  QIcon::Normal, QIcon::Off );
-			_pauseIcon.addFile( QStringLiteral( ":/icons/pause.png" ), QSize( ),
-							   QIcon::Normal, QIcon::Off) ;
-			stopIcon.addFile( QStringLiteral( ":/icons/stop.png" ), QSize( ),
-							  QIcon::Normal, QIcon::Off );
-			nextIcon.addFile( QStringLiteral( ":/icons/next.png" ), QSize( ),
-							  QIcon::Normal, QIcon::Off );
-			prevIcon.addFile( QStringLiteral( ":/icons/previous.png" ), QSize( ),
-							  QIcon::Normal, QIcon::Off );
-			repeatIcon.addFile( QStringLiteral( ":/icons/repeat.png" ), QSize( ),
-								QIcon::Normal, QIcon::Off );
+			_playIcon.addFile( QStringLiteral( ":/icons/play.png" ), 
+				QSize( ), QIcon::Normal, QIcon::Off );
+			_pauseIcon.addFile( QStringLiteral( ":/icons/pause.png" ), 
+				QSize( ), QIcon::Normal, QIcon::Off) ;
+			stopIcon.addFile( QStringLiteral( ":/icons/stop.png" ), 
+				QSize( ), QIcon::Normal, QIcon::Off );
+			nextIcon.addFile( QStringLiteral( ":/icons/next.png" ), 
+				QSize( ), QIcon::Normal, QIcon::Off );
+			prevIcon.addFile( QStringLiteral( ":/icons/previous.png" ), 
+				QSize( ), QIcon::Normal, QIcon::Off );
+			repeatIcon.addFile( QStringLiteral( ":/icons/repeat.png" ), 
+				QSize( ), QIcon::Normal, QIcon::Off );
 
 			_playButton->setIcon( _playIcon );
 			stopButton->setIcon( stopIcon );
@@ -75,7 +75,8 @@ namespace qsimil
 			unsigned int row = 2;
 			dockLayout->addWidget( _startTimeLabel, row, 0, 1, 2 );
 			dockLayout->addWidget( _simSlider, row, 2, 1, totalHSpan - 3 );
-			// dockLayout->addWidget( _endTimeLabel, row, totalHSpan - 2, 1, 1, Qt::AlignRight );
+			// dockLayout->addWidget( _endTimeLabel, row, totalHSpan - 
+			//		2, 1, 1, Qt::AlignRight );
 
 			row++;
 			dockLayout->addWidget( _repeatButton, row, 6, 1, 1 );
@@ -151,7 +152,8 @@ namespace qsimil
 		{
 			_simPlayer->Stop( );
 			_playButton->setIcon( _playIcon );
-			_startTimeLabel->setText( QString::number( (double)_simPlayer->startTime( ) ) );
+			_startTimeLabel->setText( QString::number( 
+				(double)_simPlayer->startTime( ) ) );
 			_playing = false;
 			this->_icp->cpStop( );
 		}
@@ -193,7 +195,8 @@ namespace qsimil
 		{
 			int value = _simSlider->value( );
 			this->_percentage = float( value - _simSlider->minimum( )) /
-							   float( _simSlider->maximum( ) - _simSlider->minimum( ));
+							   float( _simSlider->maximum( ) - 
+							   	_simSlider->minimum( ));
 			_simSlider->setSliderPosition( sliderPosition );
 
 			_playButton->setIcon( _pauseIcon );
@@ -249,7 +252,8 @@ namespace qsimil
 				( _simSlider->maximum( ) - _simSlider->minimum( )) +
 				_simSlider->minimum( );
 		_simSlider->setSliderPosition( sliderPosition );
-		_startTimeLabel->setText( QString::number( std::floor(percentage * 100.0f * 100.) / 100. ) + QString( "%") );
+		_startTimeLabel->setText( QString::number( std::floor(
+			percentage * 100.0f * 100.) / 100. ) + QString( "%") );
 	}
 
 #ifdef TEVIMOS_USE_ZEROEQ
@@ -316,7 +320,7 @@ namespace qsimil
         _simPlayer = new simil::SpikesPlayer();
         _simPlayer->LoadData( dataType, path );
 
-        std::cout << "SpikesPlayer loaded ..." << std::endl;
+        // std::cout << "SpikesPlayer loaded ..." << std::endl;
 
         updateSlider( 0.0f );
 
@@ -341,7 +345,7 @@ namespace qsimil
     void QCustomPlayer::update( bool sendGIDS )
     {
         int value = _simSlider->value( );
-        std::cout << "UPDATE =" << value << std::endl;
+        // std::cout << "UPDATE =" << value << std::endl;
         _simPlayer->Frame();
         UpdateSimulationSlider ( this->_simPlayer->GetRelativeTime( ) );
 
@@ -355,13 +359,15 @@ namespace qsimil
     void QCustomPlayer::UpdateSimulationSlider( float percentage )
     {
         _startTimeLabel->setText(
-            QString::number( (double)this->_simPlayer->currentTime( )) + QString("%"));
+            QString::number( (double)this->_simPlayer->currentTime( )) 
+            + QString("%"));
 
         int total = _simSlider->maximum( ) - _simSlider->minimum( );
 
         int position = percentage * total;
 
         _simSlider->setSliderPosition( position );
-        std::cout << "UpdateSimulationSlider = " << percentage << std::endl;
+        // std::cout << "UpdateSimulationSlider = " << percentage << 
+		// 		std::endl;
     }
 };
