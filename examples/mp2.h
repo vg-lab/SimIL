@@ -4,9 +4,9 @@
 #include <qsimil/qsimil.h>
 #include <iostream>
 
-class MP2: public qsimil::CustomPlayer
+class MP2/*: public qsimil::CustomPlayer*/
 {
-public:
+/*public:
     virtual void onPlay() {
         std::cout << "PLAY!!!" << std::endl;
     }
@@ -27,7 +27,7 @@ public:
     }
     virtual void onPlayAt( float percentage ) {
         std::cout << "onPlayAt " << percentage << "!!!" << std::endl;
-    }
+    }*/
     virtual ~MP2( void ) { }
 };
 
