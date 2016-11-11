@@ -196,7 +196,7 @@ namespace simil
   class VoltagesPlayer : public SimulationPlayer
   {
   public:
-
+    VoltagesPlayer( void );
     VoltagesPlayer( const std::string& blueConfigFilePath,
                     const std::string& target,
                     bool loadData = true,

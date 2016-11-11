@@ -6,7 +6,7 @@
  */
 #include "SimulationPlayer.h"
 #include "log.h"
-
+#include <exception>
 namespace simil
 {
 
@@ -441,6 +441,8 @@ namespace simil
     _currentSpike = Spikes( ).begin( );
     _previousSpike = _currentSpike;
 
+    _currentTime = percentage * ( _endTime - _startTime ) + _startTime;
+
     SpikesCIter last, last2 = _currentSpike;
     for( SpikesCIter spike = _currentSpike ; spike != spikes.end( ); spike++ )
     {
@@ -458,7 +460,6 @@ namespace simil
 
   void SpikesPlayer::FrameProcess( void )
   {
-//    const brion::Spikes& spikes = Spikes( );
     const TSpikes& spikes = Spikes( );
     _previousSpike = _currentSpike;
     SpikesCIter last;
@@ -590,6 +591,12 @@ namespace simil
 //*************************************************************************
 //************************ VOLTAGES SIMULATION PLAYER ***********************
 //*************************************************************************
+
+  VoltagesPlayer::VoltagesPlayer( void )
+  : SimulationPlayer( )
+  {
+    _simulationType = TSimVoltages;
+  }
 
   VoltagesPlayer::VoltagesPlayer( const std::string& blueConfigFilePath,
                                   const std::string& report,

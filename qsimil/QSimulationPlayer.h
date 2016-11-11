@@ -1,7 +1,9 @@
 /*
- * CustomSlider.h
+ * ClickableSlider.h
  *
- *  Created on: 02 of nov., 2016
+ *  Created on: 11 de dic. de 2015
+ *  Updated on: 15 de sept. de 2016
+ *      Author: sgalindo
  *      Author: crodriguez
  */
 
@@ -12,17 +14,11 @@
 #include <QDockWidget>
 #include <QSlider>
 #include <QPushButton>
-#include <QLineEdit>
 #include <QLabel>
-#include <QElapsedTimer>
-#include <iostream>
-#include <QComboBox>
-
 #include <simil/simil.h>
-#include <boost/signals2.hpp>
+#include "ClickableSlider.h"
 
-#include "ICustomPlayer.h"
-#include "QCustomPlayer.h"
+// TODO: Add zeroeq
 
 namespace qsimil
 {
@@ -32,32 +28,57 @@ namespace qsimil
     public:
         QSimulationPlayer( QWidget *parent = 0 );
 
-        void init( ICustomPlayer* icp, const char* blueConfig, 
-            bool autoStart = false );
-        inline float& getStepsPerSecond() { return this->_stepsPerSecond; }
-        inline float& getStepDeltaTime() { return this->_stepDeltaTime; }
-        void setStepsPerSecond(const float& d);
-        void setStepDeltaTime(const float& ws);
-        inline bool& isPlaying() { return this->_q->isPlaying( ); }
-        void update( void );
-        void reset( void );
-        simil::SpikesPlayer * getSimulation( void );
+        void updateSlider( float percentage );
 
-    public slots:
-        void onStepsPerSecondChanged( QString );
-        void handleStepDeltaTimeUpdate( );
+        bool isPlaying( void ) const;
+        float getPercentage( void ) const;
+        simil::SimulationPlayer* getSimulationPlayer( void ) const;
+        void play( void );
+
+        void init( const char* blueConfig, 
+            simil::TSimulationType type, bool autoStart = false );
+        void reset( void );
+        void update( bool sendGIDS = false );
+        void UpdateSimulationSlider( float percentage );
 
     protected:
-        float _stepsPerSecond;
-        float _stepDeltaTime;
-        QLineEdit* _deltaTime;
-        QElapsedTimer counterNewFrame;
+        std::vector< uint32_t > _gidsSimulation;
 
-        QComboBox* stepPerSecond;
+        simil::SimulationPlayer *_simPlayer = nullptr;
+        
+        QDockWidget* _simulationDock;
+        QSlider* _simSlider;
+        QPushButton* _playButton;
+        QLabel* _startTimeLabel;
+        QLabel* _endTimeLabel;
+        QPushButton* _repeatButton;
 
-        QCustomPlayer* _q;
+        QIcon _playIcon;
+        QIcon _pauseIcon;
 
-    };  // QSimulationPlayer
-}; // qsimil
+        bool _playing;
+        float _percentage;
+
+#ifdef TEVIMOS_USE_ZEROEQ
+#ifdef TEVIMOS_USE_GMRVLEX
+    void applyPlaybackOpertion( unsigned int playbackOp );
+    void _zeqEventRepeat( bool repeat );
+#endif
+#endif
+
+    protected slots:
+        void _PlayPause( bool notify = true );
+        void _Play( bool notify = true );
+        void _Pause( bool notify = true );
+        void _Stop( bool notify = true );
+        void _Repeat( bool notify = true );
+        void _PlayAt( bool notify = true );
+        void _PlayAt( float, bool notify = true );
+        void _PlayAt( int, bool notify = true );
+        void _Restart( bool notify = true );
+        void _GoToEnd( bool notify = true );
+    
+    };  // CustomPlayer
+}; // qttevimos
 
 #endif // __QSIMIL__QSIMULATION_PLAYER_H__
