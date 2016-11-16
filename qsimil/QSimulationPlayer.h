@@ -22,63 +22,64 @@
 
 namespace qsimil
 {
-    class QSimulationPlayer: public QWidget
-    {
-        Q_OBJECT
-    public:
-        QSimulationPlayer( QWidget *parent = 0 );
+  class QSimulationPlayer: public QWidget
+  {
+    Q_OBJECT
+  public:
+    QSimulationPlayer( QWidget *parent = 0 );
+    ~QSimulationPlayer( void );
 
-        void updateSlider( float percentage );
+    void updateSlider( float percentage );
 
-        bool isPlaying( void ) const;
-        float getPercentage( void ) const;
-        simil::SimulationPlayer* getSimulationPlayer( void ) const;
-        void play( void );
+    bool isPlaying( void ) const;
+    float getPercentage( void ) const;
+    simil::SimulationPlayer* getSimulationPlayer( void ) const;
+    void play( void );
 
-        void init( const char* blueConfig, 
-            simil::TSimulationType type, bool autoStart = false );
-        void reset( void );
-        void update( bool sendGIDS = false );
-        void UpdateSimulationSlider( float percentage );
+    void init( const char* blueConfig, 
+      simil::TSimulationType type, bool autoStart = false );
+    void reset( void );
+    void update( bool sendGIDS = false );
+    void updateSimulationSlider( float percentage );
 
-    protected:
-        std::vector< uint32_t > _gidsSimulation;
+  protected:
+    std::vector< uint32_t > _gidsSimulation;
 
-        simil::SimulationPlayer *_simPlayer = nullptr;
-        
-        QDockWidget* _simulationDock;
-        QSlider* _simSlider;
-        QPushButton* _playButton;
-        QLabel* _startTimeLabel;
-        QLabel* _endTimeLabel;
-        QPushButton* _repeatButton;
+    simil::SimulationPlayer *_simPlayer = nullptr;
+    
+    QDockWidget* _simulationDock;
+    QSlider* _simSlider;
+    QPushButton* _playButton;
+    QLabel* _startTimeLabel;
+    QLabel* _endTimeLabel;
+    QPushButton* _repeatButton;
 
-        QIcon _playIcon;
-        QIcon _pauseIcon;
+    QIcon _playIcon;
+    QIcon _pauseIcon;
 
-        bool _playing;
-        float _percentage;
+    bool _playing;
+    float _percentage;
 
 #ifdef TEVIMOS_USE_ZEROEQ
 #ifdef TEVIMOS_USE_GMRVLEX
-    void applyPlaybackOpertion( unsigned int playbackOp );
-    void _zeqEventRepeat( bool repeat );
+  void applyPlaybackOpertion( unsigned int playbackOp );
+  void _zeroeqEventRepeat( bool repeat );
 #endif
 #endif
 
-    protected slots:
-        void _PlayPause( bool notify = true );
-        void _Play( bool notify = true );
-        void _Pause( bool notify = true );
-        void _Stop( bool notify = true );
-        void _Repeat( bool notify = true );
-        void _PlayAt( bool notify = true );
-        void _PlayAt( float, bool notify = true );
-        void _PlayAt( int, bool notify = true );
-        void _Restart( bool notify = true );
-        void _GoToEnd( bool notify = true );
-    
-    };  // CustomPlayer
+  protected slots:
+    void _playPause( bool notify = true );
+    void _play( bool notify = true );
+    void _pause( bool notify = true );
+    void _stop( bool notify = true );
+    void _repeat( bool notify = true );
+    void _playAt( bool notify = true );
+    void _playAt( float, bool notify = true );
+    void _playAt( int, bool notify = true );
+    void _restart( bool notify = true );
+    void _goToEnd( bool notify = true );
+  
+  };  // CustomPlayer
 }; // qttevimos
 
 #endif // __QSIMIL__QSIMULATION_PLAYER_H__

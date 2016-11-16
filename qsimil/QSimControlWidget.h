@@ -25,40 +25,40 @@
 
 namespace qsimil
 {
-    class QSimControlWidget: public QWidget
-    {
-        Q_OBJECT
-    public:
-        QSimControlWidget( QWidget *parent = 0 );
+  class QSimControlWidget: public QWidget
+  {
+    Q_OBJECT
+  public:
+    QSimControlWidget( QWidget *parent = 0 );
 
-        void init( const char* blueConfig, simil::TSimulationType type, 
-            bool autoStart = false );
+    void init( const char* blueConfig, simil::TSimulationType type, 
+      bool autoStart = false );
 
-        inline float getStepsPerSecond( void ) const;
-        inline float getStepDeltaTime( void ) const;
-        inline bool isPlaying( void ) const;
+    inline float getStepsPerSecond( void ) const;
+    inline float getStepDeltaTime( void ) const;
+    inline bool isPlaying( void ) const;
 
-        void setStepsPerSecond(const float& d);
-        void setStepDeltaTime(const float& ws);
-        void update( void );
-        void reset( void );
-        simil::SimulationPlayer * getSimulationPlayer( void );
+    void setStepsPerSecond(const float& d);
+    void setStepDeltaTime(const float& dt);
+    void update( void );
+    void reset( void );
+    simil::SimulationPlayer * getSimulationPlayer( void );
 
-    public slots:
-        void onStepsPerSecondChanged( QString );
-        void handleStepDeltaTimeUpdate( );
+  public slots:
+    void onStepsPerSecondChanged( const QString& s_ );
+    void handleStepDeltaTimeUpdate( );
 
-    protected:
-        float _stepsPerSecond;
-        float _stepDeltaTime;
-        QLineEdit* _deltaTime;
-        QElapsedTimer counterNewFrame;
+  protected:
+    float _stepsPerSecond;
+    float _stepDeltaTime;
+    QLineEdit* _deltaTime;
+    QElapsedTimer counterNewFrame;
 
-        QDoubleSpinBox *stepPerSecond;
+    QDoubleSpinBox *stepPerSecond;
 
-        QSimulationPlayer* _qSimPlayer;
+    QSimulationPlayer* _qSimPlayer;
 
-    };  // QSimControlWidget
+  };  // QSimControlWidget
 }; // qsimil
 
 #endif // __QSIMIL__QSIMCONTROL_WIDGET_H__

@@ -580,7 +580,7 @@ namespace simil
     auto spikes = this->spikesNow( );
     gidsv.resize( std::distance( spikes.first, spikes.second ));
     std::vector< uint32_t >::iterator resultIt = gidsv.begin( );
-    for(auto it = spikes.first; it != spikes.second; ++it, ++resultIt)
+    for( auto& it = spikes.first; it != spikes.second; ++it, ++resultIt )
     {
       *resultIt = it->second;
     }
