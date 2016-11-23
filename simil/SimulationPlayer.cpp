@@ -280,7 +280,7 @@ namespace simil
 
 #ifdef SIMIL_USE_ZEROEQ
 
-  ZeqEventsManager* SimulationPlayer::zeqEvents( void )
+  ZeroEqEventsManager* SimulationPlayer::zeqEvents( void )
   {
     return _zeqEvents;
   }
@@ -288,7 +288,7 @@ namespace simil
 
   void SimulationPlayer::connectZeq( const std::string& zeqUri )
   {
-    _zeqEvents = new ZeqEventsManager( zeqUri );
+    _zeqEvents = new ZeroEqEventsManager( zeqUri );
 
     _zeqEvents->frameReceived.connect( boost::bind( &SimulationPlayer::requestPlaybackAt,
                                        this, _1 ));

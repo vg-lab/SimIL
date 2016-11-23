@@ -18,7 +18,7 @@
 
 #include <boost/signals2/signal.hpp>
 #include <boost/bind.hpp>
-#include "ZeqEventsManager.h"
+#include "ZeroEqEventsManager.h"
 #endif
 
 #include "types.h"
@@ -101,7 +101,7 @@ namespace simil
 
 #ifdef SIMIL_USE_ZEROEQ
 
-    ZeqEventsManager* zeqEvents( void );
+    ZeroEqEventsManager* zeqEvents( void );
 
     void connectZeq( const std::string& zeqUri );
 
@@ -141,7 +141,7 @@ namespace simil
     TGIDSet _gids;
 
 #ifdef SIMIL_USE_ZEROEQ
-    ZeqEventsManager* _zeqEvents;
+    ZeroEqEventsManager* _zeqEvents;
 #endif
 
     SimulationData* _simData;
