@@ -126,31 +126,42 @@ namespace qsimil
     }
   }
 
-  void QSimulationPlayer::_play( bool )
+  void QSimulationPlayer::_play( bool notify )
   {
     if ( _simPlayer )
     {
       _simPlayer->Play( );
       _playButton->setIcon( _pauseIcon );
       _playing = true;
-      // TODO: Send play signal
 
       updateSlider( 0.0f );
+
+      if( notify )
+      {
+    #ifdef SIMIL_USE_ZEROEQ
+        _simPlayer->zeqEvents( )->sendPlaybackOp( zeroeq::gmrv::PLAY );
+    #endif
+      }
     }
   }
 
-  void QSimulationPlayer::_pause( bool )
+  void QSimulationPlayer::_pause( bool notify )
   {
     if ( _simPlayer )
     {
       _simPlayer->Pause( );
       _playButton->setIcon( _playIcon );
       _playing = false;
-      // TODO: Send pause signal
+      if( notify )
+      {
+    #ifdef SIMIL_USE_ZEROEQ
+        _simPlayer->zeqEvents( )->sendPlaybackOp( zeroeq::gmrv::PAUSE );
+    #endif
+      }
     }
   }
 
-  void QSimulationPlayer::_stop( bool )
+  void QSimulationPlayer::_stop( bool notify )
   {
     if ( _simPlayer )
     {
@@ -159,17 +170,31 @@ namespace qsimil
       _startTimeLabel->setText( QString::number( 
         (double)_simPlayer->startTime( ) ) );
       _playing = false;
-      // TODO: Send stop signal
+
+      if( notify )
+      {
+    #ifdef SIMIL_USE_ZEROEQ
+        _simPlayer->zeqEvents( )->sendPlaybackOp( zeroeq::gmrv::STOP );
+    #endif
+      }
     }
   }
 
-  void QSimulationPlayer::_repeat( bool )
+  void QSimulationPlayer::_repeat( bool notify )
   {
     if( _simPlayer )
     {
       bool repeat = _repeatButton->isChecked( );
       _simPlayer->loop( repeat );
-      // TODO: Send restart signal
+
+      if( notify )
+      {
+    #ifdef SIMIL_USE_ZEROEQ
+        _simPlayer->zeqEvents( )->sendPlaybackOp( repeat ?
+                                        zeroeq::gmrv::ENABLE_LOOP :
+                                        zeroeq::gmrv::DISABLE_LOOP );
+    #endif
+      }
     }
   }
 
@@ -193,7 +218,7 @@ namespace qsimil
     }
   }
 
-  void QSimulationPlayer::_playAt( int sliderPosition, bool )
+  void QSimulationPlayer::_playAt( int sliderPosition, bool notify )
   {
     if( _simPlayer )
     {
@@ -207,11 +232,22 @@ namespace qsimil
 
       _simPlayer->PlayAt( this->_percentage );
       _playing = true;
-      // TODO: this->_icp->cpOnPlayAt( this->_percentage );
+      
+    if( notify )
+      {
+    #ifdef SIMIL_USE_ZEROEQ
+      // Send event
+      _simPlayer->zeqEvents( )->sendFrame( _simSlider->minimum( ),
+                             _simSlider->maximum( ),
+                             sliderPosition );
+
+      _simPlayer->zeqEvents( )->sendPlaybackOp( zeroeq::gmrv::PLAY );
+    #endif
+      }
     }
   }
 
-  void QSimulationPlayer::_restart( bool )
+  void QSimulationPlayer::_restart( bool notify )
   {
     if( _simPlayer )
     {
@@ -235,10 +271,17 @@ namespace qsimil
         _playButton->setIcon( _playIcon );
 
       }
+
+      if( notify )
+      {
+    #ifdef SIMIL_USE_ZEROEQ
+        _simPlayer->zeqEvents( )->sendPlaybackOp( zeroeq::gmrv::BEGIN );
+    #endif
+      }
     }
   }
 
-  void QSimulationPlayer::_goToEnd( bool )
+  void QSimulationPlayer::_goToEnd( bool notify )
   {
     if( _simPlayer )
     {
@@ -246,6 +289,12 @@ namespace qsimil
       _simSlider->setSliderPosition(_simSlider->maximum( ));
       // TODO: this->_icp->cpGoEnd();
       updateSlider( 1.0f );
+      if( notify )
+      {
+    #ifdef SIMIL_USE_ZEROEQ
+       _simPlayer->zeqEvents( )->sendPlaybackOp( zeroeq::gmrv::END );
+    #endif
+      }
     }
   }
 
@@ -260,8 +309,8 @@ namespace qsimil
       percentage * 100.0f * 100.f) / 100.f ) + QString( "%") );
   }
 
-#ifdef TEVIMOS_USE_ZEROEQ
-#ifdef TEVIMOS_USE_GMRVLEX
+#ifdef SIMIL_USE_ZEROEQ
+#ifdef QSIMIL_USE_GMRVLEX
   void QSimulationPlayer::applyPlaybackOpertion( unsigned int playbackOp )
   {
     //zeroeq::gmrv::PlaybackOperation operation =
@@ -271,31 +320,31 @@ namespace qsimil
 
     switch( operation )
     {
-      case 0: // TODO: case zeroeq::gmrv::PLAY:
+      case zeroeq::gmrv::PLAY:
         std::cout << "Received play" << std::endl;
         _play( false );
         break;
-      case 1: // TODO: case zeroeq::gmrv::PAUSE:
+      case zeroeq::gmrv::PAUSE:
         _Pause( false );
         std::cout << "Received pause" << std::endl;
         break;
-      case 2: // TODO: case zeroeq::gmrv::STOP:
+      case zeroeq::gmrv::STOP:
         std::cout << "Received stop" << std::endl;
         _Stop( false );
         break;
-      case 3: // TODO: case zeroeq::gmrv::BEGIN:
+      case zeroeq::gmrv::BEGIN:
         std::cout << "Received begin" << std::endl;
         _restart( false );
         break;
-      case 4: // TODO: case zeroeq::gmrv::END:
+      case zeroeq::gmrv::END:
         std::cout << "Received end" << std::endl;
         _GoToEnd( false );
         break;
-      case 5: // TODO: case zeroeq::gmrv::ENABLE_LOOP:
+      case zeroeq::gmrv::ENABLE_LOOP:
         std::cout << "Received enable loop" << std::endl;
         _zeroeqEventRepeat( true );
         break;
-      case 6: // TODO: case zeroeq::gmrv::DISABLE_LOOP:
+      case zeroeq::gmrv::DISABLE_LOOP:
         std::cout << "Received disable loop" << std::endl;
         _zeroeqEventRepeat( false );
         break;
