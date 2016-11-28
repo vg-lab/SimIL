@@ -12,8 +12,8 @@
 
 namespace qsimil
 {
-  QSimulationPlayer::QSimulationPlayer( QWidget *parent )
-    : QWidget(parent)
+  QSimulationPlayer::QSimulationPlayer( QWidget *parent_ )
+    : QWidget(parent_)
   {
     {
       _simulationDock = new QDockWidget( );

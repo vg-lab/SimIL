@@ -14,8 +14,8 @@
 
 namespace qsimil
 {
-  QSimControlWidget::QSimControlWidget( QWidget *parent )
-    : QWidget(parent)
+  QSimControlWidget::QSimControlWidget( QWidget *parent_)
+    : QWidget(parent_)
     , _qSimPlayer( new QSimulationPlayer( ))
   {
     
