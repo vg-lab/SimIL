@@ -6,7 +6,7 @@ set( SIMIL_PUBLIC_HEADERS
      H5Network.h
      H5Activity.h
      SimulationData.h
-     ZeqEventsManager.h
+     ZeroEqEventsManager.h
 
 )
 
@@ -18,7 +18,7 @@ set( SIMIL_SOURCES
      H5Network.cpp
      H5Activity.cpp
      SimulationData.cpp
-     ZeqEventsManager.cpp
+     ZeroEqEventsManager.cpp
 )
 
 set( SIMIL_LINK_LIBRARIES

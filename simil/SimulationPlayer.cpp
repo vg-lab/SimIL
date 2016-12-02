@@ -6,7 +6,7 @@
  */
 #include "SimulationPlayer.h"
 #include "log.h"
-
+#include <exception>
 namespace simil
 {
 
@@ -178,6 +178,11 @@ namespace simil
     return (( _currentTime - startTime( )) / (endTime( ) - startTime( )));
   }
 
+  bool SimulationPlayer::isFinished( void )
+  {
+    return _finished;
+  }
+
   bool SimulationPlayer::isPlaying( void )
   {
     return _playing;
@@ -275,7 +280,7 @@ namespace simil
 
 #ifdef SIMIL_USE_ZEROEQ
 
-  ZeqEventsManager* SimulationPlayer::zeqEvents( void )
+  ZeroEqEventsManager* SimulationPlayer::zeqEvents( void )
   {
     return _zeqEvents;
   }
@@ -283,7 +288,7 @@ namespace simil
 
   void SimulationPlayer::connectZeq( const std::string& zeqUri )
   {
-    _zeqEvents = new ZeqEventsManager( zeqUri );
+    _zeqEvents = new ZeroEqEventsManager( zeqUri );
 
     _zeqEvents->frameReceived.connect( boost::bind( &SimulationPlayer::requestPlaybackAt,
                                        this, _1 ));
@@ -436,6 +441,8 @@ namespace simil
     _currentSpike = Spikes( ).begin( );
     _previousSpike = _currentSpike;
 
+    _currentTime = percentage * ( _endTime - _startTime ) + _startTime;
+
     SpikesCIter last, last2 = _currentSpike;
     for( SpikesCIter spike = _currentSpike ; spike != spikes.end( ); spike++ )
     {
@@ -453,7 +460,6 @@ namespace simil
 
   void SpikesPlayer::FrameProcess( void )
   {
-//    const brion::Spikes& spikes = Spikes( );
     const TSpikes& spikes = Spikes( );
     _previousSpike = _currentSpike;
     SpikesCIter last;
@@ -574,7 +580,7 @@ namespace simil
     auto spikes = this->spikesNow( );
     gidsv.resize( std::distance( spikes.first, spikes.second ));
     std::vector< uint32_t >::iterator resultIt = gidsv.begin( );
-    for(auto it = spikes.first; it != spikes.second; ++it, ++resultIt)
+    for( auto& it = spikes.first; it != spikes.second; ++it, ++resultIt )
     {
       *resultIt = it->second;
     }
@@ -585,6 +591,12 @@ namespace simil
 //*************************************************************************
 //************************ VOLTAGES SIMULATION PLAYER ***********************
 //*************************************************************************
+
+  VoltagesPlayer::VoltagesPlayer( void )
+  : SimulationPlayer( )
+  {
+    _simulationType = TSimVoltages;
+  }
 
   VoltagesPlayer::VoltagesPlayer( const std::string& blueConfigFilePath,
                                   const std::string& report,
