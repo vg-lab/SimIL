@@ -7,3 +7,7 @@ set( SIMILLOADEXAMPLE_HEADERS )
 set( SIMILLOADEXAMPLE_LINK_LIBRARIES ${EXAMPLESH5_LINK_LIBRARIES} SimIL )
 common_application( similLoadExample )
             
+set( SIMILSUBSET_SOURCES subset.cpp )
+set( SIMILSUBSET_HEADERS )
+set( SIMILSUBSET_LINK_LIBRARIES ${EXAMPLESH5_LINK_LIBRARIES} SimIL )
+common_application( similSubset )
