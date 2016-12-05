@@ -1,25 +1,25 @@
 /*
- * ZeqEventsManager.cpp
+ * ZeroEqEventsManager.cpp
  *
  *  Created on: 8 de mar. de 2016
  *      Author: sgalindo
  */
 
-#include "ZeqEventsManager.h"
+#include "ZeroEqEventsManager.h"
 
-ZeqEventsManager::ZeqEventsManager( const std::string&
+ZeroEqEventsManager::ZeroEqEventsManager( const std::string&
 #ifdef SIMIL_USE_ZEROEQ
-                                    zeqUri_
+                                    zeqSession_
 #endif
                                   )
 {
 
 #ifdef SIMIL_USE_ZEROEQ
-  _setZeqSession( zeqUri_ );
+  _setZeqSession( zeqSession_ );
 #endif
 }
 
-ZeqEventsManager::~ZeqEventsManager( )
+ZeroEqEventsManager::~ZeroEqEventsManager( )
 {
 #ifdef SIMIL_USE_ZEROEQ
   if( _thread )
@@ -35,7 +35,7 @@ ZeqEventsManager::~ZeqEventsManager( )
 
 #ifdef SIMIL_USE_ZEROEQ
 
-void ZeqEventsManager::sendFrame( const float& start, const float& end,
+void ZeroEqEventsManager::sendFrame( const float& start, const float& end,
                   const float& current ) const
 {
   unsigned int factor = 10000;
@@ -51,20 +51,20 @@ void ZeqEventsManager::sendFrame( const float& start, const float& end,
 }
 
 #ifdef SIMIL_USE_GMRVLEX
-void ZeqEventsManager::sendPlaybackOp( zeroeq::gmrv::PlaybackOperation operation ) const
+void ZeroEqEventsManager::sendPlaybackOp( zeroeq::gmrv::PlaybackOperation operation ) const
 {
   zeroeq::gmrv::PlaybackOp op;
   op.setOp(( uint32_t ) operation );
   _publisher->publish( op );
 }
 
-void ZeqEventsManager::_onPlaybackOpEvent( zeroeq::gmrv::ConstPlaybackOpPtr event_ )
+void ZeroEqEventsManager::_onPlaybackOpEvent( zeroeq::gmrv::ConstPlaybackOpPtr event_ )
 {
   playbackOpReceived( event_->getOp( ) );
 }
 #endif
 
-void ZeqEventsManager::_onFrameEvent( /*lexis::render::ConstFramePtr event_*/ )
+void ZeroEqEventsManager::_onFrameEvent( /*lexis::render::ConstFramePtr event_*/ )
 {
   float invDelta = 1.0f / float( _currentFrame.getDelta( ) );
 
@@ -83,7 +83,7 @@ void ZeqEventsManager::_onFrameEvent( /*lexis::render::ConstFramePtr event_*/ )
 
 }
 
-void ZeqEventsManager::_setZeqSession( const std::string& session_ )
+void ZeroEqEventsManager::_setZeqSession( const std::string& session_ )
 {
 
   _session = session_.empty( ) ? zeroeq::DEFAULT_SESSION : session_;

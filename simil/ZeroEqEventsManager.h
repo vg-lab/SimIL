@@ -1,12 +1,12 @@
 /*
- * ZeqEventsManager.h
+ * ZeroEqEventsManager.h
  *
  *  Created on: 8 de mar. de 2016
  *      Author: sgalindo
  */
 
-#ifndef __SIMIL__ZEQEVENTSMANAGER_H_
-#define __SIMIL__ZEQEVENTSMANAGER_H_
+#ifndef __SIMIL__ZEROEQEVENTSMANAGER_H_
+#define __SIMIL__ZEROEQEVENTSMANAGER_H_
 
 #include <string>
 
@@ -30,12 +30,12 @@
 
 #endif
 
-class ZeqEventsManager
+class ZeroEqEventsManager
 {
 public:
 
-  ZeqEventsManager( const std::string& zeroeqUri_ );
-  ~ZeqEventsManager( );
+  ZeroEqEventsManager( const std::string& zeroeqUri_ );
+  ~ZeroEqEventsManager( );
 
 #ifdef SIMIL_USE_ZEROEQ
 
@@ -80,4 +80,4 @@ protected:
 };
 
 
-#endif /* __SIMIL__ZEQEVENTSMANAGER_H_ */
+#endif /* __SIMIL__ZEROEQEVENTSMANAGER_H_ */

@@ -18,7 +18,7 @@
 
 #include <boost/signals2/signal.hpp>
 #include <boost/bind.hpp>
-#include "ZeqEventsManager.h"
+#include "ZeroEqEventsManager.h"
 #endif
 
 #include "types.h"
@@ -62,6 +62,8 @@ namespace simil
 
     virtual void Play( void );
 
+    virtual void Reset( void );
+
     virtual void Pause( void );
 
     virtual void Stop( void );
@@ -71,6 +73,8 @@ namespace simil
     virtual void PlayAt( float percentage );
 
     virtual float GetRelativeTime( void );
+
+    bool isFinished( void );
 
     bool isPlaying( void );
 
@@ -97,7 +101,7 @@ namespace simil
 
 #ifdef SIMIL_USE_ZEROEQ
 
-    ZeqEventsManager* zeqEvents( void );
+    ZeroEqEventsManager* zeqEvents( void );
 
     void connectZeq( const std::string& zeqUri );
 
@@ -137,7 +141,7 @@ namespace simil
     TGIDSet _gids;
 
 #ifdef SIMIL_USE_ZEROEQ
-    ZeqEventsManager* _zeqEvents;
+    ZeroEqEventsManager* _zeqEvents;
 #endif
 
     SimulationData* _simData;
@@ -177,6 +181,8 @@ namespace simil
 
     SpikesCRange spikesNow( void );
 
+    void spikesNowVect( std::vector< uint32_t >& );
+
   protected:
 
     virtual void FrameProcess( void );
@@ -190,7 +196,7 @@ namespace simil
   class VoltagesPlayer : public SimulationPlayer
   {
   public:
-
+    VoltagesPlayer( void );
     VoltagesPlayer( const std::string& blueConfigFilePath,
                     const std::string& target,
                     bool loadData = true,
