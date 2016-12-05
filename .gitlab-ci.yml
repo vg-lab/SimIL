@@ -7,6 +7,7 @@ Ubuntu:
   - date
   - hostname
   - uname -a
+  - export BUILD_OPTIONALS_SUBPROJECTS=1
   # - export CMAKE_EXTRA_TARGETS="test"
   - export BUILD_GENERATOR="Unix Makefiles"
   - bash .gitlabci.sh
@@ -19,9 +20,10 @@ OSX:
   - date
   - hostname
   - uname -a
+  - export BUILD_OPTIONALS_SUBPROJECTS=1
   # - export CMAKE_EXTRA_TARGETS="test"
-  - export CMAKE_EXTRA_ARGS=-DGLUT_glut_LIBRARY=/usr/local/Cellar/freeglut/2.8.1/lib/libglut.dylib
   - export BUILD_GENERATOR="Unix Makefiles"
+  - export CMAKE_OSX_ARCHITECTURES=x86_64
   - bash .gitlabci.sh
  tags:
   - osx
@@ -30,10 +32,9 @@ Win7:
  stage: build
  script:
   - call %ENVFILESDIR%\Boost-1.56-vs12-x64.bat
-  - call %ENVFILESDIR%\eigen-3.1.2-vs12-x64.bat
+  - call %ENVFILESDIR%\HDF5-1.8.14-vs12-x64.bat
   # - set CMAKE_EXTRA_TARGETS=RUN_TESTS
   # - set RUN_TESTS=1
-  - set CMAKE_EXTRA_ARGS=-DGLEW_INCLUDE_DIR=c:\libs\glew-1.11.0\include -DGLEW_LIBRARY=c:\libs\glew-1.11.0\lib\Release/x64/glew32.lib -DGLUT_glut_LIBRARY=c:\libs\freeglut\lib\x64\freeglut.lib -DGLUT_INCLUDE_DIR=c:\libs\freeglut\include
   - set BUILD_GENERATOR=Visual Studio 12 Win64
   - set PATH=%PATH%;"c:\\Program Files (x86)\\Git\\bin"
   - bash.exe --login .gitlabci.sh

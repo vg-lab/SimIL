@@ -220,6 +220,9 @@ namespace simil
       if( tempTimes.back( ) > _endTime )
         _endTime = tempTimes.back( );
 
+      std::set< float > uniqueTimes( tempTimes.begin( ), tempTimes.end( ));
+      std::cout << "Total different time values: " << uniqueTimes.size( ) << std::endl;
+
 
       auto time = tempTimes.begin( );
       for( auto id : tempIds )

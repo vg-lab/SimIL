@@ -5,25 +5,20 @@
  *      Author: sgalindo
  */
 
-#ifndef __SIMULATIONPLAYER_H__
-#define __SIMULATIONPLAYER_H__
+#ifndef __SIMIL__SIMULATIONPLAYER_H__
+#define __SIMIL__SIMULATIONPLAYER_H__
 
 #include <brion/brion.h>
 #include <brain/brain.h>
+#include <simil/api.h>
 
 #include <unordered_map>
-//
-#ifdef VISIMPL_USE_ZEROEQ
-//  #include <zeq/zeq.h>
-//  #include <zeq/hbp/hbp.h>
-//  #include <servus/uri.h>
-//
-//  #include <pthread.h>
-//  #include <mutex>
-//
+
+#ifdef SIMIL_USE_ZEROEQ
+
 #include <boost/signals2/signal.hpp>
 #include <boost/bind.hpp>
-#include "ZeqEventsManager.h"
+#include "ZeroEqEventsManager.h"
 #endif
 
 #include "types.h"
@@ -57,13 +52,17 @@ namespace simil
     virtual ~SimulationPlayer( );
 
     virtual void LoadData( void );
-    virtual void LoadData( TDataType dataType, const std::string& networkPath );
+    virtual void LoadData( TDataType dataType,
+                           const std::string& networkPath,
+                           const std::string& activityPath = "" );
 
     virtual void Clear( void );
 
     virtual void Frame( void );
 
     virtual void Play( void );
+
+    virtual void Reset( void );
 
     virtual void Pause( void );
 
@@ -74,6 +73,8 @@ namespace simil
     virtual void PlayAt( float percentage );
 
     virtual float GetRelativeTime( void );
+
+    bool isFinished( void );
 
     bool isPlaying( void );
 
@@ -98,11 +99,9 @@ namespace simil
 
     TSimulationType simulationType( void );
 
-#ifdef VISIMPL_USE_ZEROEQ
+#ifdef SIMIL_USE_ZEROEQ
 
-#ifdef VISIMPL_USE_GMRVLEX
-    ZeqEventsManager* zeqEvents( void );
-#endif
+    ZeroEqEventsManager* zeqEvents( void );
 
     void connectZeq( const std::string& zeqUri );
 
@@ -141,8 +140,8 @@ namespace simil
 //    brain::Circuit* _circuit;
     TGIDSet _gids;
 
-#ifdef VISIMPL_USE_ZEROEQ
-    ZeqEventsManager* _zeqEvents;
+#ifdef SIMIL_USE_ZEROEQ
+    ZeroEqEventsManager* _zeqEvents;
 #endif
 
     SimulationData* _simData;
@@ -182,6 +181,8 @@ namespace simil
 
     SpikesCRange spikesNow( void );
 
+    void spikesNowVect( std::vector< uint32_t >& );
+
   protected:
 
     virtual void FrameProcess( void );
@@ -195,7 +196,7 @@ namespace simil
   class VoltagesPlayer : public SimulationPlayer
   {
   public:
-
+    VoltagesPlayer( void );
     VoltagesPlayer( const std::string& blueConfigFilePath,
                     const std::string& target,
                     bool loadData = true,
@@ -384,4 +385,4 @@ namespace simil
   };
 
 }
-#endif /* SRC_SIMULATIONPLAYER_H_ */
+#endif /* __SIMIL__SIMULATIONPLAYER_H_ */

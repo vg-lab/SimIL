@@ -5,8 +5,8 @@
  *      Author: sgalindo
  */
 
-#ifndef __SIMULATIONDATA_H__
-#define __SIMULATIONDATA_H__
+#ifndef __SIMIL__SIMULATIONDATA_H__
+#define __SIMIL__SIMULATIONDATA_H__
 
 #include <brion/brion.h>
 #include <brain/brain.h>
@@ -86,4 +86,4 @@ namespace simil
 
 
 
-#endif /* __SIMULATIONDATA_H__ */
+#endif /* __SIMIL__SIMULATIONDATA_H__ */
