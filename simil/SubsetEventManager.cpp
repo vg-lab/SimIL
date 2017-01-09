@@ -60,7 +60,7 @@ namespace simil
   }
 
 
-  std::set< uint32_t > parseGIDs( const std::string& stringGIDs )
+  std::set< uint32_t > parseGIDsJSON( const std::string& stringGIDs )
   {
     std::set< uint32_t > result;
 
@@ -84,9 +84,9 @@ namespace simil
 
           upperLimit = boost::lexical_cast< uint32_t >( range[ 1 ]);
 
-          std::cout << "Parsing from " << lowerLimit
-                    << " to " << upperLimit
-                    << std::endl;
+//          std::cout << "Parsing from " << lowerLimit
+//                    << " to " << upperLimit
+//                    << std::endl;
 
           for( unsigned int i = lowerLimit; i < upperLimit; i++ )
             result.insert( i );
@@ -116,22 +116,32 @@ namespace simil
     return result;
   }
 
-  TimeFrame parseTimeFrame( const std::string& stringTimeFrames )
+  std::vector< TimeFrame > parseTimeFrameJSON( const std::string& stringTimeFrames )
   {
-    TimeFrame result( 0.0f, 0.0f );
+    std::vector< TimeFrame >result;
 
-    std::vector< std::string > range;
+    std::vector< std::string > timeFrames =
+        std::move( split( stringTimeFrames, ';', false ));
 
-    range = std::move( split( stringTimeFrames, ':', false ));
+    for( auto timeFrameString : timeFrames )
+    {
+      TimeFrame timeFrame;
 
-    if( !range[ 0 ].empty( ))
-      result.first = boost::lexical_cast< float >( range[ 0 ]);
+      std::vector< std::string > range =
+          std::move( split( timeFrameString, ':', false ));
 
-    result.second = boost::lexical_cast< float >( range[ 1 ]);
+      if( !range[ 0 ].empty( ))
+        timeFrame.first = boost::lexical_cast< float >( range[ 0 ]);
 
-    std::cout << "Parsing from " << result.first
-              << " to " << result.second
-              << std::endl;
+      timeFrame.second = boost::lexical_cast< float >( range[ 1 ]);
+
+//      std::cout << "Parsing from " << timeFrame.first
+//                << " to " << timeFrame.second
+//                << std::endl;
+
+      result.push_back( timeFrame );
+
+    }
 
     return result;
   }
@@ -162,7 +172,7 @@ namespace simil
         {
 
           std::set< uint32_t > gidSet =
-              std::move( parseGIDs( child.second.get_value< std::string >( )));
+              std::move( parseGIDsJSON( child.second.get_value< std::string >( )));
 
           GIDVec gids( gidSet.begin( ), gidSet.end( ));
 
@@ -174,8 +184,8 @@ namespace simil
       {
         for( auto& child : timeframe.second )
         {
-          TimeFrame timeFrame =
-              std::move( parseTimeFrame( child.second.get_value< std::string >( )));
+          std::vector< TimeFrame > timeFrame =
+              std::move( parseTimeFrameJSON( child.second.get_value< std::string >( )));
 
           _timeFrames.insert( std::make_pair( child.first, timeFrame ));
         }
@@ -188,6 +198,10 @@ namespace simil
     }
   }
 
+//  void SubsetEventManager::loadH5( const std::string& filePath, bool append )
+//  {
+//
+//  }
 
   std::vector< uint32_t >
   SubsetEventManager::getSubset( const std::string& name ) const
@@ -201,9 +215,10 @@ namespace simil
     return result;
   }
 
-  TimeFrame SubsetEventManager::getTimeFrame( const std::string& name ) const
+  std::vector< TimeFrame >
+  SubsetEventManager::getTimeFrame( const std::string& name ) const
   {
-    TimeFrame result( -1.0f, -1.0f );
+    std::vector< TimeFrame > result;
 
     auto it = _timeFrames.find( name );
 
