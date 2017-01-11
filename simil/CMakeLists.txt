@@ -8,6 +8,7 @@ set( SIMIL_PUBLIC_HEADERS
      SimulationData.h
      ZeroEqEventsManager.h
      SubsetEventManager.h
+     H5SubsetEvents.h
 )
 
 set( SIMIL_HEADERS
@@ -20,6 +21,7 @@ set( SIMIL_SOURCES
      SimulationData.cpp
      ZeroEqEventsManager.cpp
      SubsetEventManager.cpp
+     H5SubsetEvents.cpp
 )
 
 set( SIMIL_LINK_LIBRARIES

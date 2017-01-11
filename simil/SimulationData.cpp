@@ -36,11 +36,11 @@ namespace simil
       case THDF5:
       {
         _h5Network = new H5Network( filePath_ );
-        _h5Network->Load( );
+        _h5Network->load( );
 
-        _gids = _h5Network->GetGIDs( );
+        _gids = _h5Network->getGIDs( );
 
-        _positions = _h5Network->GetComposedPositions( );
+        _positions = _h5Network->getComposedPositions( );
 
         break;
       }

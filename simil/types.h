@@ -22,6 +22,19 @@ namespace simil
   typedef std::vector< vmml::Vector3f > TPosVect;
   typedef std::multimap< float, uint32_t > TSpikes;
 
+  typedef std::pair< float, float > TimeFrame;
+  typedef std::vector< uint32_t > GIDVec;
+  typedef std::vector< TimeFrame > TimeFrameVec;
+
+  typedef std::map< std::string, GIDVec > SubsetMap;
+  typedef std::map< std::string, TimeFrameVec > TimeFrameMap;
+
+  typedef SubsetMap::const_iterator GIDMapCIt;
+  typedef TimeFrameMap::const_iterator TimeFrameMapCIt;
+
+  typedef std::pair< GIDMapCIt, GIDMapCIt > GIDMapRange;
+  typedef std::pair< TimeFrameMapCIt, TimeFrameMapCIt > TimeFrameRange;
+
   typedef enum
   {
     TSimNetwork = 0,

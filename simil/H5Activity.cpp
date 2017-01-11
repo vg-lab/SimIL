@@ -52,7 +52,7 @@ namespace simil
 
   void H5Spikes::Load( void )
   {
-    const std::vector< std::string >& names = _network->_groupNames;
+//    const std::vector< std::string >& names = _network->_groupNames;
 
     if( _fileName.empty( ))
     {
@@ -99,10 +99,12 @@ namespace simil
       if( currentName.find( _pattern ) == std::string::npos )
         continue;
 
-      if( currentName != names[ i ])
-        std::cout << "Warning: name " << currentName << " does not match "
-                  << "the expected network group " << names[ i ] << std::endl;
-
+//      if( currentName != names[ i ])
+//      {
+//        std::cout << "Warning: name " << currentName << " does not match "
+//                  << "the expected network group " << names[ i ] << std::endl;
+//        continue;
+//      }
       // Open the current group.
       H5::Group group = _file.openGroup( currentName );
 

@@ -36,20 +36,20 @@ namespace simil
 
     ~H5Network( void );
 
-    void Load( void );
-    void Load( const std::string& fileName ,
+    void load( void );
+    void load( const std::string& fileName ,
                const std::string& pattern = "neuron" );
 
-    void Clear( void );
+    void clear( void );
 
     unsigned int subSetsNumber( void ) const;
 
-    simil::TGIDSet GetGIDs( void ) const;
-    simil::TPosVect GetComposedPositions( void ) const;
+    simil::TGIDSet getGIDs( void ) const;
+    simil::TPosVect getComposedPositions( void ) const;
 
     const std::vector< unsigned int >& offsets( void ) const;
 
-    unsigned int ComposeID( unsigned int datasetIdx,
+    unsigned int composeID( unsigned int datasetIdx,
                             unsigned int localIdx ) const;
 
     std::string fileName( void ) const;

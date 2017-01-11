@@ -16,6 +16,8 @@
 #include <queue>
 #include <set>
 
+#include "H5SubsetEvents.h"
+
 namespace simil
 {
 
@@ -198,10 +200,25 @@ namespace simil
     }
   }
 
-//  void SubsetEventManager::loadH5( const std::string& filePath, bool append )
-//  {
-//
-//  }
+  void SubsetEventManager::loadH5( const std::string& filePath, bool append )
+  {
+
+    if( !append )
+    {
+      _subsets.clear( );
+      _timeFrames.clear( );
+    }
+
+    H5SubsetEvents reader;
+
+    reader.Load( filePath, "length", "activation" );
+
+    for( auto& subset : reader.subsets( ))
+      _subsets.insert( std::make_pair( subset.name, subset.gids ));
+
+    for( auto& tf : reader.timeFrames( ))
+      _timeFrames.insert( std::make_pair( tf.name, tf.timeFrames ));
+  }
 
   std::vector< uint32_t >
   SubsetEventManager::getSubset( const std::string& name ) const
