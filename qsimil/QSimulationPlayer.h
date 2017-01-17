@@ -68,16 +68,16 @@ namespace qsimil
 #endif
 
   protected slots:
-    void _playPause( bool notify = true );
-    void _play( bool notify = true );
-    void _pause( bool notify = true );
-    void _stop( bool notify = true );
-    void _repeat( bool notify = true );
-    void _playAt( bool notify = true );
-    void _playAt( float, bool notify = true );
-    void _playAt( int, bool notify = true );
-    void _restart( bool notify = true );
-    void _goToEnd( bool notify = true );
+    void _playPause( bool notify = false );
+    void _play( bool notify = false );
+    void _pause( bool notify = false );
+    void _stop( bool notify = false );
+    void _repeat( bool notify = false );
+    void _playAt( bool notify = false );
+    void _playAt( float, bool notify = false );
+    void _playAt( int, bool notify = false );
+    void _restart( bool notify = false );
+    void _goToEnd( bool notify = false );
   
   };  // CustomPlayer
 }; // qttevimos

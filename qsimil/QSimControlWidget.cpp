@@ -123,15 +123,15 @@ namespace qsimil
     return this->_qSimPlayer->getSimulationPlayer( );
   }
 
-  inline float QSimControlWidget::getStepsPerSecond( void ) const 
+  float QSimControlWidget::getStepsPerSecond( void ) const 
   {
     return this->_stepsPerSecond;
   }
-  inline float QSimControlWidget::getStepDeltaTime( void ) const 
+  float QSimControlWidget::getStepDeltaTime( void ) const 
   {
     return this->_stepDeltaTime;
   }
-  inline bool QSimControlWidget::isPlaying( void ) const 
+  bool QSimControlWidget::isPlaying( void ) const 
   {
     return this->_qSimPlayer->isPlaying( );
   }

@@ -402,11 +402,11 @@ namespace simil
 
     _gids = _simData->gids( );
 
-    std::cout << "GID Set size: " << _gids.size( ) << std::endl;
+    // std::cout << "GID Set size: " << _gids.size( ) << std::endl;
 
     SpikeData* spikes = dynamic_cast< SpikeData* >( _simData );
 
-    std::cout << "Loaded " << spikes->spikes( ).size( ) << " spikes." << std::endl;
+    // std::cout << "Loaded " << spikes->spikes( ).size( ) << " spikes." << std::endl;
 
     _currentSpike = spikes->spikes( ).begin( );
     _previousSpike = _currentSpike;
