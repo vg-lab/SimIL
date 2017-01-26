@@ -13,6 +13,8 @@ namespace simil
   SimulationPlayer::SimulationPlayer( void )
   : _currentTime( 0.0f )
   , _previousTime( 0.0f )
+  , _relativeTime( 0.0f )
+  , _invTimeRange( 1.0f )
   , _deltaTime( 0.0f )
   , _startTime( 0.0f )
   , _endTime( 0.0f )
@@ -20,6 +22,9 @@ namespace simil
   , _loop( false )
   , _finished( false )
   , _simulationType( TSimNetwork )
+#ifdef SIMIL_USE_ZEROEQ
+  , _zeqEvents( nullptr )
+#endif
   , _simData( nullptr )
   {
 
@@ -87,6 +92,8 @@ namespace simil
 
         std::cout << "GID Set size: " << _gids.size( ) << std::endl;
 
+        _invTimeRange = 1.0f / (_simData->endTime( ) - _simData->startTime( ));
+
       }
       break;
 
@@ -118,6 +125,8 @@ namespace simil
     {
       _previousTime = _currentTime;
       _currentTime += _deltaTime;
+
+      _relativeTime = ( _currentTime - startTime( )) * _invTimeRange ;
 
       FrameProcess( );
     }
@@ -175,7 +184,7 @@ namespace simil
 
   float SimulationPlayer::GetRelativeTime( void )
   {
-    return (( _currentTime - startTime( )) / (endTime( ) - startTime( )));
+    return _relativeTime;
   }
 
   bool SimulationPlayer::isFinished( void )

@@ -122,6 +122,8 @@ namespace simil
 
     float _currentTime;
     float _previousTime;
+    float _relativeTime;
+    float _invTimeRange;
 
     float _deltaTime;
 
