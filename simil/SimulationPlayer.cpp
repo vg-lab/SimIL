@@ -92,7 +92,7 @@ namespace simil
 
         std::cout << "GID Set size: " << _gids.size( ) << std::endl;
 
-        _invTimeRange = 1.0f / (_simData->endTime( ) - _simData->startTime( ));
+        _invTimeRange = 1.0f / ( _simData->endTime( ) - _simData->startTime( ));
 
       }
       break;
@@ -165,6 +165,8 @@ namespace simil
     _currentTime = aux * _deltaTime;
     _previousTime = std::max( _currentTime - _deltaTime, _startTime );
 
+    _relativeTime = ( _currentTime - startTime( )) * _invTimeRange ;
+
   }
 
   void SimulationPlayer::PlayAt( float percentage )
@@ -177,6 +179,8 @@ namespace simil
 
     _currentTime = aux * _deltaTime;
     _previousTime = std::max( _currentTime - _deltaTime, _startTime );
+
+    _relativeTime = percentage;
 
     Play( );
 
@@ -424,6 +428,8 @@ namespace simil
     _endTime = spikes->endTime( );
 
     _currentTime = _startTime;
+
+    _invTimeRange = 1.0f / ( _simData->endTime( ) - _simData->startTime( ));
   }
 
   void SpikesPlayer::Clear( void )
