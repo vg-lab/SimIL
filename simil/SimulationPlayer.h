@@ -173,7 +173,7 @@ namespace simil
     virtual void PlayAt( float percentage );
     virtual void Stop( void );
 
-    virtual const TSpikes& Spikes( void );
+    virtual const TSpikes& spikes( void );
 //    brion::SpikeReport* spikeReport( void );
     SpikeData* spikeReport( void ) const;
 

@@ -34,18 +34,24 @@ namespace simil
     std::vector< uint32_t > getSubset( const std::string& name ) const;
 
     SIMIL_API
-    std::vector< TimeFrame > getTimeFrame( const std::string& name ) const;
+    std::vector< Event > getEvent( const std::string& name ) const;
 
     SIMIL_API
     GIDMapRange subsets( void ) const;
 
     SIMIL_API
-    TimeFrameRange timeFrames( void ) const;
+    EventRange events( void ) const;
+
+    SIMIL_API
+    std::vector< std::string > subsetNames( void ) const;
+
+    SIMIL_API
+    std::vector< std::string > eventNames( void ) const;
 
   protected:
 
     std::map< std::string, std::vector< uint32_t >> _subsets;
-    std::map< std::string, std::vector< std::pair< float, float >>> _timeFrames;
+    std::map< std::string, std::vector< std::pair< float, float >>> _events;
 
   };
 

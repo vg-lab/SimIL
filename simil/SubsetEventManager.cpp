@@ -118,16 +118,16 @@ namespace simil
     return result;
   }
 
-  std::vector< TimeFrame > parseTimeFrameJSON( const std::string& stringTimeFrames )
+  std::vector< Event > parseTimeFrameJSON( const std::string& stringTimeFrames )
   {
-    std::vector< TimeFrame >result;
+    std::vector< Event >result;
 
     std::vector< std::string > timeFrames =
         std::move( split( stringTimeFrames, ';', false ));
 
     for( auto timeFrameString : timeFrames )
     {
-      TimeFrame timeFrame;
+      Event timeFrame;
 
       std::vector< std::string > range =
           std::move( split( timeFrameString, ':', false ));
@@ -154,7 +154,7 @@ namespace simil
     if( !append )
     {
       _subsets.clear( );
-      _timeFrames.clear( );
+      _events.clear( );
     }
 
     try
@@ -186,10 +186,10 @@ namespace simil
       {
         for( auto& child : timeframe.second )
         {
-          std::vector< TimeFrame > timeFrame =
+          std::vector< Event > timeFrame =
               std::move( parseTimeFrameJSON( child.second.get_value< std::string >( )));
 
-          _timeFrames.insert( std::make_pair( child.first, timeFrame ));
+          _events.insert( std::make_pair( child.first, timeFrame ));
         }
       }
 
@@ -206,7 +206,7 @@ namespace simil
     if( !append )
     {
       _subsets.clear( );
-      _timeFrames.clear( );
+      _events.clear( );
     }
 
     H5SubsetEvents reader;
@@ -217,7 +217,7 @@ namespace simil
       _subsets.insert( std::make_pair( subset.name, subset.gids ));
 
     for( auto& tf : reader.timeFrames( ))
-      _timeFrames.insert( std::make_pair( tf.name, tf.timeFrames ));
+      _events.insert( std::make_pair( tf.name, tf.timeFrames ));
   }
 
   std::vector< uint32_t >
@@ -232,14 +232,14 @@ namespace simil
     return result;
   }
 
-  std::vector< TimeFrame >
-  SubsetEventManager::getTimeFrame( const std::string& name ) const
+  std::vector< Event >
+  SubsetEventManager::getEvent( const std::string& name ) const
   {
-    std::vector< TimeFrame > result;
+    std::vector< Event > result;
 
-    auto it = _timeFrames.find( name );
+    auto it = _events.find( name );
 
-    if( it != _timeFrames.end( ))
+    if( it != _events.end( ))
       result = it->second;
 
     return result;
@@ -250,9 +250,29 @@ namespace simil
     return std::make_pair( _subsets.begin( ), _subsets.end( ));
   }
 
-  TimeFrameRange SubsetEventManager::timeFrames( void ) const
+  EventRange SubsetEventManager::events( void ) const
   {
-    return std::make_pair( _timeFrames.begin( ), _timeFrames.end( ));
+    return std::make_pair( _events.begin( ), _events.end( ));
+  }
+
+  std::vector< std::string > SubsetEventManager::subsetNames( void ) const
+  {
+    std::vector< std::string > result;
+
+    for( auto subset : _subsets)
+      result.push_back( subset.first );
+
+    return result;
+  }
+
+  std::vector< std::string > SubsetEventManager::eventNames( void ) const
+  {
+    std::vector< std::string > result;
+
+    for( auto event : _events)
+      result.push_back( event.first );
+
+    return result;
   }
 
 }
