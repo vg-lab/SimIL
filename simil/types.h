@@ -14,6 +14,7 @@
 #include <set>
 #include <map>
 #include <unordered_set>
+#include <unordered_map>
 
 #include <vmmlib/vmmlib.h>
 
@@ -49,6 +50,30 @@ namespace simil
     TBlueConfig = 0,
     THDF5
   } TDataType;
+
+  struct CorrelationValues
+  {
+  public:
+
+    float hit;
+    float falseHit;
+    float result;
+  };
+
+  typedef std::unordered_map< uint32_t, CorrelationValues > TNeuronCorrelationUMap;
+  typedef TNeuronCorrelationUMap::const_iterator TNeuronCorrelUMapCIt;
+  typedef std::pair< TNeuronCorrelUMapCIt,
+                     TNeuronCorrelUMapCIt > TNeuronCorrelation;
+
+  struct Correlation
+  {
+  public:
+
+    std::string subsetName;
+
+    TNeuronCorrelationUMap values;
+  };
+
 }
 
 

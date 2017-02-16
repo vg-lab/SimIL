@@ -19,16 +19,6 @@
 namespace simil
 {
 
-  struct Correlation
-  {
-  public:
-
-    std::string subsetName;
-
-    std::unordered_map< uint32_t, float > correlation;
-
-  };
-
   class CorrelationComputer
   {
   public:
@@ -38,10 +28,13 @@ namespace simil
                          SubsetEventManager* subsetEvents );
 
     SIMIL_API
-    void compute( void );
+    void compute( float deltaTime, float threshold = 0.0f );
 
     SIMIL_API
-    void compute( const std::string& subset );
+    void compute( const std::string& subset, float deltaTime,
+                  float selectionThreshold );
+
+    Correlation* correlation( const std::string& subsetName );
 
   protected:
 
