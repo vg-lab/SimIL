@@ -148,8 +148,8 @@ namespace simil
 
   };
 
-  typedef brion::Spikes::iterator SpikesIter;
-  typedef brion::Spikes::const_iterator SpikesCIter;
+  typedef TSpikes::iterator SpikesIter;
+  typedef TSpikes::const_iterator SpikesCIter;
 
   typedef std::pair< SpikesIter, SpikesIter > SpikesRange;
   typedef std::pair< SpikesCIter, SpikesCIter > SpikesCRange;

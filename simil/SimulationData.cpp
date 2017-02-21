@@ -97,11 +97,10 @@ namespace simil
       {
         if( _blueConfig )
         {
-          brion::SpikeReport spikeReport(  _blueConfig->getSpikeSource( ),
-                                           brion::MODE_READ );
-          _spikes = spikeReport.getSpikes( );
+          brain::SpikeReportReader spikeReport(  _blueConfig->getSpikeSource( ));
+          _spikes = spikeReport.getSpikes(0, spikeReport.getEndTime() );
 
-          _startTime = spikeReport.getStartTime( );
+          _startTime = 0.0f; //spikeReport.getStartTime( );
           _endTime = spikeReport.getEndTime( );
         }
 

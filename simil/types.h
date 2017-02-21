@@ -20,7 +20,10 @@ namespace simil
 {
   typedef std::set< uint32_t > TGIDSet;
   typedef std::vector< vmml::Vector3f > TPosVect;
-  typedef std::multimap< float, uint32_t > TSpikes;
+  typedef std::pair< float, uint32_t > Spike;
+  typedef std::vector< Spike > TSpikes;
+
+//  typedef std::multimap< float, uint32_t > TSpikes;
 
   typedef enum
   {

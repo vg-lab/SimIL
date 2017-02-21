@@ -234,7 +234,7 @@ namespace simil
                     << " = " << id + currentOffset << std::endl;
         }
 
-        result.insert( std::make_pair( *time, id + currentOffset ));
+        result.push_back( std::make_pair( *time, id + currentOffset ));
         time++;
 
       }
