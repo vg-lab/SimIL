@@ -148,14 +148,8 @@ namespace simil
     return result;
   }
 
-  void SubsetEventManager::loadJSON( const std::string& filePath, bool append )
+  void SubsetEventManager::loadJSON( const std::string& filePath )
   {
-
-    if( !append )
-    {
-      _subsets.clear( );
-      _events.clear( );
-    }
 
     try
     {
@@ -200,24 +194,26 @@ namespace simil
     }
   }
 
-  void SubsetEventManager::loadH5( const std::string& filePath, bool append )
+  void SubsetEventManager::loadH5( const std::string& filePath)
   {
-
-    if( !append )
-    {
-      _subsets.clear( );
-      _events.clear( );
-    }
 
     H5SubsetEvents reader;
 
     reader.Load( filePath, "length", "activation" );
 
     for( auto& subset : reader.subsets( ))
-      _subsets.insert( std::make_pair( subset.name, subset.gids ));
+    {
+      addSubset( subset.name, subset.gids );
 
+    }
     for( auto& tf : reader.timeFrames( ))
       _events.insert( std::make_pair( tf.name, tf.timeFrames ));
+  }
+
+  void SubsetEventManager::clear( void )
+  {
+    _subsets.clear( );
+    _events.clear( );
   }
 
   std::vector< uint32_t >
@@ -230,6 +226,18 @@ namespace simil
       return it->second;
 
     return result;
+  }
+
+  void SubsetEventManager::addSubset( const std::string& name,
+                                      const GIDVec& subset )
+  {
+    _subsets.insert( std::make_pair( name, subset ));
+    std::cout << "Adding subset " << name << " with " << subset.size() << std::endl;
+  }
+
+  void SubsetEventManager::removeSubset( const std::string& name )
+  {
+    _subsets.erase( name );
   }
 
   std::vector< Event >
@@ -245,7 +253,7 @@ namespace simil
     return result;
   }
 
-  GIDMapRange SubsetEventManager::subsets( void ) const
+  SubsetMapRange SubsetEventManager::subsets( void ) const
   {
     return std::make_pair( _subsets.begin( ), _subsets.end( ));
   }
@@ -253,6 +261,16 @@ namespace simil
   EventRange SubsetEventManager::events( void ) const
   {
     return std::make_pair( _events.begin( ), _events.end( ));
+  }
+
+  unsigned int SubsetEventManager::numSubsets( void ) const
+  {
+    return _subsets.size( );
+  }
+
+  unsigned int SubsetEventManager::numEvents( void ) const
+  {
+    return _events.size( );
   }
 
   std::vector< std::string > SubsetEventManager::subsetNames( void ) const

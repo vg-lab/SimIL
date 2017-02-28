@@ -12,37 +12,39 @@
 namespace simil
 {
 
-  CorrelationComputer::CorrelationComputer( SpikesPlayer* simData,
-                                            SubsetEventManager* subsetEvents )
-  : _simPlayer( simData )
-  , _subsetEvents( subsetEvents )
+  CorrelationComputer::CorrelationComputer( SpikeData* simData )
+  : _simData( simData )
+  , _subsetEvents( simData->subsetsEvents( ))
   { }
 
-  void CorrelationComputer::compute( float deltaTime, float threshold )
-  {
-    for( const auto& event : _subsetEvents->eventNames( ))
-    {
-      compute( event, deltaTime, threshold );
-    }
-  }
-
   void CorrelationComputer::compute( const std::string& subset,
+                                     const std::string& event_,
                                      float deltaTime,
                                      float selectionThreshold )
   {
-    EventVec events = _subsetEvents->getEvent( subset );
+    EventVec events = _subsetEvents->getEvent( event_ );
 
     if( events.empty( ))
     {
-      std::cout << "Warning: event " << subset << " NOT found." << std::endl;
+      std::cout << "Warning: event " << event_ << " NOT found." << std::endl;
       return;
     }
 
-    const TSpikes& spikes = _simPlayer->spikes( );
 
-    uint32_t neuronsNum = _simPlayer->gids( ).size( );
+    GIDVec gids = _subsetEvents->getSubset( subset );
 
-    std::vector< unsigned int > eventNeuronSpikes( neuronsNum, 0 );
+    if( gids.empty( ))
+    {
+      gids = _simData->gidsVec( );
+    }
+
+    TGIDUSet giduset( gids.begin( ), gids.end( ));
+
+    const TSpikes& spikes = _simData->spikes( );
+
+    uint32_t neuronsNum = gids.size( );
+
+    std::map< uint32_t, unsigned int > eventNeuronSpikes;
 
     // Calculate delta time inverse to avoid further division operations.
     float invDeltaTime = 1.0f / deltaTime;
@@ -50,7 +52,7 @@ namespace simil
     // Threshold for considering an event active during bin time.
     float threshold = deltaTime * 0.5f;
 
-    float totalTime = _simPlayer->endTime( );
+    float totalTime = _simData->endTime( );
 
     // Calculate bins number.
     unsigned int binsNumber = std::ceil( totalTime * invDeltaTime );
@@ -131,22 +133,24 @@ namespace simil
       while( end->first < currentEnd && end != spikes.end( ))
         end++;
 
-      unsigned int totalSpikingNeurons = 0;
-
       // Set to avoid neurons spiking more than once per bin.
       std::set< uint32_t > spikingNeurons;
       for( auto spike = begin; spike != end; ++spike )
       {
         // If neuron is not already in the set...
-        if( spikingNeurons.find( spike->second ) == spikingNeurons.end( ))
+        if( spikingNeurons.find( spike->second ) == spikingNeurons.end( ) &&
+            giduset.find( spike->second ) != giduset.end( ))
         {
           // Add it to the set.
           spikingNeurons.insert( spike->second );
 
           // Record neuron activity.
-          eventNeuronSpikes[ spike->second ]++;
+          auto it = eventNeuronSpikes.find( spike->second );
+          if( it == eventNeuronSpikes.end( ))
+            eventNeuronSpikes.insert( std::make_pair( spike->second, 1 ));
+          else
+            it->second++;
         }
-        totalSpikingNeurons++;
       }
 
       // Proceed to next bin.
@@ -157,7 +161,7 @@ namespace simil
     Correlation correlation;
     correlation.subsetName = subset;
 
-    std::vector< unsigned int >::const_iterator eventSpikesIt =
+    std::map< uint32_t, unsigned int >::const_iterator eventSpikesIt =
         eventNeuronSpikes.begin( );
 
     // Calculate normalization factors by the inverse of active/inactive bins.
@@ -169,6 +173,9 @@ namespace simil
     float maxFHValue = 0.0f;
     float maxResValue = 0.0f;
 
+    float avgHitValue = 0.0f;
+    float avgFHValue = 0.0f;
+    float avgResValue = 0.0f;
 
     // For each neuron...
     for( unsigned int i = 0; i < neuronsNum; i++, ++eventSpikesIt )
@@ -178,11 +185,11 @@ namespace simil
       CorrelationValues values;
 
       // Hit value relates to spiking neurons during active event.
-      values.hit = std::max( 0.0f, std::min( 1.0f, *eventSpikesIt * normHit ));
+      values.hit = std::max( 0.0f, std::min( 1.0f, eventSpikesIt->second * normHit ));
 
       // False hit is related to spiking neurons when event is not active.
       values.falseHit =
-          std::max( 0.0f, std::min( 1.0f, *eventSpikesIt * normFH ));
+          std::max( 0.0f, std::min( 1.0f, eventSpikesIt->second * normFH ));
 
       // Result responds to Hit minus False Hit.
       values.result = values.hit - values.falseHit;
@@ -197,6 +204,10 @@ namespace simil
       if( values.result > maxResValue )
         maxResValue = values.result;
 
+      avgHitValue += values.hit;
+      avgFHValue += values.falseHit;
+      avgResValue += values.result;
+
       // If result is above the given threshold...
       if( values.result >= selectionThreshold )
 
@@ -205,9 +216,18 @@ namespace simil
 
     }
 
+    avgHitValue /= eventNeuronSpikes.size( );
+    avgFHValue /= eventNeuronSpikes.size( );
+    avgResValue /= eventNeuronSpikes.size( );
+
     std::cout << "Hit: Max value: " << maxHitValue << std::endl;
     std::cout << "False hit: Max value " << maxFHValue << std::endl;
     std::cout << "Result: Max value " << maxResValue << std::endl;
+
+    std::cout << "Hit: Avg " << avgHitValue << std::endl;
+    std::cout << "False hit: Avg " << avgFHValue << std::endl;
+    std::cout << "Result: Avg " << avgResValue << std::endl;
+
 
     // Store the full subset correlation for filtered neurons.
     _correlations.insert( std::make_pair( subset, correlation ));

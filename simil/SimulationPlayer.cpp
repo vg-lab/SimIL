@@ -265,18 +265,18 @@ namespace simil
 //    return _circuit;
 //  }
 
-  const TGIDSet& SimulationPlayer::gids( void )
+  const TGIDSet& SimulationPlayer::gids( void ) const
   {
     return _gids;
   }
 
-  TPosVect SimulationPlayer::positions( void )
+  TPosVect SimulationPlayer::positions( void ) const
   {
 //    return _circuit->getPositions( _gids );
     return _simData->positions( );
   }
 
-  TSimulationType SimulationPlayer::simulationType( void )
+  TSimulationType SimulationPlayer::simulationType( void ) const
   {
     return _simulationType;
   }
@@ -289,6 +289,11 @@ namespace simil
     {
       Play( );
     }
+  }
+
+  SimulationData* SimulationPlayer::data( void ) const
+  {
+    return _simData;
   }
 
 #ifdef SIMIL_USE_ZEROEQ
@@ -601,7 +606,10 @@ namespace simil
     }
   }
 
-
+  SpikeData* SpikesPlayer::data( void ) const
+  {
+    return dynamic_cast< SpikeData* >( _simData );
+  }
 
 //*************************************************************************
 //************************ VOLTAGES SIMULATION PLAYER ***********************

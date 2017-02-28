@@ -13,7 +13,7 @@
 
 #include <unordered_map>
 
-#include "SimulationPlayer.h"
+#include "SimulationData.h"
 #include "SubsetEventManager.h"
 
 namespace simil
@@ -24,25 +24,23 @@ namespace simil
   public:
 
     SIMIL_API
-    CorrelationComputer( SpikesPlayer* simData,
-                         SubsetEventManager* subsetEvents );
+    CorrelationComputer( SpikeData* simData );
 
     SIMIL_API
-    void compute( float deltaTime, float threshold = 0.0f );
-
-    SIMIL_API
-    void compute( const std::string& subset, float deltaTime,
-                  float selectionThreshold );
+    void compute( const std::string& subset,
+                  const std::string& event,
+                  float deltaTime = 0.125f,
+                  float selectionThreshold = 0.0f );
 
     Correlation* correlation( const std::string& subsetName );
 
   protected:
 
-    SpikesPlayer* _simPlayer;
+    SpikeData* _simData;
 
     SubsetEventManager* _subsetEvents;
 
-    std::unordered_map< std::string, Correlation > _correlations;
+    std::map< std::string, Correlation > _correlations;
 
   };
 

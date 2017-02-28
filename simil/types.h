@@ -32,10 +32,10 @@ namespace simil
   typedef std::map< std::string, GIDVec > SubsetMap;
   typedef std::map< std::string, EventVec > EventMap;
 
-  typedef SubsetMap::const_iterator GIDMapCIt;
+  typedef SubsetMap::const_iterator SubsetMapCIt;
   typedef EventMap::const_iterator EventMapCIt;
 
-  typedef std::pair< GIDMapCIt, GIDMapCIt > GIDMapRange;
+  typedef std::pair< SubsetMapCIt, SubsetMapCIt > SubsetMapRange;
   typedef std::pair< EventMapCIt, EventMapCIt > EventRange;
 
   typedef enum

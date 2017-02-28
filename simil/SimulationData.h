@@ -16,8 +16,8 @@
 #include <H5Cpp.h>
 
 #include "types.h"
-
 #include "H5Network.h"
+#include "SubsetEventManager.h"
 
 namespace simil
 {
@@ -30,7 +30,11 @@ namespace simil
 
     const TGIDSet& gids( void ) const;
 
+    GIDVec gidsVec( void ) const;
+
     const TPosVect& positions( void ) const;
+
+    SubsetEventManager* subsetsEvents( void );
 
     TSimulationType simulationType( void ) const;
 
@@ -46,6 +50,10 @@ namespace simil
     TGIDSet _gids;
 
     TPosVect _positions;
+
+    simil::SubsetEventManager _subsetEventManager;
+
+//    simil::SubsetMap _subsets;
 
     TSimulationType _simulationType;
 

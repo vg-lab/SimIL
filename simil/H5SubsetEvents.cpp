@@ -123,6 +123,13 @@ namespace simil
         for( auto gidf = subset.begin( ); gidf != subset.end( ); ++gidf, ++gidi )
           *gidi = ( unsigned int )*gidf;
 
+
+        // Remove repetitions
+        TGIDSet gidset( result.gids.begin( ), result.gids.end( ));
+        GIDVec aux( gidset.begin( ), gidset.end( ));
+        result.gids = aux;
+
+
       }
     }
 
