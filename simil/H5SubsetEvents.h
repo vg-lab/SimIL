@@ -48,7 +48,7 @@ namespace simil
 
     std::vector< TSubset > _subsets;
 
-    std::vector< TTimeFrame > _timeFrames;
+    std::vector< TTimeFrame > _events;
 
   };
 

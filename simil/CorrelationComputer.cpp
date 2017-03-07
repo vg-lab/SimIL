@@ -47,7 +47,7 @@ namespace simil
     std::map< uint32_t, unsigned int > eventNeuronSpikes;
 
     // Calculate delta time inverse to avoid further division operations.
-    float invDeltaTime = 1.0f / deltaTime;
+    double invDeltaTime = 1.0 / deltaTime;
 
     // Threshold for considering an event active during bin time.
     float threshold = deltaTime * 0.5f;
@@ -60,55 +60,115 @@ namespace simil
     // Initialize vector storing delta time spaced event's activity.
     std::vector< unsigned int > eventBins( binsNumber, 0 );
 
-    auto binIt = eventBins.begin( );
-    auto binStartIt = eventBins.begin( );
-    auto binEndIt = eventBins.begin( );
+//    auto binIt = eventBins.begin( );
+//    auto binStartIt = eventBins.begin( );
+//    auto binEndIt = eventBins.begin( );
 
-    unsigned int counter = 0;
+//    unsigned int counter = 0;
 
     // For each event...
-    for( auto& event : events )
+//    for( auto& event : events )
+//    {
+//      // Stop if shorter activity data.
+//      if( event.first > totalTime )
+//        break;
+//
+//      // Calculate corresponding bin for event bounds.
+//      unsigned int binStart = std::floor( event.first * invDeltaTime );
+//      unsigned int binEnd = std::floor( event.second * invDeltaTime );
+//
+//      // Avoid out of range issues.
+//      if( binEnd >= eventBins.size( ))
+//        binEnd = eventBins.size( ) - 1;
+//
+//      // Initialize bin start and end bin iterators
+//      binStartIt = eventBins.begin( ) + binStart;
+//      binEndIt = eventBins.begin( ) + binEnd;
+//
+//      unsigned int currentBin = binStart;
+//
+//      // First bin
+//      if(( event.first - ( binStart * deltaTime )) < threshold )
+//        *binStartIt = 1;
+//
+////      currentBin++;
+//
+//      currentBin = binStartIt - eventBins.begin( );
+//      // Intermediate and last bins
+//      for( binIt = binStartIt; binIt != binEndIt; ++binIt )
+//      {
+//        if(( event.second - ( currentBin * deltaTime )) > threshold )
+//          *binIt = 1;
+//
+//        currentBin++;
+//      }
+//
+//      counter++;
+//    }
+
+    std::vector< float > eventTime( binsNumber, 0.0f );
+
+    for( auto event : events )
     {
-      // Stop if shorter activity data.
-      if( event.first > totalTime )
-        break;
+      float acc = 0.0f;
+      unsigned int counter = 0;
 
-      // Calculate corresponding bin for event bounds.
-      unsigned int binStart = std::floor( event.first * invDeltaTime );
-      unsigned int binEnd = std::floor( event.second * invDeltaTime );
+      float lowerBound;
+      float upperBound;
 
-      // Avoid out of range issues.
-      if( binEnd >= eventBins.size( ))
-        binEnd = eventBins.size( ) - 1;
+      unsigned int binStart = std::floor( event.first / deltaTime );
+      unsigned int binEnd = std::ceil( event.second / deltaTime );
 
-      // Initialize bin start and end bin iterators
-      binStartIt = eventBins.begin( ) + binStart;
-      binEndIt = eventBins.begin( ) + binEnd;
+      if( binEnd > binsNumber )
+        binEnd = binsNumber;
 
-      unsigned int currentBin = binStart;
+      if( binStart > binEnd )
+        std::swap( binStart, binEnd );
 
-      // First bin
-      if( event.first - ( binStart * deltaTime ) < threshold )
-        *binStartIt = 1;
+      acc = binStart * deltaTime;
 
-      currentBin++;
-
-      // Intermediate and last bins
-      for( binIt = binStartIt ; binIt != binEndIt; ++binIt )
+      for( auto binIt = eventTime.begin( ) + binStart;
+           binIt != eventTime.begin( ) + binEnd; ++binIt )
+//      for( auto& bin : eventBins )
       {
-        if( event.second - ( currentBin * deltaTime ) > threshold )
-          *binIt = 1;
 
-        currentBin++;
+//        if( event.first > acc + deltaTime )
+//          continue;
+//
+//        if( acc - event.second  > 1.0f )
+//          break;
+
+        lowerBound = std::max( acc, event.first );
+        upperBound = std::min( acc + deltaTime, event.second );
+
+        *binIt += ( upperBound - lowerBound );
+
+//        if( upperBound - lowerBound >= threshold )
+//          *binIt += ();
+
+        acc += deltaTime;
+        counter++;
       }
 
-      counter++;
+      auto bin = eventBins.begin( );
+      for( auto time : eventTime )
+      {
+        if( time >= threshold )
+          *bin = 1;
+
+        ++bin;
+      }
     }
 
     // Calculate the number of active bins for the current event.
     unsigned int activeBins = 0;
     for( auto bin : eventBins )
       activeBins += bin;
+
+    std::cout << "Pattern " << event_ << " " << activeBins << std::endl;
+    for( auto bin : eventBins )
+      std::cout << "\n" << bin;
+    std::cout << std::endl;
 
     auto begin = spikes.begin( );
     auto end = spikes.begin( );
