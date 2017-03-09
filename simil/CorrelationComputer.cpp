@@ -42,9 +42,8 @@ namespace simil
 
     const TSpikes& spikes = _simData->spikes( );
 
-    uint32_t neuronsNum = gids.size( );
-
     std::map< uint32_t, unsigned int > eventNeuronSpikes;
+    std::map< uint32_t, unsigned int > totalNeuronSpikes;
 
     // Calculate delta time inverse to avoid further division operations.
     double invDeltaTime = 1.0 / deltaTime;
@@ -59,52 +58,6 @@ namespace simil
 
     // Initialize vector storing delta time spaced event's activity.
     std::vector< unsigned int > eventBins( binsNumber, 0 );
-
-//    auto binIt = eventBins.begin( );
-//    auto binStartIt = eventBins.begin( );
-//    auto binEndIt = eventBins.begin( );
-
-//    unsigned int counter = 0;
-
-    // For each event...
-//    for( auto& event : events )
-//    {
-//      // Stop if shorter activity data.
-//      if( event.first > totalTime )
-//        break;
-//
-//      // Calculate corresponding bin for event bounds.
-//      unsigned int binStart = std::floor( event.first * invDeltaTime );
-//      unsigned int binEnd = std::floor( event.second * invDeltaTime );
-//
-//      // Avoid out of range issues.
-//      if( binEnd >= eventBins.size( ))
-//        binEnd = eventBins.size( ) - 1;
-//
-//      // Initialize bin start and end bin iterators
-//      binStartIt = eventBins.begin( ) + binStart;
-//      binEndIt = eventBins.begin( ) + binEnd;
-//
-//      unsigned int currentBin = binStart;
-//
-//      // First bin
-//      if(( event.first - ( binStart * deltaTime )) < threshold )
-//        *binStartIt = 1;
-//
-////      currentBin++;
-//
-//      currentBin = binStartIt - eventBins.begin( );
-//      // Intermediate and last bins
-//      for( binIt = binStartIt; binIt != binEndIt; ++binIt )
-//      {
-//        if(( event.second - ( currentBin * deltaTime )) > threshold )
-//          *binIt = 1;
-//
-//        currentBin++;
-//      }
-//
-//      counter++;
-//    }
 
     std::vector< float > eventTime( binsNumber, 0.0f );
 
@@ -123,28 +76,18 @@ namespace simil
         binEnd = binsNumber;
 
       if( binStart > binEnd )
-        std::swap( binStart, binEnd );
+        continue;
 
       acc = binStart * deltaTime;
 
       for( auto binIt = eventTime.begin( ) + binStart;
            binIt != eventTime.begin( ) + binEnd; ++binIt )
-//      for( auto& bin : eventBins )
       {
-
-//        if( event.first > acc + deltaTime )
-//          continue;
-//
-//        if( acc - event.second  > 1.0f )
-//          break;
 
         lowerBound = std::max( acc, event.first );
         upperBound = std::min( acc + deltaTime, event.second );
 
         *binIt += ( upperBound - lowerBound );
-
-//        if( upperBound - lowerBound >= threshold )
-//          *binIt += ();
 
         acc += deltaTime;
         counter++;
@@ -165,64 +108,41 @@ namespace simil
     for( auto bin : eventBins )
       activeBins += bin;
 
-    std::cout << "Pattern " << event_ << " " << activeBins << std::endl;
-    for( auto bin : eventBins )
-      std::cout << "\n" << bin;
-    std::cout << std::endl;
+    std::cout << subset <<  "-pattern " << event_ << " " << activeBins << std::endl;
 
-    auto begin = spikes.begin( );
-    auto end = spikes.begin( );
+    std::vector< std::set< uint32_t >> binSpikes( binsNumber );
 
-    float currentStart = 0;
-    float currentEnd = deltaTime;
-
-    // For each bin...
-    for( auto& bin : eventBins )
+    for( auto spike : spikes )
     {
-      // Check if the event is active along bin length.
-      if( !bin )
+      if( giduset.find( spike.second ) == giduset.end( ))
         continue;
 
-      // Go to the bin immediately previous to event start time.
-      while( begin->first < currentStart && begin != spikes.end( ) )
-        begin++;
+      unsigned int bin = std::floor( spike.first * invDeltaTime );
 
-      end = begin;
+      binSpikes[ bin ].insert( spike.second );
+    }
 
-      // Go to the bin immediately previous to event end time.
-      while( end->first < currentEnd && end != spikes.end( ))
-        end++;
+    auto binIt = eventBins.begin( );
+    for( auto neuronsPerBin : binSpikes )
+    {
 
-      // Set to avoid neurons spiking more than once per bin.
-      std::set< uint32_t > spikingNeurons;
-      for( auto spike = begin; spike != end; ++spike )
+      if( *binIt )
       {
-        // If neuron is not already in the set...
-        if( spikingNeurons.find( spike->second ) == spikingNeurons.end( ) &&
-            giduset.find( spike->second ) != giduset.end( ))
+        for( auto neuron : neuronsPerBin )
         {
-          // Add it to the set.
-          spikingNeurons.insert( spike->second );
-
-          // Record neuron activity.
-          auto it = eventNeuronSpikes.find( spike->second );
+          auto it = eventNeuronSpikes.find( neuron );
           if( it == eventNeuronSpikes.end( ))
-            eventNeuronSpikes.insert( std::make_pair( spike->second, 1 ));
+            eventNeuronSpikes.insert( std::make_pair( neuron, 1 ));
           else
             it->second++;
         }
       }
 
-      // Proceed to next bin.
-      currentStart = currentEnd;
-      currentEnd += deltaTime;
+      ++binIt;
     }
 
     Correlation correlation;
     correlation.subsetName = subset;
-
-    std::map< uint32_t, unsigned int >::const_iterator eventSpikesIt =
-        eventNeuronSpikes.begin( );
 
     // Calculate normalization factors by the inverse of active/inactive bins.
     float normHit = 1.0f / activeBins;
@@ -238,21 +158,27 @@ namespace simil
     float avgResValue = 0.0f;
 
     // For each neuron...
-    for( unsigned int i = 0; i < neuronsNum; i++, ++eventSpikesIt )
+    for( auto eventSpikesIt : eventNeuronSpikes )
     {
 
       // Calculate corresponding values according to current event activity.
       CorrelationValues values;
 
       // Hit value relates to spiking neurons during active event.
-      values.hit = std::max( 0.0f, std::min( 1.0f, eventSpikesIt->second * normHit ));
+      values.hit = std::max( 0.0f, std::min( 1.0f, eventSpikesIt.second * normHit ));
 
       // False hit is related to spiking neurons when event is not active.
       values.falseHit =
-          std::max( 0.0f, std::min( 1.0f, eventSpikesIt->second * normFH ));
+          std::max( 0.0f, std::min( 1.0f, eventSpikesIt.second * normFH ));
 
       // Result responds to Hit minus False Hit.
       values.result = values.hit - values.falseHit;
+
+      std::cout << "Cell " << eventSpikesIt.first
+                << " " << eventSpikesIt.second
+                << " " << activeBins
+                << " = " << values.hit
+                << std::endl;
 
       // Store maximum values.
       if( values.hit > maxHitValue )
@@ -272,7 +198,7 @@ namespace simil
       if( values.result >= selectionThreshold )
 
         // Store neuron correlation value.
-        correlation.values.insert( std::make_pair( i, values ));
+        correlation.values.insert( std::make_pair( eventSpikesIt.first, values ));
 
     }
 

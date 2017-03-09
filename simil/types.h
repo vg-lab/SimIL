@@ -60,7 +60,7 @@ namespace simil
     float result;
   };
 
-  typedef std::unordered_map< uint32_t, CorrelationValues > TNeuronCorrelationUMap;
+  typedef std::map< uint32_t, CorrelationValues > TNeuronCorrelationUMap;
   typedef TNeuronCorrelationUMap::const_iterator TNeuronCorrelUMapCIt;
   typedef std::pair< TNeuronCorrelUMapCIt,
                      TNeuronCorrelUMapCIt > TNeuronCorrelation;
