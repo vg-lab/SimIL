@@ -70,6 +70,7 @@ namespace simil
   public:
 
     std::string subsetName;
+    std::string eventName;
 
     TNeuronCorrelationUMap values;
   };

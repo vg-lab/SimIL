@@ -143,6 +143,7 @@ namespace simil
 
     Correlation correlation;
     correlation.subsetName = subset;
+    correlation.eventName = event_;
 
     // Calculate normalization factors by the inverse of active/inactive bins.
     float normHit = 1.0f / activeBins;
@@ -174,11 +175,11 @@ namespace simil
       // Result responds to Hit minus False Hit.
       values.result = values.hit - values.falseHit;
 
-      std::cout << "Cell " << eventSpikesIt.first
-                << " " << eventSpikesIt.second
-                << " " << activeBins
-                << " = " << values.hit
-                << std::endl;
+//      std::cout << "Cell " << eventSpikesIt.first
+//                << " " << eventSpikesIt.second
+//                << " " << activeBins
+//                << " = " << values.hit
+//                << std::endl;
 
       // Store maximum values.
       if( values.hit > maxHitValue )
@@ -216,7 +217,7 @@ namespace simil
 
 
     // Store the full subset correlation for filtered neurons.
-    _correlations.insert( std::make_pair( subset, correlation ));
+    _correlations.insert( std::make_pair( subset + event_, correlation ));
 
     std::cout << "Computed correlation for event " << subset
               << " with "<< correlation.values.size( ) << " elements."
@@ -233,6 +234,16 @@ namespace simil
       return nullptr;
 
     return &it->second;
+  }
+
+  std::vector< std::string > CorrelationComputer::correlationNames( void )
+  {
+    std::vector< std::string > result;
+
+    for( auto c : _correlations )
+      result.push_back( c.first );
+
+    return result;
   }
 
 }

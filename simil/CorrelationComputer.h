@@ -32,6 +32,8 @@ namespace simil
                   float deltaTime = 0.125f,
                   float selectionThreshold = 0.0f );
 
+    std::vector< std::string > correlationNames( void );
+
     Correlation* correlation( const std::string& subsetName );
 
   protected:
