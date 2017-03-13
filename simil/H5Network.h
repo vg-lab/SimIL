@@ -12,6 +12,7 @@
 
 #include <string>
 #include <vector>
+#include <unordered_map>
 
 #include <H5Cpp.h>
 
@@ -36,20 +37,22 @@ namespace simil
 
     ~H5Network( void );
 
-    void Load( void );
-    void Load( const std::string& fileName ,
+    void load( void );
+    void load( const std::string& fileName ,
                const std::string& pattern = "neuron" );
 
-    void Clear( void );
+    void clear( void );
 
     unsigned int subSetsNumber( void ) const;
 
-    simil::TGIDSet GetGIDs( void ) const;
-    simil::TPosVect GetComposedPositions( void ) const;
+    simil::TGIDSet getGIDs( void ) const;
+    simil::TPosVect getComposedPositions( void ) const;
+
+    simil::SubsetMapRange getSubsets( void ) const;
 
     const std::vector< unsigned int >& offsets( void ) const;
 
-    unsigned int ComposeID( unsigned int datasetIdx,
+    unsigned int composeID( unsigned int datasetIdx,
                             unsigned int localIdx ) const;
 
     std::string fileName( void ) const;
@@ -64,6 +67,8 @@ namespace simil
 
     H5::H5File _file;
     std::vector< std::string > _groupNames;
+    simil::SubsetMap _subsets;
+
     std::vector< H5::Group > _groups;
     std::vector< H5::DataSet > _datasets;
 

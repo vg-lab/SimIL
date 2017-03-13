@@ -81,10 +81,8 @@ namespace simil
     virtual void deltaTime( float deltaTime );
     virtual float deltaTime( void );
 
-  //  void startTime( float startTime );
     float startTime( void );
 
-  //  void endTime( float endTime );
     float endTime( void );
 
     float currentTime( void );
@@ -92,12 +90,12 @@ namespace simil
     void loop( bool loop );
     bool loop( void );
 
-//    brion::BlueConfig* blueConfig( void );
-//    brain::Circuit* circuit( void );
-    const TGIDSet& gids( void );
-    TPosVect positions( void );
+    const TGIDSet& gids( void ) const;
+    TPosVect positions( void ) const;
 
-    TSimulationType simulationType( void );
+    TSimulationType simulationType( void ) const ;
+
+    SimulationData* data( void ) const;
 
 #ifdef SIMIL_USE_ZEROEQ
 
@@ -122,6 +120,8 @@ namespace simil
 
     float _currentTime;
     float _previousTime;
+    float _relativeTime;
+    float _invTimeRange;
 
     float _deltaTime;
 
@@ -171,7 +171,7 @@ namespace simil
     virtual void PlayAt( float percentage );
     virtual void Stop( void );
 
-    virtual const TSpikes& Spikes( void );
+    virtual const TSpikes& spikes( void );
 //    brion::SpikeReport* spikeReport( void );
     SpikeData* spikeReport( void ) const;
 
@@ -182,6 +182,8 @@ namespace simil
     SpikesCRange spikesNow( void );
 
     void spikesNowVect( std::vector< uint32_t >& );
+
+    SpikeData* data( void ) const;
 
   protected:
 
