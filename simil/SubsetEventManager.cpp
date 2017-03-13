@@ -118,16 +118,16 @@ namespace simil
     return result;
   }
 
-  std::vector< TimeFrame > parseTimeFrameJSON( const std::string& stringTimeFrames )
+  std::vector< Event > parseTimeFrameJSON( const std::string& stringTimeFrames )
   {
-    std::vector< TimeFrame >result;
+    std::vector< Event >result;
 
     std::vector< std::string > timeFrames =
         std::move( split( stringTimeFrames, ';', false ));
 
     for( auto timeFrameString : timeFrames )
     {
-      TimeFrame timeFrame;
+      Event timeFrame;
 
       std::vector< std::string > range =
           std::move( split( timeFrameString, ':', false ));
@@ -148,14 +148,8 @@ namespace simil
     return result;
   }
 
-  void SubsetEventManager::loadJSON( const std::string& filePath, bool append )
+  void SubsetEventManager::loadJSON( const std::string& filePath )
   {
-
-    if( !append )
-    {
-      _subsets.clear( );
-      _timeFrames.clear( );
-    }
 
     try
     {
@@ -186,10 +180,10 @@ namespace simil
       {
         for( auto& child : timeframe.second )
         {
-          std::vector< TimeFrame > timeFrame =
+          std::vector< Event > timeFrame =
               std::move( parseTimeFrameJSON( child.second.get_value< std::string >( )));
 
-          _timeFrames.insert( std::make_pair( child.first, timeFrame ));
+          _events.insert( std::make_pair( child.first, timeFrame ));
         }
       }
 
@@ -200,24 +194,26 @@ namespace simil
     }
   }
 
-  void SubsetEventManager::loadH5( const std::string& filePath, bool append )
+  void SubsetEventManager::loadH5( const std::string& filePath)
   {
-
-    if( !append )
-    {
-      _subsets.clear( );
-      _timeFrames.clear( );
-    }
 
     H5SubsetEvents reader;
 
     reader.Load( filePath, "length", "activation" );
 
     for( auto& subset : reader.subsets( ))
-      _subsets.insert( std::make_pair( subset.name, subset.gids ));
+    {
+      addSubset( subset.name, subset.gids );
 
+    }
     for( auto& tf : reader.timeFrames( ))
-      _timeFrames.insert( std::make_pair( tf.name, tf.timeFrames ));
+      _events.insert( std::make_pair( tf.name, tf.timeFrames ));
+  }
+
+  void SubsetEventManager::clear( void )
+  {
+    _subsets.clear( );
+    _events.clear( );
   }
 
   std::vector< uint32_t >
@@ -232,27 +228,69 @@ namespace simil
     return result;
   }
 
-  std::vector< TimeFrame >
-  SubsetEventManager::getTimeFrame( const std::string& name ) const
+  void SubsetEventManager::addSubset( const std::string& name,
+                                      const GIDVec& subset )
   {
-    std::vector< TimeFrame > result;
+    _subsets.insert( std::make_pair( name, subset ));
+    std::cout << "Adding subset " << name << " with " << subset.size() << std::endl;
+  }
 
-    auto it = _timeFrames.find( name );
+  void SubsetEventManager::removeSubset( const std::string& name )
+  {
+    _subsets.erase( name );
+  }
 
-    if( it != _timeFrames.end( ))
+  std::vector< Event >
+  SubsetEventManager::getEvent( const std::string& name ) const
+  {
+    std::vector< Event > result;
+
+    auto it = _events.find( name );
+
+    if( it != _events.end( ))
       result = it->second;
 
     return result;
   }
 
-  GIDMapRange SubsetEventManager::subsets( void ) const
+  SubsetMapRange SubsetEventManager::subsets( void ) const
   {
     return std::make_pair( _subsets.begin( ), _subsets.end( ));
   }
 
-  TimeFrameRange SubsetEventManager::timeFrames( void ) const
+  EventRange SubsetEventManager::events( void ) const
   {
-    return std::make_pair( _timeFrames.begin( ), _timeFrames.end( ));
+    return std::make_pair( _events.begin( ), _events.end( ));
+  }
+
+  unsigned int SubsetEventManager::numSubsets( void ) const
+  {
+    return _subsets.size( );
+  }
+
+  unsigned int SubsetEventManager::numEvents( void ) const
+  {
+    return _events.size( );
+  }
+
+  std::vector< std::string > SubsetEventManager::subsetNames( void ) const
+  {
+    std::vector< std::string > result;
+
+    for( auto subset : _subsets)
+      result.push_back( subset.first );
+
+    return result;
+  }
+
+  std::vector< std::string > SubsetEventManager::eventNames( void ) const
+  {
+    std::vector< std::string > result;
+
+    for( auto event : _events)
+      result.push_back( event.first );
+
+    return result;
   }
 
 }

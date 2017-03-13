@@ -89,6 +89,14 @@ namespace simil
       // Open the current group.
       H5::Group group = _file.openGroup( currentName );
 
+      if( group.attrExists( "name" ))
+      {
+        H5::DataType type = group.openAttribute( "name" ).getDataType( );
+
+        H5std_string newName("");
+        group.openAttribute( "name" ).read( type, newName );
+        currentName = newName;
+      }
       // Get children datasets number
       unsigned int innerDatasets = group.getNumObjs( );
 
@@ -125,6 +133,14 @@ namespace simil
 
         _offsets.push_back( records );
 
+        GIDVec subsetGids( dims[ 0 ] );
+        for( unsigned int gid = 0; gid < dims[ 0 ]; ++gid )
+        {
+           subsetGids[ gid ] = _offsets.back( ) + gid;
+        }
+
+        _subsets.insert( std::make_pair( currentName, std::move( subsetGids )));
+
         records += dims[ 0 ];
 
         // Store group name.
@@ -142,7 +158,14 @@ namespace simil
 
   void H5Network::clear( void )
   {
+    _groupNames.clear( );
+    _groups.clear( );
+    _offsets.clear( );
+    _datasets.clear( );
+    _subsets.clear( );
 
+    _totalRecords = 0;
+    _fileName.clear( );
   }
 
   TGIDSet H5Network::getGIDs( void ) const
@@ -207,6 +230,11 @@ namespace simil
   const std::vector< unsigned int >& H5Network::offsets( void ) const
   {
     return _offsets;
+  }
+
+  simil::SubsetMapRange H5Network::getSubsets( void ) const
+  {
+    return std::make_pair( _subsets.begin( ), _subsets.end( ));
   }
 
 }

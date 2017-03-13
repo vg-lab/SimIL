@@ -12,6 +12,7 @@
 
 #include <string>
 #include <vector>
+#include <unordered_map>
 
 #include <H5Cpp.h>
 
@@ -47,6 +48,8 @@ namespace simil
     simil::TGIDSet getGIDs( void ) const;
     simil::TPosVect getComposedPositions( void ) const;
 
+    simil::SubsetMapRange getSubsets( void ) const;
+
     const std::vector< unsigned int >& offsets( void ) const;
 
     unsigned int composeID( unsigned int datasetIdx,
@@ -64,6 +67,8 @@ namespace simil
 
     H5::H5File _file;
     std::vector< std::string > _groupNames;
+    simil::SubsetMap _subsets;
+
     std::vector< H5::Group > _groups;
     std::vector< H5::DataSet > _datasets;
 

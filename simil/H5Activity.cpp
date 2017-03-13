@@ -249,7 +249,7 @@ namespace simil
 
   float H5Spikes::startTime( void )
   {
-    return _startTime;
+    return 0;
   }
 
   float H5Spikes::endTime( void )

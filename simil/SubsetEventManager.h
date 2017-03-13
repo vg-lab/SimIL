@@ -25,27 +25,45 @@ namespace simil
   public:
 
     SIMIL_API
-    void loadJSON( const std::string& filePath, bool append = false );
+    void loadJSON( const std::string& filePath );
 
     SIMIL_API
-    void loadH5( const std::string& filePath, bool append = false );
+    void loadH5( const std::string& filePath );
+
+    SIMIL_API
+    void clear( void );
+
+    SIMIL_API
+    void addSubset( const std::string& name, const GIDVec& subset );
 
     SIMIL_API
     std::vector< uint32_t > getSubset( const std::string& name ) const;
 
     SIMIL_API
-    std::vector< TimeFrame > getTimeFrame( const std::string& name ) const;
+    void removeSubset( const std::string& name );
 
     SIMIL_API
-    GIDMapRange subsets( void ) const;
+    std::vector< Event > getEvent( const std::string& name ) const;
 
     SIMIL_API
-    TimeFrameRange timeFrames( void ) const;
+    SubsetMapRange subsets( void ) const;
+
+    SIMIL_API
+    EventRange events( void ) const;
+
+    unsigned int numSubsets( void ) const;
+    unsigned int numEvents( void ) const;
+
+    SIMIL_API
+    std::vector< std::string > subsetNames( void ) const;
+
+    SIMIL_API
+    std::vector< std::string > eventNames( void ) const;
 
   protected:
 
     std::map< std::string, std::vector< uint32_t >> _subsets;
-    std::map< std::string, std::vector< std::pair< float, float >>> _timeFrames;
+    std::map< std::string, std::vector< std::pair< float, float >>> _events;
 
   };
 

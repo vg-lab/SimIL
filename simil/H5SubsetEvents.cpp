@@ -32,7 +32,7 @@ namespace simil
     std::vector< float > bins;
     std::vector< int > matrix;
     std::vector< float > subset;
-    unsigned int matrixColumns = 0;
+    unsigned int matrixRows = 0;
 
     bool foundBins = false;
     bool foundMatrix = false;
@@ -94,13 +94,13 @@ namespace simil
       }
       else if( datasetMatrix && !foundMatrix )
       {
-        matrixColumns = dims[ 1 ];
+        matrixRows = dims[ 1 ];
 
         std::cout << "Found matrix of " << dims[ 0 ]
                   << "x" << dims[ 1 ]
                   << std::endl;
 
-        matrix.resize( dims[ 0 ] * matrixColumns );
+        matrix.resize( dims[ 0 ] * matrixRows );
         dataset.read( matrix.data( ), H5::PredType::NATIVE_INT );
 
         datasetMatrix = false;
@@ -123,6 +123,13 @@ namespace simil
         for( auto gidf = subset.begin( ); gidf != subset.end( ); ++gidf, ++gidi )
           *gidi = ( unsigned int )*gidf;
 
+
+        // Remove repetitions
+        TGIDSet gidset( result.gids.begin( ), result.gids.end( ));
+        GIDVec aux( gidset.begin( ), gidset.end( ));
+        result.gids = aux;
+
+
       }
     }
 
@@ -131,12 +138,12 @@ namespace simil
       std::cout << "Composing time frames..." << std::endl;
       std::vector< int >::const_iterator it = matrix.begin( );
 
-      _timeFrames.resize( matrixColumns );
+      _events.resize( matrixRows );
 
       unsigned int counter = 0;
-      for( unsigned int j = 0; j < matrixColumns; j++ )
+      for( unsigned int j = 0; j < matrixRows; j++ )
       {
-        TTimeFrame& tf = _timeFrames[ j ];
+        TTimeFrame& tf = _events[ j ];
         tf.name = std::string( "pattern_");
         tf.name = tf.name +  std::to_string( counter ) ;
 
@@ -150,12 +157,12 @@ namespace simil
       counter = 0;
       for( auto bin : bins )
       {
-        for( unsigned int i = 0; i < matrixColumns; ++i, ++it )
+        for( unsigned int i = 0; i < matrixRows; ++i, ++it )
         {
           unsigned int value = *it;
           if( value > 0 )
           {
-            _timeFrames[ i ].timeFrames.push_back(
+            _events[ i ].timeFrames.push_back(
                 std::make_pair( lastBin, lastBin + bin ));
           }
         }
@@ -164,7 +171,42 @@ namespace simil
         lastBin += bin;
       }
 
-      for( auto tf : _timeFrames )
+      // Compact results by merging contiguous active bins
+      for( auto& event : _events )
+      {
+        std::cout << "\tCompacting " << event.name
+                  << " with " << event.timeFrames.size( )
+                  << std::endl;
+
+        EventVec result;
+        Event begin;
+        Event last;
+
+//        for( auto tf : event.timeFrames )
+        auto tf = event.timeFrames.begin( );
+        begin = *tf;
+        last = begin;
+        while( tf != event.timeFrames.end( ))
+        {
+          if( last.second != tf->first && last != *tf )
+          {
+            result.push_back( std::make_pair( begin.first, last.second ));
+            begin = *tf;
+          }
+
+          last = *tf;
+          ++tf;
+        }
+
+        event.timeFrames = result;
+
+        std::cout << "\t-Finished compacting " << event.name
+                  << " with " << event.timeFrames.size( )
+                  << std::endl;
+
+      }
+
+      for( auto tf : _events )
         std::cout << "Loaded time frame " <<  tf.name
                   << " with " << tf.timeFrames.size( ) << " elements."
                   << std::endl;
@@ -187,7 +229,7 @@ namespace simil
 
   const std::vector< TTimeFrame >& H5SubsetEvents::timeFrames( void ) const
   {
-    return _timeFrames;
+    return _events;
   }
 
 }

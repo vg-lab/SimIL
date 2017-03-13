@@ -265,18 +265,18 @@ namespace simil
 //    return _circuit;
 //  }
 
-  const TGIDSet& SimulationPlayer::gids( void )
+  const TGIDSet& SimulationPlayer::gids( void ) const
   {
     return _gids;
   }
 
-  TPosVect SimulationPlayer::positions( void )
+  TPosVect SimulationPlayer::positions( void ) const
   {
 //    return _circuit->getPositions( _gids );
     return _simData->positions( );
   }
 
-  TSimulationType SimulationPlayer::simulationType( void )
+  TSimulationType SimulationPlayer::simulationType( void ) const
   {
     return _simulationType;
   }
@@ -289,6 +289,11 @@ namespace simil
     {
       Play( );
     }
+  }
+
+  SimulationData* SimulationPlayer::data( void ) const
+  {
+    return _simData;
   }
 
 #ifdef SIMIL_USE_ZEROEQ
@@ -443,7 +448,7 @@ namespace simil
   void SpikesPlayer::Stop( void )
   {
     SimulationPlayer::Stop( );
-    _currentSpike = Spikes( ).begin( );
+    _currentSpike = spikes( ).begin( );
     _previousSpike = _currentSpike;
   }
 
@@ -451,15 +456,15 @@ namespace simil
   {
     SimulationPlayer::PlayAt( percentage );
 
-    const brion::Spikes& spikes = Spikes( );
+    const brion::Spikes& spikes_ = spikes( );
 
-    _currentSpike = Spikes( ).begin( );
+    _currentSpike = spikes_.begin( );
     _previousSpike = _currentSpike;
 
     _currentTime = percentage * ( _endTime - _startTime ) + _startTime;
 
     SpikesCIter last, last2 = _currentSpike;
-    for( SpikesCIter spike = _currentSpike ; spike != spikes.end( ); spike++ )
+    for( SpikesCIter spike = _currentSpike ; spike != spikes_.end( ); spike++ )
     {
       if( ( *spike ).first  >= _currentTime )
       {
@@ -475,7 +480,7 @@ namespace simil
 
   void SpikesPlayer::FrameProcess( void )
   {
-    const TSpikes& spikes = Spikes( );
+    const TSpikes& spikes_ = spikes( );
     _previousSpike = _currentSpike;
     SpikesCIter last;
 
@@ -502,7 +507,7 @@ namespace simil
     SpikesCIter spike = _currentSpike;
     while( ( *spike ).first  < _currentTime )
     {
-      if( spike == spikes.end( ))
+      if( spike == spikes_.end( ))
       {
         _finished = true;
         Finished( );
@@ -514,7 +519,7 @@ namespace simil
     _currentSpike = spike;
   }
 
-  const TSpikes& SpikesPlayer::Spikes( void )
+  const TSpikes& SpikesPlayer::spikes( void )
   {
 //    return _spikeReport->getSpikes( );
     return dynamic_cast< SpikeData* >( _simData )->spikes( );
@@ -533,25 +538,25 @@ namespace simil
   SpikesCRange
   SpikesPlayer::spikesAtTime( float time )
   {
-    return Spikes( ).equal_range( time );
+    return spikes( ).equal_range( time );
   }
 
   SpikesCRange SpikesPlayer::spikesBetween( float startTime_, float endTime_ )
   {
     SpikesCIter start, end;
 
-    const brion::Spikes& spikes = Spikes( );
+    const brion::Spikes& spikes_ = spikes( );
     if ( startTime_ == endTime_ )
-      return std::make_pair( spikes.end( ), spikes.end( ));
+      return std::make_pair( spikes_.end( ), spikes_.end( ));
     else if( endTime_ < startTime_)
       std::swap( startTime_, endTime_ );
 
-    SpikesCRange res = spikes.equal_range( startTime_ );
+    SpikesCRange res = spikes_.equal_range( startTime_ );
     if( res.first != res.second )
       start = res.first;
     else
     {
-      for( SpikesCIter spike = spikes.begin( ); spike != spikes.end( ); spike++ )
+      for( SpikesCIter spike = spikes_.begin( ); spike != spikes_.end( ); spike++ )
       {
         if(( *spike ).first >= startTime_ )
         {
@@ -561,13 +566,13 @@ namespace simil
       }
     }
 
-    res = spikes.equal_range( endTime_ );
+    res = spikes_.equal_range( endTime_ );
     if( res.first != res.second )
       end = res.second--;
     else
     {
       SpikesCIter last;
-      for( SpikesCIter spike = spikes.begin( ); spike != spikes.end( ); spike++ )
+      for( SpikesCIter spike = spikes_.begin( ); spike != spikes_.end( ); spike++ )
       {
         if(( *spike ).first < endTime_ )
         {
@@ -575,7 +580,7 @@ namespace simil
         }
         else
         {
-          end = last;
+          end = spike;
           break;
         }
       }
@@ -601,7 +606,10 @@ namespace simil
     }
   }
 
-
+  SpikeData* SpikesPlayer::data( void ) const
+  {
+    return dynamic_cast< SpikeData* >( _simData );
+  }
 
 //*************************************************************************
 //************************ VOLTAGES SIMULATION PLAYER ***********************

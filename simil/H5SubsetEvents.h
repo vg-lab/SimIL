@@ -27,7 +27,7 @@ namespace simil
   {
   public:
     std::string name;
-    TimeFrameVec timeFrames;
+    EventVec timeFrames;
   };
 
   class H5SubsetEvents
@@ -48,7 +48,7 @@ namespace simil
 
     std::vector< TSubset > _subsets;
 
-    std::vector< TTimeFrame > _timeFrames;
+    std::vector< TTimeFrame > _events;
 
   };
 

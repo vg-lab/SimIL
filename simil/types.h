@@ -13,27 +13,30 @@
 #include <vector>
 #include <set>
 #include <map>
+#include <unordered_set>
+#include <unordered_map>
 
 #include <vmmlib/vmmlib.h>
 
 namespace simil
 {
   typedef std::set< uint32_t > TGIDSet;
+  typedef std::unordered_set< uint32_t > TGIDUSet;
   typedef std::vector< vmml::Vector3f > TPosVect;
   typedef std::multimap< float, uint32_t > TSpikes;
 
-  typedef std::pair< float, float > TimeFrame;
+  typedef std::pair< float, float > Event;
   typedef std::vector< uint32_t > GIDVec;
-  typedef std::vector< TimeFrame > TimeFrameVec;
+  typedef std::vector< Event > EventVec;
 
   typedef std::map< std::string, GIDVec > SubsetMap;
-  typedef std::map< std::string, TimeFrameVec > TimeFrameMap;
+  typedef std::map< std::string, EventVec > EventMap;
 
-  typedef SubsetMap::const_iterator GIDMapCIt;
-  typedef TimeFrameMap::const_iterator TimeFrameMapCIt;
+  typedef SubsetMap::const_iterator SubsetMapCIt;
+  typedef EventMap::const_iterator EventMapCIt;
 
-  typedef std::pair< GIDMapCIt, GIDMapCIt > GIDMapRange;
-  typedef std::pair< TimeFrameMapCIt, TimeFrameMapCIt > TimeFrameRange;
+  typedef std::pair< SubsetMapCIt, SubsetMapCIt > SubsetMapRange;
+  typedef std::pair< EventMapCIt, EventMapCIt > EventRange;
 
   typedef enum
   {
@@ -47,6 +50,31 @@ namespace simil
     TBlueConfig = 0,
     THDF5
   } TDataType;
+
+  struct CorrelationValues
+  {
+  public:
+
+    float hit;
+    float falseHit;
+    float result;
+  };
+
+  typedef std::map< uint32_t, CorrelationValues > TNeuronCorrelationUMap;
+  typedef TNeuronCorrelationUMap::const_iterator TNeuronCorrelUMapCIt;
+  typedef std::pair< TNeuronCorrelUMapCIt,
+                     TNeuronCorrelUMapCIt > TNeuronCorrelation;
+
+  struct Correlation
+  {
+  public:
+
+    std::string subsetName;
+    std::string eventName;
+
+    TNeuronCorrelationUMap values;
+  };
+
 }
 
 
