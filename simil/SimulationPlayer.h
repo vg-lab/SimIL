@@ -8,8 +8,10 @@
 #ifndef __SIMIL__SIMULATIONPLAYER_H__
 #define __SIMIL__SIMULATIONPLAYER_H__
 
+#ifdef SIMIL_USE_BRION
 #include <brion/brion.h>
 #include <brain/brain.h>
+#endif
 #include <simil/api.h>
 
 #include <unordered_map>
@@ -148,8 +150,8 @@ namespace simil
 
   };
 
-  typedef brion::Spikes::iterator SpikesIter;
-  typedef brion::Spikes::const_iterator SpikesCIter;
+  typedef TSpikes::iterator SpikesIter;
+  typedef TSpikes::const_iterator SpikesCIter;
 
   typedef std::pair< SpikesIter, SpikesIter > SpikesRange;
   typedef std::pair< SpikesCIter, SpikesCIter > SpikesCRange;
@@ -195,6 +197,7 @@ namespace simil
 //    brion::SpikeReport* _spikeReport;
   };
 
+#ifdef SIMIL_USE_BRION
   class VoltagesPlayer : public SimulationPlayer
   {
   public:
@@ -235,14 +238,16 @@ namespace simil
 
   protected:
 
-     virtual void FrameProcess( void );
+    virtual void FrameProcess( void );
 
-     std::unordered_map< uint32_t, unsigned int > _gidRef;
+    std::unordered_map< uint32_t, unsigned int > _gidRef;
 
-     std::string _report;
+    std::string _report;
 
-     brion::CompartmentReport* _voltReport;
-     brion::floatsPtr _currentFrame;
+#ifdef SIMIL_USE_BRION
+    brion::CompartmentReport* _voltReport;
+    brion::floatsPtr _currentFrame;
+#endif
 
      bool loadedRange;
      float _minVoltage;
@@ -385,6 +390,7 @@ namespace simil
     float* _current;
 
   };
+#endif
 
 }
 #endif /* __SIMIL__SIMULATIONPLAYER_H_ */

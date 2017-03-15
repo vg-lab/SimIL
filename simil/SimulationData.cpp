@@ -15,7 +15,9 @@ namespace simil
   SimulationData::SimulationData( std::string filePath_,
                                   TDataType dataType )
   : _simulationType( TSimNetwork )
+#ifdef SIMIL_USE_BRION
   , _blueConfig( nullptr )
+#endif
   , _h5Network( nullptr )
   , _startTime( 0.0f )
   , _endTime( 0.0f )
@@ -24,6 +26,7 @@ namespace simil
     {
       case TBlueConfig:
       {
+#ifdef SIMIL_USE_BRION
         _blueConfig = new brion::BlueConfig( filePath_ );
         brain::Circuit* circuit = new brain::Circuit( *_blueConfig );
 
@@ -32,7 +35,10 @@ namespace simil
         _positions = circuit->getPositions( _gids );
 
         delete circuit;
-
+#else
+        std::cerr << "Error: Brion support not available" << std::endl;
+        exit( -1 );
+#endif
         break;
       }
       case THDF5:
@@ -113,6 +119,7 @@ namespace simil
     {
       case TBlueConfig:
       {
+#ifdef SIMIL_USE_BRIOB
         if( _blueConfig )
         {
           brion::SpikeReport spikeReport(  _blueConfig->getSpikeSource( ),
@@ -122,7 +129,10 @@ namespace simil
           _startTime = spikeReport.getStartTime( );
           _endTime = spikeReport.getEndTime( );
         }
-
+#else
+        std::cerr << "Error: Brion support not available" << std::endl;
+        exit( -1 );
+#endif
         break;
       }
       case THDF5:

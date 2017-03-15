@@ -27,11 +27,15 @@ set( SIMIL_SOURCES
 )
 
 set( SIMIL_LINK_LIBRARIES
-     Brion
-     Brain     
+     vmmlib
      ${Boost_LIBRARIES}
      ${HDF5_LIBRARIES}
 )
+
+if( BRION_FOUND )
+  list( APPEND SIMIL_LINK_LIBRARIES Brion Brain )
+endif( )
+
 
 if( ZEROEQ_FOUND )
   list( APPEND SIMIL_LINK_LIBRARIES ZeroEQ ${CMAKE_THREAD_LIBS_INIT} )
@@ -50,5 +54,3 @@ add_definitions( -DSIMIL_SHARED )
 set( SIMIL_INCLUDE_NAME simil )
 set( SIMIL_NAMESPACE simil )
 common_library( SimIL )
-
-

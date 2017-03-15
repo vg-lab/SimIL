@@ -8,10 +8,10 @@
 #ifndef __SIMIL__SIMULATIONDATA_H__
 #define __SIMIL__SIMULATIONDATA_H__
 
+#ifdef SIMIL_USE_BRION
 #include <brion/brion.h>
 #include <brain/brain.h>
-
-#include <vmmlib/vmmlib.h>
+#endif
 
 #include <H5Cpp.h>
 
@@ -57,8 +57,9 @@ namespace simil
 
     TSimulationType _simulationType;
 
-
+#ifdef SIMIL_USE_BRION
     brion::BlueConfig* _blueConfig;
+#endif
     H5Network* _h5Network;
 
     float _startTime;
