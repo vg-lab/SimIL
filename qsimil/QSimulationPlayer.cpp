@@ -375,7 +375,11 @@ namespace qsimil
         _simPlayer = new simil::SpikesPlayer();
         break;
       case simil::TSimulationType::TSimVoltages:
+        #ifdef SIMIL_USE_BRION
         _simPlayer = new simil::VoltagesPlayer();
+        #else
+        std::cerr << "Error: brion support not available." << std::endl;
+        #endif
         break;
     }
     _simPlayer->LoadData( dataType, path );

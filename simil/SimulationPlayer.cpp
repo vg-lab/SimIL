@@ -7,6 +7,7 @@
 #include "SimulationPlayer.h"
 #include "log.h"
 #include <exception>
+#include <assert.h>
 namespace simil
 {
 
@@ -456,7 +457,7 @@ namespace simil
   {
     SimulationPlayer::PlayAt( percentage );
 
-    const brion::Spikes& spikes_ = spikes( );
+    const TSpikes& spikes_ = spikes( );
 
     _currentSpike = spikes_.begin( );
     _previousSpike = _currentSpike;
@@ -545,7 +546,7 @@ namespace simil
   {
     SpikesCIter start, end;
 
-    const brion::Spikes& spikes_ = spikes( );
+    const TSpikes& spikes_ = spikes( );
     if ( startTime_ == endTime_ )
       return std::make_pair( spikes_.end( ), spikes_.end( ));
     else if( endTime_ < startTime_)
@@ -615,6 +616,8 @@ namespace simil
 //************************ VOLTAGES SIMULATION PLAYER ***********************
 //*************************************************************************
 
+#ifdef SIMIL_USE_BRION
+
   VoltagesPlayer::VoltagesPlayer( void )
   : SimulationPlayer( )
   {
@@ -627,7 +630,9 @@ namespace simil
                                   const std::pair< float, float>* range )
   : SimulationPlayer( blueConfigFilePath, false)
   , _report( report )
+#ifdef SIMIL_USE_BRION
   , _voltReport( nullptr )
+#endif
   , loadedRange( false )
   {
 
@@ -727,7 +732,6 @@ namespace simil
 
     if( _voltReport )
       delete _voltReport;
-
     _gidRef.clear( );
   }
 
@@ -735,7 +739,6 @@ namespace simil
   {
     SimulationPlayer::Stop( );
     _voltReport->loadFrame( _startTime );
-
   }
 
   void VoltagesPlayer::PlayAt( float percentage )
@@ -833,5 +836,7 @@ namespace simil
       return;
     }
   }
+
+#endif
 
 }

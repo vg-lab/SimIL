@@ -1,2 +1,3 @@
 # -*- mode: cmake -*-
-git_subproject(Brion https://github.com/BlueBrain/Brion.git b5d0508)
+git_subproject(vmmlib https://github.com/Eyescale/vmmlib.git 10d93e6)
+#git_subproject(Brion https://github.com/BlueBrain/Brion.git b5d0508)
