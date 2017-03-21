@@ -119,7 +119,7 @@ namespace simil
     {
       case TBlueConfig:
       {
-#ifdef SIMIL_USE_BRIOB
+#ifdef SIMIL_USE_BRION
         if( _blueConfig )
         {
           brain::SpikeReportReader spikeReport(  _blueConfig->getSpikeSource( ));

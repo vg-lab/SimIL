@@ -185,6 +185,8 @@ namespace simil
     if( _totalRecords == 0 )
       return result;
 
+    std::multimap< float, uint32_t > sortedResult;
+
     const std::vector< unsigned int >& offsets = _network->_offsets;
 
     _startTime = std::numeric_limits< float >::max( );
@@ -222,10 +224,6 @@ namespace simil
       if( tempTimes.back( ) > _endTime )
         _endTime = tempTimes.back( );
 
-      std::set< float > uniqueTimes( tempTimes.begin( ), tempTimes.end( ));
-      std::cout << "Total different time values: " << uniqueTimes.size( ) << std::endl;
-
-
       auto time = tempTimes.begin( );
       for( auto id : tempIds )
       {
@@ -236,13 +234,18 @@ namespace simil
                     << " = " << id + currentOffset << std::endl;
         }
 
-        result.push_back( std::make_pair( *time, id + currentOffset ));
+        sortedResult.insert( std::make_pair( *time, id + currentOffset ));
+
         time++;
 
       }
 
       std::cout << "Loaded dataset " << i << " with " << tempTimes.size( ) << std::endl;
     }
+
+    result.reserve( sortedResult.size( ));
+    for( auto spike : sortedResult )
+      result.push_back( spike );
 
     return result;
   }
