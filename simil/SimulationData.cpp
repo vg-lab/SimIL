@@ -15,13 +15,18 @@ namespace simil
   SimulationData::SimulationData( std::string filePath_,
                                   TDataType dataType )
   : _simulationType( TSimNetwork )
+#ifdef SIMIL_USE_BRION
   , _blueConfig( nullptr )
+#endif
   , _h5Network( nullptr )
+  , _startTime( 0.0f )
+  , _endTime( 0.0f )
   {
     switch( dataType )
     {
       case TBlueConfig:
       {
+#ifdef SIMIL_USE_BRION
         _blueConfig = new brion::BlueConfig( filePath_ );
         brain::Circuit* circuit = new brain::Circuit( *_blueConfig );
 
@@ -30,17 +35,24 @@ namespace simil
         _positions = circuit->getPositions( _gids );
 
         delete circuit;
-
+#else
+        std::cerr << "Error: Brion support not available" << std::endl;
+        exit( -1 );
+#endif
         break;
       }
       case THDF5:
       {
         _h5Network = new H5Network( filePath_ );
-        _h5Network->Load( );
+        _h5Network->load( );
 
-        _gids = _h5Network->GetGIDs( );
+        _gids = std::move( _h5Network->getGIDs( ));
 
-        _positions = _h5Network->GetComposedPositions( );
+        _positions = std::move( _h5Network->getComposedPositions( ));
+
+        auto subsetIts = _h5Network->getSubsets( );
+        for( simil::SubsetMapCIt it = subsetIts.first; it != subsetIts.second; ++it )
+          _subsetEventManager.addSubset( it->first, it->second );
 
         break;
       }
@@ -59,9 +71,19 @@ namespace simil
     return _gids;
   }
 
+  GIDVec SimulationData::gidsVec( void ) const
+  {
+    return GIDVec( _gids.begin( ), _gids.end( ));
+  }
+
   const TPosVect& SimulationData::positions( void ) const
   {
     return _positions;
+  }
+
+  simil::SubsetEventManager* SimulationData::subsetsEvents( void )
+  {
+    return &_subsetEventManager;
   }
 
   TSimulationType SimulationData::simulationType( void ) const
@@ -91,10 +113,13 @@ namespace simil
   : SimulationData( filePath_, dataType )
   {
 
+    _simulationType = simil::TSimSpikes;
+
     switch( dataType )
     {
       case TBlueConfig:
       {
+#ifdef SIMIL_USE_BRIOB
         if( _blueConfig )
         {
           brain::SpikeReportReader spikeReport(  _blueConfig->getSpikeSource( ));
@@ -103,7 +128,10 @@ namespace simil
           _startTime = 0.0f; //spikeReport.getStartTime( );
           _endTime = spikeReport.getEndTime( );
         }
-
+#else
+        std::cerr << "Error: Brion support not available" << std::endl;
+        exit( -1 );
+#endif
         break;
       }
       case THDF5:

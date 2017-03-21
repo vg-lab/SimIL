@@ -44,6 +44,7 @@ endif()
 
 include( Common )
 
+common_find_package( vmmlib REQUIRED )
 common_find_package( Brion ${SIMIL_OPTS_FIND_ARGS} )
 common_find_package( HDF5 REQUIRED COMPONENTS C CXX )
 common_find_package( Boost REQUIRED )
@@ -51,7 +52,7 @@ common_find_package( ZeroEQ )
 common_find_package( Qt5Core 5.4 SYSTEM )
 common_find_package( Qt5Widgets 5.4 SYSTEM )
 
-list( APPEND SIMIL_DEPENDENT_LIBRARIES HDF5 Boost )
+list( APPEND SIMIL_DEPENDENT_LIBRARIES HDF5 vmmlib Boost )
 
 if( BRION_FOUND )
   list( APPEND SIMIL_DEPENDENT_LIBRARIES Brion )

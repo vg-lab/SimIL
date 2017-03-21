@@ -8,8 +8,10 @@
 #ifndef __SIMIL__SIMULATIONPLAYER_H__
 #define __SIMIL__SIMULATIONPLAYER_H__
 
+#ifdef SIMIL_USE_BRION
 #include <brion/brion.h>
 #include <brain/brain.h>
+#endif
 #include <simil/api.h>
 
 #include <unordered_map>
@@ -81,10 +83,8 @@ namespace simil
     virtual void deltaTime( float deltaTime );
     virtual float deltaTime( void );
 
-  //  void startTime( float startTime );
     float startTime( void );
 
-  //  void endTime( float endTime );
     float endTime( void );
 
     float currentTime( void );
@@ -92,12 +92,12 @@ namespace simil
     void loop( bool loop );
     bool loop( void );
 
-//    brion::BlueConfig* blueConfig( void );
-//    brain::Circuit* circuit( void );
-    const TGIDSet& gids( void );
-    TPosVect positions( void );
+    const TGIDSet& gids( void ) const;
+    TPosVect positions( void ) const;
 
-    TSimulationType simulationType( void );
+    TSimulationType simulationType( void ) const ;
+
+    SimulationData* data( void ) const;
 
 #ifdef SIMIL_USE_ZEROEQ
 
@@ -122,6 +122,8 @@ namespace simil
 
     float _currentTime;
     float _previousTime;
+    float _relativeTime;
+    float _invTimeRange;
 
     float _deltaTime;
 
@@ -171,7 +173,7 @@ namespace simil
     virtual void PlayAt( float percentage );
     virtual void Stop( void );
 
-    virtual const TSpikes& Spikes( void );
+    virtual const TSpikes& spikes( void );
 //    brion::SpikeReport* spikeReport( void );
     SpikeData* spikeReport( void ) const;
 
@@ -183,6 +185,8 @@ namespace simil
 
     void spikesNowVect( std::vector< uint32_t >& );
 
+    SpikeData* data( void ) const;
+
   protected:
 
     virtual void FrameProcess( void );
@@ -193,6 +197,7 @@ namespace simil
 //    brion::SpikeReport* _spikeReport;
   };
 
+#ifdef SIMIL_USE_BRION
   class VoltagesPlayer : public SimulationPlayer
   {
   public:
@@ -233,14 +238,16 @@ namespace simil
 
   protected:
 
-     virtual void FrameProcess( void );
+    virtual void FrameProcess( void );
 
-     std::unordered_map< uint32_t, unsigned int > _gidRef;
+    std::unordered_map< uint32_t, unsigned int > _gidRef;
 
-     std::string _report;
+    std::string _report;
 
-     brion::CompartmentReport* _voltReport;
-     brion::floatsPtr _currentFrame;
+#ifdef SIMIL_USE_BRION
+    brion::CompartmentReport* _voltReport;
+    brion::floatsPtr _currentFrame;
+#endif
 
      bool loadedRange;
      float _minVoltage;
@@ -383,6 +390,7 @@ namespace simil
     float* _current;
 
   };
+#endif
 
 }
 #endif /* __SIMIL__SIMULATIONPLAYER_H_ */

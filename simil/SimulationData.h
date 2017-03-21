@@ -8,16 +8,16 @@
 #ifndef __SIMIL__SIMULATIONDATA_H__
 #define __SIMIL__SIMULATIONDATA_H__
 
+#ifdef SIMIL_USE_BRION
 #include <brion/brion.h>
 #include <brain/brain.h>
-
-#include <vmmlib/vmmlib.h>
+#endif
 
 #include <H5Cpp.h>
 
 #include "types.h"
-
 #include "H5Network.h"
+#include "SubsetEventManager.h"
 
 namespace simil
 {
@@ -30,7 +30,11 @@ namespace simil
 
     const TGIDSet& gids( void ) const;
 
+    GIDVec gidsVec( void ) const;
+
     const TPosVect& positions( void ) const;
+
+    SubsetEventManager* subsetsEvents( void );
 
     TSimulationType simulationType( void ) const;
 
@@ -47,10 +51,15 @@ namespace simil
 
     TPosVect _positions;
 
+    simil::SubsetEventManager _subsetEventManager;
+
+//    simil::SubsetMap _subsets;
+
     TSimulationType _simulationType;
 
-
+#ifdef SIMIL_USE_BRION
     brion::BlueConfig* _blueConfig;
+#endif
     H5Network* _h5Network;
 
     float _startTime;

@@ -7,12 +7,15 @@
 #include "SimulationPlayer.h"
 #include "log.h"
 #include <exception>
+#include <assert.h>
 namespace simil
 {
 
   SimulationPlayer::SimulationPlayer( void )
   : _currentTime( 0.0f )
   , _previousTime( 0.0f )
+  , _relativeTime( 0.0f )
+  , _invTimeRange( 1.0f )
   , _deltaTime( 0.0f )
   , _startTime( 0.0f )
   , _endTime( 0.0f )
@@ -20,6 +23,9 @@ namespace simil
   , _loop( false )
   , _finished( false )
   , _simulationType( TSimNetwork )
+#ifdef SIMIL_USE_ZEROEQ
+  , _zeqEvents( nullptr )
+#endif
   , _simData( nullptr )
   {
 
@@ -87,6 +93,8 @@ namespace simil
 
         std::cout << "GID Set size: " << _gids.size( ) << std::endl;
 
+        _invTimeRange = 1.0f / ( _simData->endTime( ) - _simData->startTime( ));
+
       }
       break;
 
@@ -118,6 +126,8 @@ namespace simil
     {
       _previousTime = _currentTime;
       _currentTime += _deltaTime;
+
+      _relativeTime = ( _currentTime - startTime( )) * _invTimeRange ;
 
       FrameProcess( );
     }
@@ -156,6 +166,8 @@ namespace simil
     _currentTime = aux * _deltaTime;
     _previousTime = std::max( _currentTime - _deltaTime, _startTime );
 
+    _relativeTime = ( _currentTime - startTime( )) * _invTimeRange ;
+
   }
 
   void SimulationPlayer::PlayAt( float percentage )
@@ -169,13 +181,15 @@ namespace simil
     _currentTime = aux * _deltaTime;
     _previousTime = std::max( _currentTime - _deltaTime, _startTime );
 
+    _relativeTime = percentage;
+
     Play( );
 
   }
 
   float SimulationPlayer::GetRelativeTime( void )
   {
-    return (( _currentTime - startTime( )) / (endTime( ) - startTime( )));
+    return _relativeTime;
   }
 
   bool SimulationPlayer::isFinished( void )
@@ -252,18 +266,18 @@ namespace simil
 //    return _circuit;
 //  }
 
-  const TGIDSet& SimulationPlayer::gids( void )
+  const TGIDSet& SimulationPlayer::gids( void ) const
   {
     return _gids;
   }
 
-  TPosVect SimulationPlayer::positions( void )
+  TPosVect SimulationPlayer::positions( void ) const
   {
 //    return _circuit->getPositions( _gids );
     return _simData->positions( );
   }
 
-  TSimulationType SimulationPlayer::simulationType( void )
+  TSimulationType SimulationPlayer::simulationType( void ) const
   {
     return _simulationType;
   }
@@ -276,6 +290,11 @@ namespace simil
     {
       Play( );
     }
+  }
+
+  SimulationData* SimulationPlayer::data( void ) const
+  {
+    return _simData;
   }
 
 #ifdef SIMIL_USE_ZEROEQ
@@ -415,6 +434,8 @@ namespace simil
     _endTime = spikes->endTime( );
 
     _currentTime = _startTime;
+
+    _invTimeRange = 1.0f / ( _simData->endTime( ) - _simData->startTime( ));
   }
 
   void SpikesPlayer::Clear( void )
@@ -428,7 +449,7 @@ namespace simil
   void SpikesPlayer::Stop( void )
   {
     SimulationPlayer::Stop( );
-    _currentSpike = Spikes( ).begin( );
+    _currentSpike = spikes( ).begin( );
     _previousSpike = _currentSpike;
   }
 
@@ -436,15 +457,15 @@ namespace simil
   {
     SimulationPlayer::PlayAt( percentage );
 
-    const brion::Spikes& spikes = Spikes( );
+    const TSpikes& spikes_ = spikes( );
 
-    _currentSpike = Spikes( ).begin( );
+    _currentSpike = spikes_.begin( );
     _previousSpike = _currentSpike;
 
     _currentTime = percentage * ( _endTime - _startTime ) + _startTime;
 
     SpikesCIter last, last2 = _currentSpike;
-    for( SpikesCIter spike = _currentSpike ; spike != spikes.end( ); spike++ )
+    for( SpikesCIter spike = _currentSpike ; spike != spikes_.end( ); spike++ )
     {
       if( ( *spike ).first  >= _currentTime )
       {
@@ -460,7 +481,7 @@ namespace simil
 
   void SpikesPlayer::FrameProcess( void )
   {
-    const TSpikes& spikes = Spikes( );
+    const TSpikes& spikes_ = spikes( );
     _previousSpike = _currentSpike;
     SpikesCIter last;
 
@@ -487,7 +508,7 @@ namespace simil
     SpikesCIter spike = _currentSpike;
     while( ( *spike ).first  < _currentTime )
     {
-      if( spike == spikes.end( ))
+      if( spike == spikes_.end( ))
       {
         _finished = true;
         Finished( );
@@ -499,7 +520,7 @@ namespace simil
     _currentSpike = spike;
   }
 
-  const TSpikes& SpikesPlayer::Spikes( void )
+  const TSpikes& SpikesPlayer::spikes( void )
   {
 //    return _spikeReport->getSpikes( );
     return dynamic_cast< SpikeData* >( _simData )->spikes( );
@@ -523,15 +544,15 @@ namespace simil
 
   SpikesCRange SpikesPlayer::spikesBetween( float startTime_, float endTime_ )
   {
-    const TSpikes& spikes = Spikes( );
+    const TSpikes& spikes_ = spikes( );
 
-    SpikesCIter begin = spikes.end( );
-    SpikesCIter end = spikes.end( );
-    for( auto spike = spikes.begin( ); spike != spikes.end( ); ++spike )
+    SpikesCIter begin = spikes_.end( );
+    SpikesCIter end = spikes_.end( );
+    for( auto spike = spikes_.begin( ); spike != spikes_.end( ); ++spike )
       if( spike->first >= startTime_ )
       {
         begin = spike;
-        while( spike != spikes.end( ))
+        while( spike != spikes_.end( ))
         {
           if( spike->first > endTime_ )
           {
@@ -562,11 +583,16 @@ namespace simil
     }
   }
 
-
+  SpikeData* SpikesPlayer::data( void ) const
+  {
+    return dynamic_cast< SpikeData* >( _simData );
+  }
 
 //*************************************************************************
 //************************ VOLTAGES SIMULATION PLAYER ***********************
 //*************************************************************************
+
+#ifdef SIMIL_USE_BRION
 
   VoltagesPlayer::VoltagesPlayer( void )
   : SimulationPlayer( )
@@ -580,7 +606,9 @@ namespace simil
                                   const std::pair< float, float>* range )
   : SimulationPlayer( blueConfigFilePath, false)
   , _report( report )
+#ifdef SIMIL_USE_BRION
   , _voltReport( nullptr )
+#endif
   , loadedRange( false )
   {
 
@@ -680,7 +708,6 @@ namespace simil
 
     if( _voltReport )
       delete _voltReport;
-
     _gidRef.clear( );
   }
 
@@ -688,7 +715,6 @@ namespace simil
   {
     SimulationPlayer::Stop( );
     _voltReport->loadFrame( _startTime );
-
   }
 
   void VoltagesPlayer::PlayAt( float percentage )
@@ -786,5 +812,7 @@ namespace simil
       return;
     }
   }
+
+#endif
 
 }

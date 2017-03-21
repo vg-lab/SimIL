@@ -7,7 +7,9 @@ set( SIMIL_PUBLIC_HEADERS
      H5Activity.h
      SimulationData.h
      ZeroEqEventsManager.h
-
+     SubsetEventManager.h
+     H5SubsetEvents.h
+     CorrelationComputer.h
 )
 
 set( SIMIL_HEADERS
@@ -19,14 +21,21 @@ set( SIMIL_SOURCES
      H5Activity.cpp
      SimulationData.cpp
      ZeroEqEventsManager.cpp
+     SubsetEventManager.cpp
+     H5SubsetEvents.cpp
+     CorrelationComputer.cpp
 )
 
 set( SIMIL_LINK_LIBRARIES
-     Brion
-     Brain     
+     vmmlib
      ${Boost_LIBRARIES}
      ${HDF5_LIBRARIES}
 )
+
+if( BRION_FOUND )
+  list( APPEND SIMIL_LINK_LIBRARIES Brion Brain )
+endif( )
+
 
 if( ZEROEQ_FOUND )
   list( APPEND SIMIL_LINK_LIBRARIES ZeroEQ ${CMAKE_THREAD_LIBS_INIT} )
@@ -45,5 +54,3 @@ add_definitions( -DSIMIL_SHARED )
 set( SIMIL_INCLUDE_NAME simil )
 set( SIMIL_NAMESPACE simil )
 common_library( SimIL )
-
-
