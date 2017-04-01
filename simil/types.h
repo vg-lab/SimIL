@@ -20,6 +20,8 @@
 
 namespace simil
 {
+  class Spikes;
+
   typedef std::set< uint32_t > TGIDSet;
   typedef std::unordered_set< uint32_t > TGIDUSet;
   typedef std::vector< vmml::Vector3f > TPosVect;

@@ -10,6 +10,7 @@ set( SIMIL_PUBLIC_HEADERS
      SubsetEventManager.h
      H5SubsetEvents.h
      CorrelationComputer.h
+     Spikes.hpp
 )
 
 set( SIMIL_HEADERS

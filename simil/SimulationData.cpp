@@ -157,7 +157,7 @@ namespace simil
 
   }
 
-  const TSpikes& SpikeData::spikes( void ) const
+  const Spikes& SpikeData::spikes( void ) const
   {
     return _spikes;
   }
