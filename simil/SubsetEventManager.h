@@ -60,6 +60,11 @@ namespace simil
     SIMIL_API
     std::vector< std::string > eventNames( void ) const;
 
+    SIMIL_API
+    std::vector< bool > eventActivity( const std::string& name,
+                                       float deltaTime,
+                                       float totalTime ) const;
+
   protected:
 
     std::map< std::string, std::vector< uint32_t >> _subsets;

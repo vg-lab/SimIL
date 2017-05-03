@@ -69,8 +69,8 @@ namespace simil
       float lowerBound;
       float upperBound;
 
-      unsigned int binStart = std::floor( event.first / deltaTime );
-      unsigned int binEnd = std::ceil( event.second / deltaTime );
+      unsigned int binStart = std::floor( event.first * invDeltaTime );
+      unsigned int binEnd = std::ceil( event.second * invDeltaTime );
 
       if( binEnd > binsNumber )
         binEnd = binsNumber;
