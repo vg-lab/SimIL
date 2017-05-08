@@ -35,7 +35,8 @@ namespace simil
 
     if( gids.empty( ))
     {
-      gids = _simData->gidsVec( );
+      std::cout << "Warning: subset " << subset << " NOT found." << std::endl;
+      return;
     }
 
     TGIDUSet giduset( gids.begin( ), gids.end( ));
