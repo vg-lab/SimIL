@@ -123,7 +123,7 @@ namespace simil
         if( _blueConfig )
         {
           brain::SpikeReportReader spikeReport(  _blueConfig->getSpikeSource( ));
-          _spikes = spikeReport.getSpikes(0, spikeReport.getEndTime() );
+          _spikes = spikeReport.getSpikes(0, spikeReport.getEndTime( ));
 
           _startTime = 0.0f; //spikeReport.getStartTime( );
           _endTime = spikeReport.getEndTime( );

@@ -33,6 +33,16 @@ namespace simil
       buildIndex( );
     }
 
+//    Spikes& operator=( const TSpikes& other )
+//    {
+//      clear( );
+//      std::copy( other.begin( ), other.end( ), begin( ));
+//
+//      buildIndex( );
+//
+//      return *this;
+//    }
+
     TSpikes::const_iterator elementAt( float time ) const
     {
       if( _references.empty( ))

@@ -17,6 +17,7 @@ namespace simil
   , _subsetEvents( simData->subsetsEvents( ))
   { }
 
+
   void CorrelationComputer::compute( const std::string& subset,
                                      const std::string& event_,
                                      float deltaTime,
@@ -223,6 +224,69 @@ namespace simil
     std::cout << "Computed correlation for event " << subset
               << " with "<< correlation.values.size( ) << " elements."
               << std::endl;
+  }
+
+  std::vector< Correlation >
+  CorrelationComputer::correlate( const std::string& subsetName,
+                                  const std::vector< std::string >& eventNames,
+                                  float deltaTime,
+                                  float selectionThreshold )
+  {
+    std::vector< std::string > composedNames( eventNames.size( ));
+    auto it = composedNames.begin( );
+    for( auto name : eventNames )
+    {
+      *it = subsetName + name;
+      ++it;
+    }
+
+    std::vector< Correlation* > impliedCorrelations;
+    it = composedNames.begin( );
+    for( auto eventName : eventNames )
+    {
+      auto res = _correlations.find( *it );
+
+      if( res == _correlations.end( ))
+      {
+        compute( subsetName, eventName, deltaTime, selectionThreshold );
+
+        res = _correlations.find( *it );
+      }
+
+      impliedCorrelations.push_back( &res->second );
+
+      ++it;
+    }
+
+    std::vector< Correlation > result( eventNames.size( ));
+
+    std::vector< uint32_t > gids =
+        std::move( _subsetEvents->getSubset( subsetName ));
+
+    for( auto gid : gids )
+    {
+      CorrelationValues max;
+      max.falseHit = max.hit = max.result = std::numeric_limits< float >::min( );
+
+      int maxNumber = 0;
+
+      unsigned int counter = 0;
+      for( auto correlation : impliedCorrelations )
+      {
+        auto res = correlation->values.find( gid );
+        if( res != correlation->values.end( ) && res->second > max )
+        {
+          max = res->second;
+          maxNumber = counter;
+        }
+
+        ++counter;
+      }
+
+      result[ maxNumber ].values.insert( std::make_pair( gid, max ));
+    }
+
+    return result;
   }
 
 

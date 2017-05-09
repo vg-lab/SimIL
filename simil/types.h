@@ -18,6 +18,10 @@
 
 #include <vmmlib/vmmlib.h>
 
+#ifdef SIMIL_USE_BRION
+  #include <brion/brion.h>
+#endif
+
 namespace simil
 {
   class Spikes;
@@ -25,9 +29,14 @@ namespace simil
   typedef std::set< uint32_t > TGIDSet;
   typedef std::unordered_set< uint32_t > TGIDUSet;
   typedef std::vector< vmml::Vector3f > TPosVect;
+
+//#ifdef SIMIL_USE_BRION
+//  typedef brion::Spike Spike;
+//  typedef brion::Spikes TSpikes;
+//#else
   typedef std::pair< float, uint32_t > Spike;
   typedef std::vector< Spike > TSpikes;
-
+//#endif
 //  typedef std::multimap< float, uint32_t > TSpikes;
 
   typedef std::pair< float, float > Event;
@@ -63,12 +72,18 @@ namespace simil
     float hit;
     float falseHit;
     float result;
+
+    bool operator==( const CorrelationValues& other )
+    { return result == other.result; }
+
+    bool operator>( const CorrelationValues& other )
+    { return result > other.result; }
   };
 
   typedef std::map< uint32_t, CorrelationValues > TNeuronCorrelationUMap;
   typedef TNeuronCorrelationUMap::const_iterator TNeuronCorrelUMapCIt;
   typedef std::pair< TNeuronCorrelUMapCIt,
-                     TNeuronCorrelUMapCIt > TNeuronCorrelation;
+                     TNeuronCorrelUMapCIt > TNeuronCorrelationRange;
 
   struct Correlation
   {
