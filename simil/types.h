@@ -18,10 +18,6 @@
 
 #include <vmmlib/vmmlib.h>
 
-#ifdef SIMIL_USE_BRION
-  #include <brion/brion.h>
-#endif
-
 namespace simil
 {
   class Spikes;
@@ -30,14 +26,8 @@ namespace simil
   typedef std::unordered_set< uint32_t > TGIDUSet;
   typedef std::vector< vmml::Vector3f > TPosVect;
 
-//#ifdef SIMIL_USE_BRION
-//  typedef brion::Spike Spike;
-//  typedef brion::Spikes TSpikes;
-//#else
   typedef std::pair< float, uint32_t > Spike;
   typedef std::vector< Spike > TSpikes;
-//#endif
-//  typedef std::multimap< float, uint32_t > TSpikes;
 
   typedef std::pair< float, float > Event;
   typedef std::vector< uint32_t > GIDVec;

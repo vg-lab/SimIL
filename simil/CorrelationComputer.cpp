@@ -114,7 +114,7 @@ namespace simil
 
     std::vector< std::set< uint32_t >> binSpikes( binsNumber );
 
-    for( auto spike : spikes )
+    for( const auto& spike : spikes )
     {
       if( giduset.find( spike.second ) == giduset.end( ))
         continue;
@@ -177,12 +177,6 @@ namespace simil
       // Result responds to Hit minus False Hit.
       values.result = values.hit - values.falseHit;
 
-//      std::cout << "Cell " << eventSpikesIt.first
-//                << " " << eventSpikesIt.second
-//                << " " << activeBins
-//                << " = " << values.hit
-//                << std::endl;
-
       // Store maximum values.
       if( values.hit > maxHitValue )
         maxHitValue = values.hit;
@@ -232,6 +226,16 @@ namespace simil
                                   float deltaTime,
                                   float selectionThreshold )
   {
+    std::vector< uint32_t > gids =
+        std::move( _subsetEvents->getSubset( subsetName ));
+
+    if( gids.empty( ))
+    {
+      std::cerr << "Error: Destination GID subset " << subsetName
+                << " is empty or does not exist!" << std::endl;
+      exit( -1 );
+    }
+
     std::vector< std::string > composedNames( eventNames.size( ));
     auto it = composedNames.begin( );
     for( auto name : eventNames )
@@ -258,19 +262,24 @@ namespace simil
       ++it;
     }
 
+    unsigned int counter = 0;
     std::vector< Correlation > result( eventNames.size( ));
+    for( auto& c : result )
+    {
+      c.subsetName = subsetName;
+      c.eventName = eventNames[ counter ];
 
-    std::vector< uint32_t > gids =
-        std::move( _subsetEvents->getSubset( subsetName ));
+      ++counter;
+    }
 
     for( auto gid : gids )
     {
       CorrelationValues max;
       max.falseHit = max.hit = max.result = std::numeric_limits< float >::min( );
 
-      int maxNumber = 0;
+      int maxNumber = -1;
 
-      unsigned int counter = 0;
+      counter = 0;
       for( auto correlation : impliedCorrelations )
       {
         auto res = correlation->values.find( gid );
@@ -283,7 +292,8 @@ namespace simil
         ++counter;
       }
 
-      result[ maxNumber ].values.insert( std::make_pair( gid, max ));
+      if( maxNumber > -1 )
+        result[ maxNumber ].values.insert( std::make_pair( gid, max ));
     }
 
     return result;

@@ -18,6 +18,7 @@ namespace simil
   {
   public:
 
+    SIMIL_API
     Spikes( )
     : TSpikes( )
     , _indexSize( 10000 )
@@ -27,22 +28,15 @@ namespace simil
     , _endTime( 0.0f )
     { }
 
+    SIMIL_API
     Spikes( const TSpikes& other )
     : TSpikes( other )
+    , _indexSize( 100 )
     {
       buildIndex( );
     }
 
-//    Spikes& operator=( const TSpikes& other )
-//    {
-//      clear( );
-//      std::copy( other.begin( ), other.end( ), begin( ));
-//
-//      buildIndex( );
-//
-//      return *this;
-//    }
-
+    SIMIL_API
     TSpikes::const_iterator elementAt( float time ) const
     {
       if( _references.empty( ))
@@ -67,17 +61,24 @@ namespace simil
       return result;
     }
 
+    SIMIL_API
     const std::vector< TSpikes::const_iterator >& refData( void ) const
     {
       return _references;
+    }
+
+    SIMIL_API
+    void rebuildIndex( unsigned int newSize )
+    {
+      _indexSize = newSize;
+
+      buildIndex( );
     }
 
   protected:
 
     void buildIndex( void )
     {
-      _indexSize = 100;//size( ) * 0.001f;
-
       _startTime = 0;
       _endTime = back( ).first;
 
@@ -114,12 +115,6 @@ namespace simil
 
         ++limitIt;
       }
-
-      std::cout << "Built index with " << _indexSize
-                << " elements." << std::endl;
-
-
-//      elementAt( 3000.f );
     }
 
     std::vector< TSpikes::const_iterator > _references;
