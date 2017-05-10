@@ -293,5 +293,80 @@ namespace simil
     return result;
   }
 
+  std::vector< bool > SubsetEventManager::eventActivity( const std::string& name,
+                                                         float deltaTime,
+                                                         float totalTime ) const
+  {
+    std::vector< bool > result;
+
+    EventVec events = std::move( getEvent( name ));
+
+    if( events.empty( ))
+    {
+      std::cout << "Warning: event " << name << " NOT found." << std::endl;
+      return result;
+    }
+
+    // Calculate delta time inverse to avoid further division operations.
+    double invDeltaTime = 1.0 / deltaTime;
+
+    // Threshold for considering an event active during bin time.
+    float threshold = deltaTime * 0.5f;
+
+    // Calculate bins number.
+    unsigned int binsNumber = std::ceil( totalTime * invDeltaTime );
+
+    result.resize( binsNumber, false );
+
+    // Initialize vector storing delta time spaced event's activity.
+//    std::vector< unsigned int > eventBins( binsNumber, 0 );
+
+    std::vector< float > eventTime( binsNumber, 0.0f );
+
+    for( auto event : events )
+    {
+      float acc = 0.0f;
+      unsigned int counter = 0;
+
+      float lowerBound;
+      float upperBound;
+
+      unsigned int binStart = std::floor( event.first * invDeltaTime );
+      unsigned int binEnd = std::ceil( event.second * invDeltaTime );
+
+      if( binEnd > binsNumber )
+        binEnd = binsNumber;
+
+      if( binStart > binEnd )
+        continue;
+
+      acc = binStart * deltaTime;
+
+      for( auto binIt = eventTime.begin( ) + binStart;
+           binIt != eventTime.begin( ) + binEnd; ++binIt )
+      {
+
+        lowerBound = std::max( acc, event.first );
+        upperBound = std::min( acc + deltaTime, event.second );
+
+        *binIt += ( upperBound - lowerBound );
+
+        acc += deltaTime;
+        counter++;
+      }
+
+      auto bin = result.begin( );
+      for( auto time : eventTime )
+      {
+        if( time >= threshold )
+          *bin = true;
+
+        ++bin;
+      }
+    }
+
+    return result;
+  }
+
 }
 

@@ -26,11 +26,17 @@ namespace simil
     SIMIL_API
     CorrelationComputer( SpikeData* simData );
 
+    SIMIL_API std::vector< Correlation >
+    correlate( const std::string& subset,
+               const std::vector< std::string >& events,
+               float deltaTime = 0.125f,
+               float selectionThreshold = 0.0f );
+
     SIMIL_API
     void compute( const std::string& subset,
                   const std::string& event,
                   float deltaTime = 0.125f,
-                  float selectionThreshold = 0.0f );
+                  float selectionThreshold = 0.0f);
 
     std::vector< std::string > correlationNames( void );
 

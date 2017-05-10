@@ -539,55 +539,31 @@ namespace simil
   SpikesCRange
   SpikesPlayer::spikesAtTime( float time )
   {
-    return spikes( ).equal_range( time );
+    return spikesBetween( time, time );
   }
 
   SpikesCRange SpikesPlayer::spikesBetween( float startTime_, float endTime_ )
   {
-    SpikesCIter start, end;
-
     const TSpikes& spikes_ = spikes( );
-    if ( startTime_ == endTime_ )
-      return std::make_pair( spikes_.end( ), spikes_.end( ));
-    else if( endTime_ < startTime_)
-      std::swap( startTime_, endTime_ );
 
-    SpikesCRange res = spikes_.equal_range( startTime_ );
-    if( res.first != res.second )
-      start = res.first;
-    else
-    {
-      for( SpikesCIter spike = spikes_.begin( ); spike != spikes_.end( ); spike++ )
+    SpikesCIter begin = spikes_.end( );
+    SpikesCIter end = spikes_.end( );
+    for( auto spike = spikes_.begin( ); spike != spikes_.end( ); ++spike )
+      if( spike->first >= startTime_ )
       {
-        if(( *spike ).first >= startTime_ )
+        begin = spike;
+        while( spike != spikes_.end( ))
         {
-          start = spike;
-          break;
+          if( spike->first > endTime_ )
+          {
+            end = spike;
+            break;
+          }
         }
+        break;
       }
-    }
 
-    res = spikes_.equal_range( endTime_ );
-    if( res.first != res.second )
-      end = res.second--;
-    else
-    {
-      SpikesCIter last;
-      for( SpikesCIter spike = spikes_.begin( ); spike != spikes_.end( ); spike++ )
-      {
-        if(( *spike ).first < endTime_ )
-        {
-          last = spike;
-        }
-        else
-        {
-          end = spike;
-          break;
-        }
-      }
-    }
-
-    return std::make_pair( start, end );
+    return std::make_pair( begin, end );
 
   }
 

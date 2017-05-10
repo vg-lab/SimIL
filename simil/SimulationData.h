@@ -18,6 +18,7 @@
 #include "types.h"
 #include "H5Network.h"
 #include "SubsetEventManager.h"
+#include "Spikes.hpp"
 
 namespace simil
 {
@@ -74,13 +75,13 @@ namespace simil
     SpikeData( const std::string& filePath, TDataType dataType,
                const std::string& report = "" );
 
-    const TSpikes& spikes( void ) const;
+    const Spikes& spikes( void ) const;
 
     SpikeData* get( void );
 
   protected:
 
-    TSpikes _spikes;
+    Spikes _spikes;
   };
 
   class VoltageData : public SimulationData

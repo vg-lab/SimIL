@@ -20,10 +20,14 @@
 
 namespace simil
 {
+  class Spikes;
+
   typedef std::set< uint32_t > TGIDSet;
   typedef std::unordered_set< uint32_t > TGIDUSet;
   typedef std::vector< vmml::Vector3f > TPosVect;
-  typedef std::multimap< float, uint32_t > TSpikes;
+
+  typedef std::pair< float, uint32_t > Spike;
+  typedef std::vector< Spike > TSpikes;
 
   typedef std::pair< float, float > Event;
   typedef std::vector< uint32_t > GIDVec;
@@ -58,12 +62,18 @@ namespace simil
     float hit;
     float falseHit;
     float result;
+
+    bool operator==( const CorrelationValues& other )
+    { return result == other.result; }
+
+    bool operator>( const CorrelationValues& other )
+    { return result > other.result; }
   };
 
   typedef std::map< uint32_t, CorrelationValues > TNeuronCorrelationUMap;
   typedef TNeuronCorrelationUMap::const_iterator TNeuronCorrelUMapCIt;
   typedef std::pair< TNeuronCorrelUMapCIt,
-                     TNeuronCorrelUMapCIt > TNeuronCorrelation;
+                     TNeuronCorrelUMapCIt > TNeuronCorrelationRange;
 
   struct Correlation
   {
