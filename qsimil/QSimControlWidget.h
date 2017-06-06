@@ -34,9 +34,9 @@ namespace qsimil
     void init( const char* blueConfig, simil::TSimulationType type, 
       bool autoStart = false );
 
-    inline float getStepsPerSecond( void ) const;
-    inline float getStepDeltaTime( void ) const;
-    inline bool isPlaying( void ) const;
+    float getStepsPerSecond( void ) const;
+    float getStepDeltaTime( void ) const;
+    bool isPlaying( void ) const;
 
     void setStepsPerSecond(const float& d);
     void setStepDeltaTime(const float& dt);

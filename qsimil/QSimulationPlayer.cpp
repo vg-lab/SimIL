@@ -139,6 +139,7 @@ namespace qsimil
       if( notify )
       {
     #ifdef SIMIL_USE_ZEROEQ
+        if ( _simPlayer->zeqEvents( ) == nullptr ) return;
         _simPlayer->zeqEvents( )->sendPlaybackOp( zeroeq::gmrv::PLAY );
     #endif
       }
@@ -155,6 +156,7 @@ namespace qsimil
       if( notify )
       {
     #ifdef SIMIL_USE_ZEROEQ
+        if ( _simPlayer->zeqEvents( ) == nullptr ) return;
         _simPlayer->zeqEvents( )->sendPlaybackOp( zeroeq::gmrv::PAUSE );
     #endif
       }
@@ -174,6 +176,7 @@ namespace qsimil
       if( notify )
       {
     #ifdef SIMIL_USE_ZEROEQ
+        if ( _simPlayer->zeqEvents( ) == nullptr ) return;
         _simPlayer->zeqEvents( )->sendPlaybackOp( zeroeq::gmrv::STOP );
     #endif
       }
@@ -190,6 +193,7 @@ namespace qsimil
       if( notify )
       {
     #ifdef SIMIL_USE_ZEROEQ
+        if ( _simPlayer->zeqEvents( ) == nullptr ) return;
         _simPlayer->zeqEvents( )->sendPlaybackOp( repeat ?
                                         zeroeq::gmrv::ENABLE_LOOP :
                                         zeroeq::gmrv::DISABLE_LOOP );
@@ -233,16 +237,17 @@ namespace qsimil
       _simPlayer->PlayAt( this->_percentage );
       _playing = true;
       
-    if( notify )
+      if( notify )
       {
-    #ifdef SIMIL_USE_ZEROEQ
-      // Send event
-      _simPlayer->zeqEvents( )->sendFrame( _simSlider->minimum( ),
-                             _simSlider->maximum( ),
-                             sliderPosition );
+#ifdef SIMIL_USE_ZEROEQ
+        if ( _simPlayer->zeqEvents( ) == nullptr ) return;
+        // Send event
+        _simPlayer->zeqEvents( )->sendFrame( _simSlider->minimum( ),
+                               _simSlider->maximum( ),
+                               sliderPosition );
 
-      _simPlayer->zeqEvents( )->sendPlaybackOp( zeroeq::gmrv::PLAY );
-    #endif
+        _simPlayer->zeqEvents( )->sendPlaybackOp( zeroeq::gmrv::PLAY );
+#endif
       }
     }
   }
@@ -275,6 +280,7 @@ namespace qsimil
       if( notify )
       {
     #ifdef SIMIL_USE_ZEROEQ
+        if ( _simPlayer->zeqEvents( ) == nullptr ) return;
         _simPlayer->zeqEvents( )->sendPlaybackOp( zeroeq::gmrv::BEGIN );
     #endif
       }
@@ -292,6 +298,7 @@ namespace qsimil
       if( notify )
       {
     #ifdef SIMIL_USE_ZEROEQ
+        if ( _simPlayer->zeqEvents( ) == nullptr ) return;
        _simPlayer->zeqEvents( )->sendPlaybackOp( zeroeq::gmrv::END );
     #endif
       }
@@ -363,7 +370,7 @@ namespace qsimil
   
 
   void QSimulationPlayer::init( const char* blueConfig, 
-    simil::TSimulationType type,  bool autoStart )
+    simil::TSimulationType type, bool autoStart )
   {
     simil::TDataType dataType( simil::TDataType::TBlueConfig );
     std::string path = std::string( blueConfig ); 
@@ -382,21 +389,29 @@ namespace qsimil
         #endif
         break;
     }
+    std::cout << "QSimulationPlayer::loadData ENTER" << std::endl;
     _simPlayer->LoadData( dataType, path );
+    std::cout << "QSimulationPlayer::loadData EXIT" << std::endl;
 
     // std::cout << "SimulationPlayer loaded ..." << std::endl;
 
     updateSlider( 0.0f );
+    std::cout << "QSimulationPlayer::updateSlider" << std::endl;
 
     _startTimeLabel->setText( QString( "0.0%" ) );
+    std::cout << "QSimulationPlayer::_startTimeLabel->setText" << std::endl;
 
     //_endTimeLabel->setText(
     //  QString::number( (double)_simPlayer->endTime( )));
 
+    std::cout << "QSimulationPlayer::autoStart: " << autoStart << std::endl;
     if ( autoStart ) 
     {
+      std::cout << "QSimulationPlayer::_play ENTER" << std::endl;
       this->_play( );
+      std::cout << "QSimulationPlayer::_play EXIT" << std::endl;
     }
+    std::cout << "QSimulationPlayer::INIT OK" << std::endl;
   }
 
   void QSimulationPlayer::reset( void )
