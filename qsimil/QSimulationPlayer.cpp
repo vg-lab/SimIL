@@ -139,7 +139,7 @@ namespace qsimil
       if( notify )
       {
     #ifdef SIMIL_USE_ZEROEQ
-        if ( _simPlayer->zeqEvents( ) == nullptr ) return;
+        if ( _simPlayer->zeqEvents( ))
         _simPlayer->zeqEvents( )->sendPlaybackOp( zeroeq::gmrv::PLAY );
     #endif
       }
@@ -156,8 +156,8 @@ namespace qsimil
       if( notify )
       {
     #ifdef SIMIL_USE_ZEROEQ
-        if ( _simPlayer->zeqEvents( ) == nullptr ) return;
-        _simPlayer->zeqEvents( )->sendPlaybackOp( zeroeq::gmrv::PAUSE );
+        if ( _simPlayer->zeqEvents( ))
+          _simPlayer->zeqEvents( )->sendPlaybackOp( zeroeq::gmrv::PAUSE );
     #endif
       }
     }
@@ -176,8 +176,8 @@ namespace qsimil
       if( notify )
       {
     #ifdef SIMIL_USE_ZEROEQ
-        if ( _simPlayer->zeqEvents( ) == nullptr ) return;
-        _simPlayer->zeqEvents( )->sendPlaybackOp( zeroeq::gmrv::STOP );
+        if ( _simPlayer->zeqEvents( ))
+          _simPlayer->zeqEvents( )->sendPlaybackOp( zeroeq::gmrv::STOP );
     #endif
       }
     }
@@ -193,10 +193,10 @@ namespace qsimil
       if( notify )
       {
     #ifdef SIMIL_USE_ZEROEQ
-        if ( _simPlayer->zeqEvents( ) == nullptr ) return;
-        _simPlayer->zeqEvents( )->sendPlaybackOp( repeat ?
-                                        zeroeq::gmrv::ENABLE_LOOP :
-                                        zeroeq::gmrv::DISABLE_LOOP );
+        if ( _simPlayer->zeqEvents( ))
+          _simPlayer->zeqEvents( )->sendPlaybackOp( repeat ?
+                                                    zeroeq::gmrv::ENABLE_LOOP :
+                                                    zeroeq::gmrv::DISABLE_LOOP );
     #endif
       }
     }
@@ -240,13 +240,15 @@ namespace qsimil
       if( notify )
       {
 #ifdef SIMIL_USE_ZEROEQ
-        if ( _simPlayer->zeqEvents( ) == nullptr ) return;
-        // Send event
-        _simPlayer->zeqEvents( )->sendFrame( _simSlider->minimum( ),
-                               _simSlider->maximum( ),
-                               sliderPosition );
+        if ( _simPlayer->zeqEvents( ))
+        {
+          // Send event
+          _simPlayer->zeqEvents( )->sendFrame( _simSlider->minimum( ),
+                                 _simSlider->maximum( ),
+                                 sliderPosition );
 
-        _simPlayer->zeqEvents( )->sendPlaybackOp( zeroeq::gmrv::PLAY );
+          _simPlayer->zeqEvents( )->sendPlaybackOp( zeroeq::gmrv::PLAY );
+        }
 #endif
       }
     }
@@ -280,8 +282,8 @@ namespace qsimil
       if( notify )
       {
     #ifdef SIMIL_USE_ZEROEQ
-        if ( _simPlayer->zeqEvents( ) == nullptr ) return;
-        _simPlayer->zeqEvents( )->sendPlaybackOp( zeroeq::gmrv::BEGIN );
+        if ( _simPlayer->zeqEvents( ))
+          _simPlayer->zeqEvents( )->sendPlaybackOp( zeroeq::gmrv::BEGIN );
     #endif
       }
     }
@@ -298,8 +300,8 @@ namespace qsimil
       if( notify )
       {
     #ifdef SIMIL_USE_ZEROEQ
-        if ( _simPlayer->zeqEvents( ) == nullptr ) return;
-       _simPlayer->zeqEvents( )->sendPlaybackOp( zeroeq::gmrv::END );
+        if ( _simPlayer->zeqEvents( ))
+          _simPlayer->zeqEvents( )->sendPlaybackOp( zeroeq::gmrv::END );
     #endif
       }
     }
@@ -328,31 +330,24 @@ namespace qsimil
     switch( operation )
     {
       case zeroeq::gmrv::PLAY:
-        std::cout << "Received play" << std::endl;
         _play( false );
         break;
       case zeroeq::gmrv::PAUSE:
         _Pause( false );
-        std::cout << "Received pause" << std::endl;
         break;
       case zeroeq::gmrv::STOP:
-        std::cout << "Received stop" << std::endl;
         _Stop( false );
         break;
       case zeroeq::gmrv::BEGIN:
-        std::cout << "Received begin" << std::endl;
         _restart( false );
         break;
       case zeroeq::gmrv::END:
-        std::cout << "Received end" << std::endl;
         _GoToEnd( false );
         break;
       case zeroeq::gmrv::ENABLE_LOOP:
-        std::cout << "Received enable loop" << std::endl;
         _zeroeqEventRepeat( true );
         break;
       case zeroeq::gmrv::DISABLE_LOOP:
-        std::cout << "Received disable loop" << std::endl;
         _zeroeqEventRepeat( false );
         break;
       default:
@@ -389,29 +384,19 @@ namespace qsimil
         #endif
         break;
     }
-    std::cout << "QSimulationPlayer::loadData ENTER" << std::endl;
     _simPlayer->LoadData( dataType, path );
-    std::cout << "QSimulationPlayer::loadData EXIT" << std::endl;
 
     // std::cout << "SimulationPlayer loaded ..." << std::endl;
 
     updateSlider( 0.0f );
-    std::cout << "QSimulationPlayer::updateSlider" << std::endl;
 
     _startTimeLabel->setText( QString( "0.0%" ) );
-    std::cout << "QSimulationPlayer::_startTimeLabel->setText" << std::endl;
 
-    //_endTimeLabel->setText(
-    //  QString::number( (double)_simPlayer->endTime( )));
-
-    std::cout << "QSimulationPlayer::autoStart: " << autoStart << std::endl;
     if ( autoStart ) 
     {
-      std::cout << "QSimulationPlayer::_play ENTER" << std::endl;
       this->_play( );
-      std::cout << "QSimulationPlayer::_play EXIT" << std::endl;
+
     }
-    std::cout << "QSimulationPlayer::INIT OK" << std::endl;
   }
 
   void QSimulationPlayer::reset( void )
