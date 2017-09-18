@@ -19,6 +19,7 @@ namespace simil
   , _blueConfig( nullptr )
 #endif
   , _h5Network( nullptr )
+  , _csvNetwork( nullptr )
   , _startTime( 0.0f )
   , _endTime( 0.0f )
   {
@@ -54,6 +55,16 @@ namespace simil
         for( simil::SubsetMapCIt it = subsetIts.first; it != subsetIts.second; ++it )
           _subsetEventManager.addSubset( it->first, it->second );
 
+        break;
+      }
+      case TCSV:
+      {
+        _csvNetwork = new CSVNetwork( filePath_ );
+        _csvNetwork->load( );
+
+        _gids = std::move( _csvNetwork->getGIDs( ));
+
+        _positions = std::move( _csvNetwork->getComposedPositions( ));
         break;
       }
       default:
@@ -147,6 +158,18 @@ namespace simil
         _spikes = spikeReport.spikes( );
 
         _startTime = spikeReport.startTime( );
+        _endTime = spikeReport.endTime( );
+
+        break;
+      }
+      case TCSV:
+      {
+        CSVSpikes spikeReport( *_csvNetwork, report, ',', false );
+        spikeReport.load( );
+
+        _spikes = spikeReport.spikes( );
+
+        _startTime = spikeReport.starTime( );
         _endTime = spikeReport.endTime( );
 
         break;

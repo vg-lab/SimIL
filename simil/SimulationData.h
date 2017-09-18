@@ -19,6 +19,8 @@
 #include "H5Network.h"
 #include "SubsetEventManager.h"
 #include "Spikes.hpp"
+#include "CSVNetwork.h"
+#include "CSVActivity.h"
 
 namespace simil
 {
@@ -62,6 +64,8 @@ namespace simil
     brion::BlueConfig* _blueConfig;
 #endif
     H5Network* _h5Network;
+
+    CSVNetwork* _csvNetwork;
 
     float _startTime;
     float _endTime;
