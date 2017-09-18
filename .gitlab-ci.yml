@@ -7,6 +7,7 @@ Ubuntu:
   - date
   - hostname
   - uname -a
+  - export CMAKE_EXTRA_ARGS=-DCLONE_SUBPROJECTS=ON
   - export BUILD_GENERATOR="Unix Makefiles"
   - bash .gitlabci.sh
  tags:
@@ -18,6 +19,7 @@ OSX:
   - date
   - hostname
   - uname -a
+  - export CMAKE_EXTRA_ARGS=-DCLONE_SUBPROJECTS=ON
   - export BUILD_GENERATOR="Unix Makefiles"
   - export CMAKE_OSX_ARCHITECTURES=x86_64
   - bash .gitlabci.sh
@@ -30,7 +32,7 @@ Ubuntu-Optional-Deps:
   - date
   - hostname
   - uname -a
-  - export CMAKE_EXTRA_ARGS=-DSIMIL_OPTIONALS_AS_REQUIRED=ON
+  - export CMAKE_EXTRA_ARGS="-DSIMIL_OPTIONALS_AS_REQUIRED=ON -DCLONE_SUBPROJECTS=ON"
   - export BUILD_OPTIONALS_SUBPROJECTS=1
   - export BUILD_GENERATOR="Unix Makefiles"
   - bash .gitlabci.sh
@@ -43,7 +45,7 @@ OSX-Optional-Deps:
   - date
   - hostname
   - uname -a
-  - export CMAKE_EXTRA_ARGS=-DSIMIL_OPTIONALS_AS_REQUIRED=ON
+  - export CMAKE_EXTRA_ARGS="-DSIMIL_OPTIONALS_AS_REQUIRED=ON -DCLONE_SUBPROJECTS=ON"
   - export BUILD_OPTIONALS_SUBPROJECTS=1
   - export BUILD_GENERATOR="Unix Makefiles"
   - export CMAKE_OSX_ARCHITECTURES=x86_64
@@ -56,6 +58,7 @@ Win7:
  script:
   - call %ENVFILESDIR%\Boost-1.56-vs12-x64.bat
   - call %ENVFILESDIR%\HDF5-1.8.14-vs12-x64.bat
+  - set CMAKE_EXTRA_ARGS=-DCLONE_SUBPROJECTS=ON
   - set BUILD_GENERATOR=Visual Studio 12 Win64
   - set PATH=%PATH%;"c:\\Program Files (x86)\\Git\\bin"
   - bash.exe --login .gitlabci.sh

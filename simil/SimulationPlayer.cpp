@@ -802,7 +802,7 @@ namespace simil
 
   void VoltagesPlayer::FrameProcess( void )
   {
-    _currentFrame = _voltReport->loadFrame( _currentTime );
+    _currentFrame = _voltReport->loadFrame( _currentTime ).get();
 
     if( _currentFrame == 0)
     {
