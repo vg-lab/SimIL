@@ -227,7 +227,7 @@ namespace simil
                                   float selectionThreshold )
   {
     std::vector< uint32_t > gids =
-        std::move( _subsetEvents->getSubset( subsetName ));
+        _subsetEvents->getSubset( subsetName );
 
     if( gids.empty( ))
     {

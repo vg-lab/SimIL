@@ -66,15 +66,14 @@ namespace simil
   {
     std::set< uint32_t > result;
 
-    std::vector< std::string > tokens =
-        std::move( split( stringGIDs, ',', true )) ;
+    std::vector< std::string > tokens = split( stringGIDs, ',', true );
 
     std::vector< std::string > range;
     for( auto& token : tokens )
     {
       if( token.find( ":" ) != std::string::npos )
       {
-        range = std::move( split( token, ':', false ));
+        range = split( token, ':', false );
 
         uint32_t lowerLimit = 0;
         uint32_t upperLimit = 0;
@@ -123,14 +122,14 @@ namespace simil
     std::vector< Event >result;
 
     std::vector< std::string > timeFrames =
-        std::move( split( stringTimeFrames, ';', false ));
+      split( stringTimeFrames, ';', false );
 
     for( auto timeFrameString : timeFrames )
     {
       Event timeFrame;
 
       std::vector< std::string > range =
-          std::move( split( timeFrameString, ':', false ));
+        split( timeFrameString, ':', false );
 
       if( !range[ 0 ].empty( ))
         timeFrame.first = boost::lexical_cast< float >( range[ 0 ]);
@@ -168,7 +167,7 @@ namespace simil
         {
 
           std::set< uint32_t > gidSet =
-              std::move( parseGIDsJSON( child.second.get_value< std::string >( )));
+            parseGIDsJSON( child.second.get_value< std::string >( ));
 
           GIDVec gids( gidSet.begin( ), gidSet.end( ));
 
@@ -181,7 +180,7 @@ namespace simil
         for( auto& child : timeframe.second )
         {
           std::vector< Event > timeFrame =
-              std::move( parseTimeFrameJSON( child.second.get_value< std::string >( )));
+            parseTimeFrameJSON( child.second.get_value< std::string >( ));
 
           _events.insert( std::make_pair( child.first, timeFrame ));
         }
@@ -299,7 +298,7 @@ namespace simil
   {
     std::vector< bool > result;
 
-    EventVec events = std::move( getEvent( name ));
+    EventVec events = getEvent( name );
 
     if( events.empty( ))
     {
