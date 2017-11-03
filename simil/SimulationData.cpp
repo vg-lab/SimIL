@@ -47,9 +47,9 @@ namespace simil
         _h5Network = new H5Network( filePath_ );
         _h5Network->load( );
 
-        _gids = std::move( _h5Network->getGIDs( ));
+        _gids =  _h5Network->getGIDs( );
 
-        _positions = std::move( _h5Network->getComposedPositions( ));
+        _positions = _h5Network->getComposedPositions( );
 
         auto subsetIts = _h5Network->getSubsets( );
         for( simil::SubsetMapCIt it = subsetIts.first; it != subsetIts.second; ++it )
