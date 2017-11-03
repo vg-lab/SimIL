@@ -1,8 +1,10 @@
 /*
- * SimulationData.cpp
- *
- *  Created on: 5 de abr. de 2016
- *      Author: sgalindo
+ * @file  SimulationData.cpp
+ * @brief
+ * @author Sergio E. Galindo <sergio.galindo@urjc.es>
+ * @date
+ * @remarks Copyright (c) GMRV/URJC. All rights reserved.
+ *          Do not distribute without further notice.
  */
 
 #include "SimulationData.h"
@@ -12,8 +14,9 @@
 namespace simil
 {
 
-  SimulationData::SimulationData( std::string filePath_,
-                                  TDataType dataType )
+  SimulationData::SimulationData( const std::string& filePath_,
+                                  TDataType dataType,
+                                  const std::string& target )
   : _simulationType( TSimNetwork )
 #ifdef SIMIL_USE_BRION
   , _blueConfig( nullptr )
@@ -23,15 +26,21 @@ namespace simil
   , _startTime( 0.0f )
   , _endTime( 0.0f )
   {
+    target.size( ); // TODO remove this workaround to unused variable error
     switch( dataType )
     {
       case TBlueConfig:
       {
 #ifdef SIMIL_USE_BRION
         _blueConfig = new brion::BlueConfig( filePath_ );
+        brion::Targets targets = _blueConfig->getTargets( );
+
         brain::Circuit* circuit = new brain::Circuit( *_blueConfig );
 
-        _gids = circuit->getGIDs( );
+        if( !target.empty( ))
+          _gids = brion::Target::parse( targets, target );
+        else
+          _gids = circuit->getGIDs( );
 
         _positions = circuit->getPositions( _gids );
 
@@ -121,7 +130,7 @@ namespace simil
 
   SpikeData::SpikeData( const std::string& filePath_, TDataType dataType,
                         const std::string& report  )
-  : SimulationData( filePath_, dataType )
+  : SimulationData( filePath_, dataType, report )
   {
 
     _simulationType = simil::TSimSpikes;
@@ -136,7 +145,7 @@ namespace simil
           brain::SpikeReportReader spikeReport(  _blueConfig->getSpikeSource( ));
           _spikes = spikeReport.getSpikes(0, spikeReport.getEndTime( ));
 
-          _startTime = 0.0f; //spikeReport.getStartTime( );
+          _startTime = 0.0f;
           _endTime = spikeReport.getEndTime( );
         }
 #else
@@ -180,6 +189,22 @@ namespace simil
 
   }
 
+  void SpikeData::reduceDataToGIDS( void )
+  {
+    std::cout << "Before: " << _spikes.size( ) << std::endl;
+    TSpikes aux;
+    aux.reserve( _spikes.size( ));
+    for( auto spike : _spikes )
+      if( _gids.find( spike.second ) != _gids.end( ))
+        aux.push_back( spike );
+
+    aux.shrink_to_fit( );
+
+    _spikes = Spikes( aux );
+
+    std::cout << "After: " << _spikes.size( ) << std::endl;
+  }
+
   const Spikes& SpikeData::spikes( void ) const
   {
     return _spikes;
@@ -191,6 +216,6 @@ namespace simil
   }
 
 
-}
+} // namespace simil
 
 

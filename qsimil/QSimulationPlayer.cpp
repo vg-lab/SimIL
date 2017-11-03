@@ -13,7 +13,8 @@
 namespace qsimil
 {
   QSimulationPlayer::QSimulationPlayer( QWidget *parent_ )
-    : QWidget(parent_)
+  : QWidget(parent_)
+  , _simPlayer( nullptr )
   {
     {
       _simulationDock = new QDockWidget( );
@@ -376,17 +377,12 @@ namespace qsimil
       case simil::TSimulationType::TSimSpikes:
         _simPlayer = new simil::SpikesPlayer();
         break;
-      case simil::TSimulationType::TSimVoltages:
-        #ifdef SIMIL_USE_BRION
-        _simPlayer = new simil::VoltagesPlayer();
-        #else
-        std::cerr << "Error: brion support not available." << std::endl;
-        #endif
+      default:
+        std::cerr << "Error: Simulation type not supported." << std::endl;
+        return;
         break;
     }
     _simPlayer->LoadData( dataType, path );
-
-    // std::cout << "SimulationPlayer loaded ..." << std::endl;
 
     updateSlider( 0.0f );
 
@@ -407,9 +403,8 @@ namespace qsimil
 
   void QSimulationPlayer::update( bool sendGIDS )
   {
-    //std::cout << "PIDO FRAME" << std::endl;
     _simPlayer->Frame();
-    //std::cout << "UPDATE SLIDER" << std::endl;
+
     updateSimulationSlider ( this->_simPlayer->GetRelativeTime( ) );
 
     if ( sendGIDS )

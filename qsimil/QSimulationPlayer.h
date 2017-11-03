@@ -45,7 +45,7 @@ namespace qsimil
   protected:
     std::vector< uint32_t > _gidsSimulation;
 
-    simil::SimulationPlayer *_simPlayer = nullptr;
+    simil::SimulationPlayer *_simPlayer;
     
     QDockWidget* _simulationDock;
     QSlider* _simSlider;
@@ -60,13 +60,6 @@ namespace qsimil
     bool _playing;
     float _percentage;
 
-#ifdef TEVIMOS_USE_ZEROEQ
-#ifdef TEVIMOS_USE_GMRVLEX
-  void applyPlaybackOpertion( unsigned int playbackOp );
-  void _zeroeqEventRepeat( bool repeat );
-#endif
-#endif
-
   protected slots:
     void _playPause( bool notify = true );
     void _play( bool notify = true );
@@ -79,7 +72,8 @@ namespace qsimil
     void _restart( bool notify = true );
     void _goToEnd( bool notify = true );
   
-  };  // CustomPlayer
-}; // qttevimos
+  };  // QSimulationPlayer
+
+}; // qsimil
 
 #endif // __QSIMIL__QSIMULATION_PLAYER_H__
