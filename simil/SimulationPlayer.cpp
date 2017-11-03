@@ -457,25 +457,15 @@ namespace simil
   {
     SimulationPlayer::PlayAt( percentage );
 
-    const TSpikes& spikes_ = spikes( );
+    const Spikes& spikes_ = spikes( );
 
     _currentSpike = spikes_.begin( );
     _previousSpike = _currentSpike;
 
     _currentTime = percentage * ( _endTime - _startTime ) + _startTime;
 
-    SpikesCIter last, last2 = _currentSpike;
-    for( SpikesCIter spike = _currentSpike ; spike != spikes_.end( ); spike++ )
-    {
-      if( ( *spike ).first  >= _currentTime )
-      {
-        _currentSpike = last;
-        _previousSpike = last2;
-        break;
-      }
-      last2 = last;
-      last = spike;
-    }
+    _currentSpike = spikes_.elementAt( _currentTime );
+
 
   }
 
@@ -484,26 +474,6 @@ namespace simil
     const TSpikes& spikes_ = spikes( );
     _previousSpike = _currentSpike;
     SpikesCIter last;
-
-//    SpikesCIter aux = _currentSpike;
-//    aux++;
-//    if( aux  == spikes.end( ) )
-//    {
-//        _finished = true;
-//        Finished( );
-//        return;
-//    }
-//
-
-//    for( SpikesCIter spike = _currentSpike ; spike != spikes.end( ); spike++ )
-//    {
-//      if( ( *spike ).first  >= _currentTime )
-//      {
-//        _currentSpike = spike;
-//        break;
-//      }
-//      last = spike;
-//    }
 
     SpikesCIter spike = _currentSpike;
     while( ( *spike ).first  < _currentTime )
@@ -520,7 +490,7 @@ namespace simil
     _currentSpike = spike;
   }
 
-  const TSpikes& SpikesPlayer::spikes( void )
+  const Spikes& SpikesPlayer::spikes( void )
   {
 //    return _spikeReport->getSpikes( );
     return dynamic_cast< SpikeData* >( _simData )->spikes( );
@@ -544,24 +514,23 @@ namespace simil
 
   SpikesCRange SpikesPlayer::spikesBetween( float startTime_, float endTime_ )
   {
-    const TSpikes& spikes_ = spikes( );
+    assert( endTime_ > startTime_ );
+
+    const Spikes& spikes_ = spikes( );
 
     SpikesCIter begin = spikes_.end( );
     SpikesCIter end = spikes_.end( );
-    for( auto spike = spikes_.begin( ); spike != spikes_.end( ); ++spike )
-      if( spike->first >= startTime_ )
-      {
-        begin = spike;
-        while( spike != spikes_.end( ))
-        {
-          if( spike->first > endTime_ )
-          {
-            end = spike;
-            break;
-          }
-        }
-        break;
-      }
+
+    begin = spikes_.elementAt( startTime_ );
+    auto spike = begin;
+    unsigned int spikesSize =  spikes_.size( );
+    while( spike->first < endTime_ || spike - spikes_.begin( ) < spikesSize )
+      ++spike;
+
+    if( spike - spikes_.begin( ) >= spikesSize )
+      spike = begin = spikes_.end( );
+
+    end = spike;
 
     return std::make_pair( begin, end );
 
