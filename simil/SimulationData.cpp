@@ -71,9 +71,9 @@ namespace simil
         _csvNetwork = new CSVNetwork( filePath_ );
         _csvNetwork->load( );
 
-        _gids = std::move( _csvNetwork->getGIDs( ));
+        _gids =  _csvNetwork->getGIDs( );
 
-        _positions = std::move( _csvNetwork->getComposedPositions( ));
+        _positions = _csvNetwork->getComposedPositions( );
         break;
       }
       default:

@@ -94,7 +94,7 @@ namespace simil
 
     _values = values;
 
-    _endTime = 0.72f * _values.size( );
+    _endTime = 0.72f * _values[0].size( );
 
     file.close( );
 
@@ -108,19 +108,20 @@ namespace simil
 
     std::multimap< float, uint32_t > sortedSpikes;
 
-    float currentTime = 0.0f;
+    unsigned int counter = 0;
     for( auto row : _values )
     {
-      unsigned int counter = 0;
+      float currentTime = 0.0f;
 
       for( int value : row )
       {
         if( value != 0 )
           sortedSpikes.insert( std::make_pair( currentTime, counter ));
 
-        counter++;
+        currentTime += deltaTime;
       }
-      currentTime += deltaTime;
+      counter++;
+
     }
 
     result.reserve( sortedSpikes.size( ));
