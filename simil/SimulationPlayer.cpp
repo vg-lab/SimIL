@@ -389,7 +389,7 @@ namespace simil
     begin = spikes_.elementAt( startTime_ );
     auto spike = begin;
     unsigned int spikesSize =  spikes_.size( );
-    while( spike->first < endTime_ || spike - spikes_.begin( ) < spikesSize )
+    while( spike->first < endTime_ && spike - spikes_.begin( ) < spikesSize )
       ++spike;
 
     if( spike - spikes_.begin( ) >= spikesSize )
