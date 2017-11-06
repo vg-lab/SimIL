@@ -1,8 +1,10 @@
 /*
- * SimulationData.h
- *
- *  Created on: 5 de abr. de 2016
- *      Author: sgalindo
+ * @file  SimulationData.h
+ * @brief
+ * @author Sergio E. Galindo <sergio.galindo@urjc.es>
+ * @date
+ * @remarks Copyright (c) GMRV/URJC. All rights reserved.
+ *          Do not distribute without further notice.
  */
 
 #ifndef __SIMIL__SIMULATIONDATA_H__
@@ -26,7 +28,9 @@ namespace simil
   {
   public:
 
-    SimulationData( std::string filePath, TDataType dataType );
+    SimulationData( const std::string& filePath,
+                    TDataType dataType,
+                    const std::string& target = "" );
     virtual ~SimulationData( void );
 
     const TGIDSet& gids( void ) const;
@@ -79,6 +83,8 @@ namespace simil
 
     SpikeData* get( void );
 
+    void reduceDataToGIDS( void );
+
   protected:
 
     Spikes _spikes;
@@ -92,7 +98,7 @@ namespace simil
 
   };
 
-}
+} // namespace simil
 
 
 
