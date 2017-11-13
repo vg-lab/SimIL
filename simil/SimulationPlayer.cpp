@@ -325,6 +325,22 @@ namespace simil
     _previousSpike = _currentSpike;
   }
 
+  void SpikesPlayer::GoTo( float timeStamp )
+  {
+
+    SimulationPlayer::GoTo( timeStamp );
+
+    const Spikes& spikes_ = spikes( );
+
+    _currentSpike = spikes_.begin( );
+    _previousSpike = _currentSpike;
+
+    _currentTime = timeStamp;
+
+    _currentSpike = spikes_.elementAt( _currentTime );
+
+  }
+
   void SpikesPlayer::PlayAt( float percentage )
   {
     SimulationPlayer::PlayAt( percentage );

@@ -161,6 +161,7 @@ namespace simil
                            const std::string& activityPath = "" );
 
     virtual void Clear( void );
+    virtual void GoTo( float timeStamp );
     virtual void PlayAt( float percentage );
     virtual void Stop( void );
 
