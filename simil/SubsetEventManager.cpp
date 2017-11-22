@@ -298,9 +298,9 @@ namespace simil
   {
     std::vector< bool > result;
 
-    EventVec events = getEvent( name );
+    EventVec eventVec = getEvent( name );
 
-    if( events.empty( ))
+    if( eventVec.empty( ))
     {
       std::cout << "Warning: event " << name << " NOT found." << std::endl;
       return result;
@@ -322,7 +322,7 @@ namespace simil
 
     std::vector< float > eventTime( binsNumber, 0.0f );
 
-    for( auto event : events )
+    for( const auto& event : eventVec )
     {
       float acc = 0.0f;
       unsigned int counter = 0;
