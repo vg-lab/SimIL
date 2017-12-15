@@ -143,9 +143,9 @@ namespace simil
       ++binIt;
     }
 
-    Correlation correlation;
-    correlation.subsetName = subset;
-    correlation.eventName = event_;
+    Correlation correlation_;
+    correlation_.subsetName = subset;
+    correlation_.eventName = event_;
 
     // Calculate normalization factors by the inverse of active/inactive bins.
     float normHit = 1.0f / activeBins;
@@ -195,7 +195,7 @@ namespace simil
       if( values.result >= selectionThreshold )
 
         // Store neuron correlation value.
-        correlation.values.insert( std::make_pair( eventSpikesIt.first, values ));
+        correlation_.values.insert( std::make_pair( eventSpikesIt.first, values ));
 
     }
 
@@ -213,10 +213,10 @@ namespace simil
 
 
     // Store the full subset correlation for filtered neurons.
-    _correlations.insert( std::make_pair( subset + event_, correlation ));
+    _correlations.insert( std::make_pair( subset + event_, correlation_ ));
 
     std::cout << "Computed correlation for event " << subset
-              << " with "<< correlation.values.size( ) << " elements."
+              << " with "<< correlation_.values.size( ) << " elements."
               << std::endl;
   }
 
@@ -280,10 +280,10 @@ namespace simil
       int maxNumber = -1;
 
       counter = 0;
-      for( auto correlation : impliedCorrelations )
+      for( const auto corr : impliedCorrelations )
       {
-        auto res = correlation->values.find( gid );
-        if( res != correlation->values.end( ) && res->second > max )
+        auto res = corr->values.find( gid );
+        if( res != corr->values.end( ) && res->second > max )
         {
           max = res->second;
           maxNumber = counter;
