@@ -76,7 +76,10 @@ namespace simil
   void SimulationPlayer::Clear( void )
   {
     if( _simData )
+    {
       delete _simData;
+      _simData = nullptr;
+    }
 
     _gids.clear( );
   }
@@ -301,9 +304,9 @@ namespace simil
                                const std::string& networkPath,
                                const std::string& activityPath )
   {
-    _simData = new SpikeData( networkPath, dataType, activityPath );
+    auto simData = new SpikeData( networkPath, dataType, activityPath );
 
-    LoadData( _simData );
+    LoadData( simData );
   }
 
   void SpikesPlayer::Clear( void )
