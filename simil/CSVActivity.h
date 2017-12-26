@@ -61,7 +61,8 @@ namespace simil
     float _startTime;
     float _endTime;
 
-    std::vector< std::vector< int >> _values;
+//    std::vector< std::vector< int >> _values;
+    std::multimap< float, uint32_t > _spikes;
   };
 
 }

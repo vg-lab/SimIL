@@ -57,9 +57,11 @@ namespace simil
 //    if( _headerLine )
 //      file.readLine( );
 
+    _spikes.clear( );
+
     unsigned int counter = 0;
 
-    std::vector< std::vector< int >> values;
+    float endTime = 0.0f;
 
     while( !file.atEnd( ))
     {
@@ -71,30 +73,36 @@ namespace simil
 
       std::vector< int > row( stringLine.size( ));
 
-      unsigned int i = 0;
-      for( auto word : stringLine )
+      QString gidString = stringLine[ 0 ];
+      QString timeString = stringLine[ 1 ];
+
+      bool okGID;
+      bool okTime;
+
+      unsigned int gidValue = gidString.toInt( &okGID );
+      float timeValue = timeString.toFloat( &okTime );
+
+      if( timeValue > endTime )
+        endTime = timeValue;
+
+      if( !okGID || !okTime )
       {
-        bool ok;
-        float value = word.toInt( &ok );
-
-        if( !ok )
-          std::cout << "Warning: Value " << word.toStdString( ) << " not converted to float." << std::endl;
-
-        row[ i ] = value;
-
-        i++;
+        std::cout << "Warning: Value " << gidString.toStdString( )
+                  << " or " << timeString.toStdString( )
+                  << " not converted to float." << std::endl;
+        continue;
       }
 
-      values.push_back( row );
+
+      _spikes.insert( std::make_pair( timeValue, gidValue ));
 
       counter++;
     }
 
-    std::cout << "Read " << values.size( ) * values[ 0 ].size( ) << " values." << std::endl;
+    _startTime = 0;
+    _endTime = endTime;
 
-    _values = values;
-
-    _endTime = 0.72f * _values[0].size( );
+    std::cout << "Read " << _spikes.size( ) << " values." << std::endl;
 
     file.close( );
 
@@ -104,28 +112,8 @@ namespace simil
   {
     TSpikes result;
 
-    float deltaTime = 0.72f;
-
-    std::multimap< float, uint32_t > sortedSpikes;
-
-    unsigned int counter = 0;
-    for( auto row : _values )
-    {
-      float currentTime = 0.0f;
-
-      for( int value : row )
-      {
-        if( value != 0 )
-          sortedSpikes.insert( std::make_pair( currentTime, counter ));
-
-        currentTime += deltaTime;
-      }
-      counter++;
-
-    }
-
-    result.reserve( sortedSpikes.size( ));
-    for( auto spike : sortedSpikes )
+    result.reserve( _spikes.size( ));
+    for( auto spike : _spikes )
       result.push_back( spike );
 
     return result;
