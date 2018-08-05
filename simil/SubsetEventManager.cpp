@@ -198,7 +198,7 @@ namespace simil
 
     H5SubsetEvents reader;
 
-    reader.Load( filePath, "length", "activation" );
+    reader.Load( filePath, "length", "pattern_activation" );
 
     for( auto& subset : reader.subsets( ))
     {
