@@ -187,17 +187,27 @@ namespace simil
 
     std::multimap< float, uint32_t > sortedResult;
 
-    const std::vector< unsigned int >& offsets = _network->_offsets;
+//    const std::vector< unsigned int >& offsets = _network->_offsets;
+
+    auto& attribs = _network->_attributes;
 
     _startTime = std::numeric_limits< float >::max( );
     _endTime = std::numeric_limits< float >::min( );
 
-    for( unsigned int i = 0; i < _spikeTimes.size( ); i++ )
+    for( unsigned int i = 0; i < _groupNames.size( ); i++ )
     {
+      auto currentName = _groupNames[ i ];
+
+      auto att = attribs.find( currentName );
+      if( att == attribs.end( ))
+        continue;
+
       H5::DataSet& times = _spikeTimes[ i ];
       H5::DataSet& ids = _spikeIds[ i ];
 
-      unsigned int currentOffset = offsets[ i ];
+      unsigned int currentOffset = std::get< H5Network::tna_offset >( att->second );
+
+      std::cout << "----- offset " << currentName << " " << currentOffset << std::endl;
 
       hsize_t dimsTimes[ 2 ];
       hsize_t dimsIds[ 2 ];
@@ -240,7 +250,7 @@ namespace simil
 
       }
 
-      std::cout << "Loaded dataset " << i << " with " << tempTimes.size( ) << std::endl;
+      std::cout << "Loaded dataset " << currentName << " with " << tempTimes.size( ) << std::endl;
     }
 
     result.reserve( sortedResult.size( ));
