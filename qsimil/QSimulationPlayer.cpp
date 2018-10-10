@@ -32,8 +32,8 @@ namespace qsimil
                      QSizePolicy::Preferred );
 
       _playButton = new QPushButton( );
-      _playButton->setSizePolicy( QSizePolicy::MinimumExpanding,
-                     QSizePolicy::MinimumExpanding );
+      // _playButton->setSizePolicy( QSizePolicy::MinimumExpanding,
+      //                QSizePolicy::MinimumExpanding );
       QPushButton* stopButton = new QPushButton( );
       QPushButton* nextButton = new QPushButton( );
       QPushButton* prevButton = new QPushButton( );
@@ -82,9 +82,9 @@ namespace qsimil
       row++;
       dockLayout->addWidget( _repeatButton, row, 6, 1, 1 );
       dockLayout->addWidget( prevButton, row, 7, 1, 1 );
-      dockLayout->addWidget( _playButton, row, 8, 2, 2 );
-      dockLayout->addWidget( nextButton, row, 10, 1, 1 );
-      dockLayout->addWidget( stopButton, row, 11, 1, 1 );
+      dockLayout->addWidget( _playButton, row, 8, 1, 1 );
+      dockLayout->addWidget( nextButton, row, 9, 1, 1 );
+      dockLayout->addWidget( stopButton, row, 10, 1, 1 );
 
       _playing = false;
 
@@ -92,16 +92,16 @@ namespace qsimil
            this, SLOT( _playPause( )));
 
       connect( stopButton, SIGNAL( clicked( )),
-             this, SLOT( _Stop( )));
+             this, SLOT( _stop( )));
 
       connect( nextButton, SIGNAL( clicked( )),
-             this, SLOT( _GoToEnd( )));
+             this, SLOT( _goToEnd( )));
 
       connect( prevButton, SIGNAL( clicked( )),
              this, SLOT( _restart( )));
 
       connect( _repeatButton, SIGNAL( clicked( )),
-             this, SLOT( _Repeat( )));
+             this, SLOT( _repeat( )));
 
       connect( _simSlider, SIGNAL( sliderPressed( )),
            this, SLOT( _playAt( )));
@@ -237,7 +237,7 @@ namespace qsimil
 
       _simPlayer->PlayAt( this->_percentage );
       _playing = true;
-      
+
       if( notify )
       {
 #ifdef SIMIL_USE_ZEROEQ
@@ -403,15 +403,18 @@ namespace qsimil
 
   void QSimulationPlayer::update( bool sendGIDS )
   {
-    _simPlayer->Frame();
-
-    updateSimulationSlider ( this->_simPlayer->GetRelativeTime( ) );
-
-    if ( sendGIDS )
+    if ( _simPlayer )
     {
-      // TODO
-      ((simil::SpikesPlayer*)_simPlayer)->spikesNowVect( _gidsSimulation );
-      // TODO: this->_icp->cpChangeGIDSimulation( _gidsSimulation );
+      _simPlayer->Frame();
+
+      updateSimulationSlider ( this->_simPlayer->GetRelativeTime( ) );
+
+      if ( sendGIDS )
+      {
+        // TODO
+        ((simil::SpikesPlayer*)_simPlayer)->spikesNowVect( _gidsSimulation );
+        // TODO: this->_icp->cpChangeGIDSimulation( _gidsSimulation );
+      }
     }
   }
 

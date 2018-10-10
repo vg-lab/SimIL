@@ -36,7 +36,7 @@ namespace qsimil
     simil::SimulationPlayer* getSimulationPlayer( void ) const;
     void play( void );
 
-    void init( const char* blueConfig, 
+    void init( const char* blueConfig,
       simil::TSimulationType type, bool autoStart = false );
     void reset( void );
     void update( bool sendGIDS = false );
@@ -46,7 +46,7 @@ namespace qsimil
     std::vector< uint32_t > _gidsSimulation;
 
     simil::SimulationPlayer *_simPlayer;
-    
+
     QDockWidget* _simulationDock;
     QSlider* _simSlider;
     QPushButton* _playButton;
