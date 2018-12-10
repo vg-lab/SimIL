@@ -55,36 +55,6 @@ namespace simil
     THDF5
   } TDataType;
 
-  struct CorrelationValues
-  {
-  public:
-
-    float hit;
-    float falseHit;
-    float result;
-
-    bool operator==( const CorrelationValues& other ) const
-    { return result == other.result; }
-
-    bool operator>( const CorrelationValues& other ) const
-    { return result > other.result; }
-  };
-
-  typedef std::map< uint32_t, CorrelationValues > TNeuronCorrelationUMap;
-  typedef TNeuronCorrelationUMap::const_iterator TNeuronCorrelUMapCIt;
-  typedef std::pair< TNeuronCorrelUMapCIt,
-                     TNeuronCorrelUMapCIt > TNeuronCorrelationRange;
-
-  struct Correlation
-  {
-  public:
-
-    std::string subsetName;
-    std::string eventName;
-
-    TNeuronCorrelationUMap values;
-  };
-
 }
 
 
