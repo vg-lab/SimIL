@@ -20,6 +20,7 @@ namespace simil
   : _simulationType( TSimNetwork )
 #ifdef SIMIL_USE_BRION
   , _blueConfig( nullptr )
+  , _target( target )
 #endif
   , _h5Network( nullptr )
   , _startTime( 0.0f )
@@ -114,6 +115,19 @@ namespace simil
   {
     return _endTime;
   }
+
+#ifdef SIMIL_USE_BRION
+    const brion::BlueConfig* SimulationData::blueConfig( void ) const
+    {
+      return _blueConfig;
+    }
+
+    const std::string& SimulationData::target( void ) const
+    {
+      return _target;
+    }
+
+#endif
 
 
 

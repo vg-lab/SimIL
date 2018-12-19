@@ -48,6 +48,12 @@ namespace simil
     virtual float startTime( void ) const;
     virtual float endTime( void ) const;
 
+#ifdef SIMIL_USE_BRION
+    const brion::BlueConfig* blueConfig( void ) const;
+
+    const std::string& target( void ) const;
+#endif
+
   protected:
 
     std::string filePath;
@@ -64,6 +70,8 @@ namespace simil
 
 #ifdef SIMIL_USE_BRION
     brion::BlueConfig* _blueConfig;
+
+    std::string _target;
 #endif
     H5Network* _h5Network;
 
