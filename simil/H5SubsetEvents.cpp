@@ -17,6 +17,7 @@ namespace simil
 {
 
   H5SubsetEvents::H5SubsetEvents( void )
+  : _totalTime( 0.0f )
   { }
 
   void H5SubsetEvents::Load( const std::string& fileName,
@@ -91,6 +92,8 @@ namespace simil
         float totalLength = 0.0f;
         for( auto bin : bins )
           totalLength += bin;
+
+        _totalTime = totalLength;
 
         // Check bins length
         std::cout << "Total length: " << totalLength << "." << std::endl;
@@ -245,6 +248,11 @@ namespace simil
   const std::vector< TTimeFrame >& H5SubsetEvents::timeFrames( void ) const
   {
     return _events;
+  }
+
+  float H5SubsetEvents::totalTime( void ) const
+  {
+    return _totalTime;
   }
 
 }

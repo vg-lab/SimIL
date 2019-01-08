@@ -228,8 +228,9 @@ namespace simil
       times.close( );
       ids.close( );
 
-      if( *tempTimes.begin( ) < _startTime )
-        _startTime = *tempTimes.begin( );
+      _startTime = 0.0f;
+//      if( *tempTimes.begin( ) < _startTime )
+//        _startTime = *tempTimes.begin( );
 
       if( tempTimes.back( ) > _endTime )
         _endTime = tempTimes.back( );

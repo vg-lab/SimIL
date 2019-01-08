@@ -147,6 +147,10 @@ namespace simil
     return result;
   }
 
+  SubsetEventManager::SubsetEventManager( )
+  : _totalTime( 0.0f )
+  { }
+
   void SubsetEventManager::loadJSON( const std::string& filePath )
   {
 
@@ -201,12 +205,12 @@ namespace simil
     reader.Load( filePath, "length", "pattern_activation" );
 
     for( auto& subset : reader.subsets( ))
-    {
       addSubset( subset.name, subset.gids );
 
-    }
     for( auto& tf : reader.timeFrames( ))
       _events.insert( std::make_pair( tf.name, tf.timeFrames ));
+
+    _totalTime = reader.totalTime( );
   }
 
   void SubsetEventManager::clear( void )
@@ -270,6 +274,11 @@ namespace simil
   unsigned int SubsetEventManager::numEvents( void ) const
   {
     return _events.size( );
+  }
+
+  float SubsetEventManager::totalTime( void ) const
+  {
+    return _totalTime;
   }
 
   std::vector< std::string > SubsetEventManager::subsetNames( void ) const
