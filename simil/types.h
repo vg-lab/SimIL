@@ -52,7 +52,8 @@ namespace simil
   typedef enum
   {
     TBlueConfig = 0,
-    THDF5
+    THDF5,
+    TDataUndefined
   } TDataType;
 
 }

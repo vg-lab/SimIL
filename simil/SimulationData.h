@@ -40,6 +40,7 @@ namespace simil
     const TPosVect& positions( void ) const;
 
     SubsetEventManager* subsetsEvents( void );
+    const SubsetEventManager* subsetsEvents( void ) const;
 
     TSimulationType simulationType( void ) const;
 
@@ -66,6 +67,7 @@ namespace simil
 
 //    simil::SubsetMap _subsets;
 
+    TDataType _dataType;
     TSimulationType _simulationType;
 
 #ifdef SIMIL_USE_BRION

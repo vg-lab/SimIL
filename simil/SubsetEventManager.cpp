@@ -268,12 +268,12 @@ namespace simil
 
   unsigned int SubsetEventManager::numSubsets( void ) const
   {
-    return _subsets.size( );
+    return ( unsigned int )_subsets.size( );
   }
 
   unsigned int SubsetEventManager::numEvents( void ) const
   {
-    return _events.size( );
+    return ( unsigned int )_events.size( );
   }
 
   float SubsetEventManager::totalTime( void ) const
@@ -354,8 +354,8 @@ namespace simil
            binIt != eventTime.begin( ) + binEnd; ++binIt )
       {
 
-        lowerBound = std::max( acc, event.first );
-        upperBound = std::min( acc + deltaTime, event.second );
+        lowerBound = (std::max)( acc, event.first );
+        upperBound = (std::min)( acc + deltaTime, event.second );
 
         *binIt += ( upperBound - lowerBound );
 

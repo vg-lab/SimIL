@@ -139,9 +139,9 @@ namespace simil
 
     float timeStamp = percentage * ( _endTime - _startTime ) + _startTime;
 
-    int aux = timeStamp / _deltaTime;
+//    int aux = timeStamp / _deltaTime;
 
-    _currentTime = aux * _deltaTime;
+    _currentTime = timeStamp;
     _previousTime = std::max( _currentTime - _deltaTime, _startTime );
 
     _relativeTime = percentage;
