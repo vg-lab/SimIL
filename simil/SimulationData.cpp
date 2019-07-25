@@ -9,7 +9,12 @@
 
 #include "SimulationData.h"
 
+#include <boost/algorithm/string/split.hpp>
+#include <boost/algorithm/string/classification.hpp>
+
 #include "H5Activity.h"
+#include "CustomH5Network.h"
+#include "GDFActivity.h"
 
 namespace simil
 {
@@ -64,6 +69,19 @@ namespace simil
         auto subsetIts = _h5Network->getSubsets( );
         for( simil::SubsetMapCIt it = subsetIts.first; it != subsetIts.second; ++it )
           _subsetEventManager.addSubset( it->first, it->second );
+
+        break;
+      }
+      case TCUSTOMH5:
+      {
+
+        CustomH5Network* customNetwork = new CustomH5Network( );
+        customNetwork->load( filePath_ );
+
+        _gids = customNetwork->getGIDs( );
+        _positions = customNetwork->getComposedPositions( );
+
+        std::cout << "Loaded network with " << _gids.size( ) << " elements." << std::endl;
 
         break;
       }
@@ -184,6 +202,27 @@ namespace simil
 
         break;
       }
+      case TCUSTOMH5:
+      {
+
+        GDFActivity spikeReport;
+
+        std::vector< std::string > paths;
+
+        boost::split( paths, report , boost::is_any_of( ":" ));
+
+        for( auto filepath : paths )
+        {
+          std::cout << "Loading file: '" << filepath << "'" << std::endl;
+          spikeReport.load( filepath, "\t", true );
+        }
+
+        _spikes = spikeReport.spikes( );
+        _startTime = spikeReport.startTime( );
+        _endTime = spikeReport.endTime( );
+
+        break;
+      }
       default:
         break;
     }
@@ -192,6 +231,9 @@ namespace simil
 
   void SpikeData::reduceDataToGIDS( void )
   {
+    if( _spikes.empty( ))
+      return;
+
     std::cout << "Before: " << _spikes.size( ) << std::endl;
     TSpikes aux;
     aux.reserve( _spikes.size( ));

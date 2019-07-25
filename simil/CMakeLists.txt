@@ -10,6 +10,8 @@ set( SIMIL_PUBLIC_HEADERS
      SubsetEventManager.h
      H5SubsetEvents.h
      Spikes.hpp
+     CustomH5Network.h
+     GDFActivity.h
 )
 
 set( SIMIL_HEADERS
@@ -23,6 +25,8 @@ set( SIMIL_SOURCES
      ZeroEqEventsManager.cpp
      SubsetEventManager.cpp
      H5SubsetEvents.cpp
+     CustomH5Network.cpp
+     GDFActivity.cpp
 )
 
 set( SIMIL_LINK_LIBRARIES
