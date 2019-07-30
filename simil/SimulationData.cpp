@@ -13,7 +13,7 @@
 #include <boost/algorithm/string/classification.hpp>
 
 #include "H5Activity.h"
-#include "CustomH5Network.h"
+
 #include "GDFActivity.h"
 
 namespace simil
@@ -29,6 +29,7 @@ namespace simil
   , _target( target )
 #endif
   , _h5Network( nullptr )
+  , _customH5Network( nullptr )
   , _startTime( 0.0f )
   , _endTime( 0.0f )
   {
@@ -75,11 +76,11 @@ namespace simil
       case TCUSTOMH5:
       {
 
-        CustomH5Network* customNetwork = new CustomH5Network( );
-        customNetwork->load( filePath_ );
+        _customH5Network = new CustomH5Network( );
+        _customH5Network->load( filePath_ );
 
-        _gids = customNetwork->getGIDs( );
-        _positions = customNetwork->getComposedPositions( );
+        _gids = _customH5Network->getGIDs( );
+        _positions = _customH5Network->getPositions( );
 
         std::cout << "Loaded network with " << _gids.size( ) << " elements." << std::endl;
 
@@ -157,7 +158,10 @@ namespace simil
 
 #endif
 
-
+  CustomH5Network* SimulationData::networkCustomH5( void ) const
+  {
+    return _customH5Network;
+  }
 
   SpikeData::SpikeData( const std::string& filePath_, TDataType dataType,
                         const std::string& report  )

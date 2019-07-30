@@ -36,6 +36,8 @@ namespace simil
   typedef std::map< std::string, GIDVec > SubsetMap;
   typedef std::map< std::string, EventVec > EventMap;
 
+  typedef std::unordered_map< unsigned int, unsigned int > TUintMap;
+
   typedef SubsetMap::const_iterator SubsetMapCIt;
   typedef EventMap::const_iterator EventMapCIt;
 

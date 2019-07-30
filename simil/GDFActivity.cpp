@@ -49,13 +49,13 @@ namespace simil
 
     while( std::getline( file, line, '\n' ))
     {
-      std::cout << "'" << line << "'" << std::endl;
+//      std::cout << "'" << line << "'" << std::endl;
 
       boost::split( tokens, line , boost::is_any_of( separator ));
 
-      std::cout << "tokens: " << tokens.size( ) << std::endl;
-      for( auto token : tokens )
-        std::cout << " '" << token << "'" << std::endl;
+//      std::cout << "tokens: " << tokens.size( ) << std::endl;
+//      for( auto token : tokens )
+//        std::cout << " '" << token << "'" << std::endl;
 
       boost::trim( tokens[ 0 ]);
       boost::trim( tokens[ 1 ]);

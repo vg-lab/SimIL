@@ -54,6 +54,9 @@ namespace simil
 
      std::cout << "Loaded " << subset.size( ) << " records." << std::endl;
 
+     _positions.reserve( subset.size( ));
+     _neuronTypes.reserve( subset.size( ));
+
      for( unsigned int i = 0; i < subset.size( ); i += 5 )
      {
        unsigned int gid = ( unsigned int )subset[ i ] + 1;
@@ -63,6 +66,10 @@ namespace simil
        vmml::Vector3f position( subset[ i + 2 ], subset[ i + 3 ], subset[ i + 4 ]);
 
        _positions.push_back( position );
+
+       unsigned int type = ( unsigned int ) subset[ i + 1 ] - 1;
+       _neuronTypes.push_back( type );
+
      }
   }
 
@@ -73,7 +80,7 @@ namespace simil
 
   }
 
-  simil::TGIDSet CustomH5Network::getGIDs( void ) const
+  const simil::TGIDSet& CustomH5Network::getGIDs( void ) const
   {
 //    TGIDSet result;
 //
@@ -81,7 +88,7 @@ namespace simil
     return _gids;
   }
 
-  simil::TPosVect CustomH5Network::getComposedPositions( void ) const
+  const simil::TPosVect& CustomH5Network::getPositions( void ) const
   {
 //    TPosVect result;
 //
@@ -89,6 +96,12 @@ namespace simil
 
     return _positions;
   }
+
+  const std::vector< long unsigned int >& CustomH5Network::getTypes( void ) const
+  {
+    return _neuronTypes;
+  }
+
 }
 
 

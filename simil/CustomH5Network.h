@@ -28,15 +28,14 @@ namespace simil
 
     unsigned int subSetsNumber( void ) const;
 
-    simil::TGIDSet getGIDs( void ) const;
-    simil::TPosVect getComposedPositions( void ) const;
+    const simil::TGIDSet& getGIDs( void ) const;
+    const simil::TPosVect& getPositions( void ) const;
+
+    const std::vector< long unsigned int >& getTypes( void ) const;
 
     simil::SubsetMapRange getSubsets( void ) const;
 
-    const std::vector< unsigned int >& offsets( void ) const;
 
-    unsigned int composeID( unsigned int datasetIdx,
-                            unsigned int localIdx ) const;
 
     std::string fileName( void ) const;
     std::string pattern( void ) const;
@@ -54,6 +53,8 @@ namespace simil
 
     TGIDSet _gids;
     TPosVect _positions;
+
+    std::vector< long unsigned int > _neuronTypes;
   };
 
 

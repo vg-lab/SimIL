@@ -19,6 +19,7 @@
 
 #include "types.h"
 #include "H5Network.h"
+#include "CustomH5Network.h"
 #include "SubsetEventManager.h"
 #include "Spikes.hpp"
 
@@ -55,6 +56,8 @@ namespace simil
     const std::string& target( void ) const;
 #endif
 
+    CustomH5Network* networkCustomH5( void ) const;
+
   protected:
 
     std::string filePath;
@@ -76,6 +79,7 @@ namespace simil
     std::string _target;
 #endif
     H5Network* _h5Network;
+    CustomH5Network* _customH5Network;
 
     float _startTime;
     float _endTime;
