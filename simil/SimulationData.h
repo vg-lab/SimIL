@@ -10,6 +10,15 @@
 #ifndef __SIMIL__SIMULATIONDATA_H__
 #define __SIMIL__SIMULATIONDATA_H__
 
+#if defined(__GNUC__) || defined(__clang__)
+#define DEPRECATED __attribute__((deprecated))
+#elif defined(_MSC_VER)
+#define DEPRECATED __declspec(deprecated)
+#else
+#pragma message("WARNING: You need to implement DEPRECATED for this compiler")
+#define DEPRECATED
+#endif
+
 #ifdef SIMIL_USE_BRION
 #include <brion/brion.h>
 #include <brain/brain.h>
@@ -21,85 +30,103 @@
 #include "H5Network.h"
 #include "SubsetEventManager.h"
 #include "Spikes.hpp"
+#include "storage/Storage.h"
 
 namespace simil
 {
-  class SimulationData
-  {
-  public:
+class SimulationData
+{
+public:
+  SimulationData(const std::string &filePath,
+                 TDataType dataType,
+                 const std::string &target = "");
+  virtual ~SimulationData(void);
 
-    SimulationData( const std::string& filePath,
-                    TDataType dataType,
-                    const std::string& target = "" );
-    virtual ~SimulationData( void );
+  /******************
+    We will do this deprecated
+    ****************/
+  const TGIDSet &gids(void) const;
 
-    const TGIDSet& gids( void ) const;
+  GIDVec gidsVec(void) const;
 
-    GIDVec gidsVec( void ) const;
+  const TPosVect &positions(void) const;
 
-    const TPosVect& positions( void ) const;
+  SubsetEventManager *subsetsEvents(void);
 
-    SubsetEventManager* subsetsEvents( void );
+  TSimulationType simulationType(void) const;
 
-    TSimulationType simulationType( void ) const;
+  virtual SimulationData *get(void);
 
-    virtual SimulationData* get( void );
+  /******************
+   Until here We will do this deprecated
+    ****************/
 
-    virtual float startTime( void ) const;
-    virtual float endTime( void ) const;
+  void setStartTime(float startTime);
+  void setEndTime(float endTime);
+  virtual float startTime(void) const;
+  virtual float endTime(void) const;
 
-  protected:
 
-    std::string filePath;
+  void addStorage (Storage * newStorage);
+  StorageList getStorage (const std::string& name);
+  StorageList getStorage (tDataType datatype);
+  StorageList getStorage (TSimulationType simtype);
 
-    TGIDSet _gids;
+protected:
 
-    TPosVect _positions;
-
-    simil::SubsetEventManager _subsetEventManager;
-
-//    simil::SubsetMap _subsets;
-
-    TSimulationType _simulationType;
+TSimulationType _simulationType;
 
 #ifdef SIMIL_USE_BRION
-    brion::BlueConfig* _blueConfig;
+  brion::BlueConfig *_blueConfig;
 #endif
-    H5Network* _h5Network;
+  H5Network *_h5Network;
 
-    float _startTime;
-    float _endTime;
+  std::string filePath;
 
-  };
+  float _startTime;
+  float _endTime;
+  TGIDSet _gids;
 
-  class SpikeData : public SimulationData
-  {
-  public:
+  TPosVect _positions;
 
-    SpikeData( const std::string& filePath, TDataType dataType,
-               const std::string& report = "" );
+  
 
-    const Spikes& spikes( void ) const;
 
-    SpikeData* get( void );
+///WE WILL DO DEPRECATED
+  simil::SubsetEventManager _subsetEventManager;
 
-    void reduceDataToGIDS( void );
+  //    simil::SubsetMap _subsets;
 
-  protected:
 
-    Spikes _spikes;
-  };
+///TILL HERE
 
-  class VoltageData : public SimulationData
-  {
+  ///NEW atributes
+  StorageList _storage;
+};
 
-    VoltageData( const std::string& filePath, TDataType dataType,
-                 const std::string& report = ""  );
+class SpikeData : public SimulationData
+{
+public:
+  SpikeData(const std::string &filePath, TDataType dataType,
+            const std::string &report = "");
 
-  };
+  const Spikes &spikes(void) const;
+
+  SpikeData *get(void);
+
+  void reduceDataToGIDS(void);
+
+protected:
+  Spikes _spikes;
+};
+
+class VoltageData : public SimulationData
+{
+
+  VoltageData(const std::string &filePath, TDataType dataType,
+              const std::string &report = "");
+};
 
 } // namespace simil
-
-
 
 #endif /* __SIMIL__SIMULATIONDATA_H__ */

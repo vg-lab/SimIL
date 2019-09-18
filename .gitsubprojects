@@ -1,3 +1,7 @@
 # -*- mode: cmake -*-
 git_subproject(vmmlib https://github.com/Eyescale/vmmlib.git f4b3706)
-#git_subproject(Brion https://github.com/BlueBrain/Brion.git 98db6dc0)
+git_subproject(Brion https://github.com/BlueBrain/Brion.git 98db6dc0)
+# git_subproject(contra https://devhub.vr.rwth-aachen.de/VR-Group/in-situ-pipeline/contra.git 2a4b2cc5)
+# git_subproject(nesci https://devhub.vr.rwth-aachen.de/VR-Group/in-situ-pipeline/nesci.git 18eada9f)
+# git_subproject(cone https://devhub.vr.rwth-aachen.de/VR-Group/in-situ-pipeline/cone.git 9c10fc40)
+#git_subproject(in-situ-pipeline https://devhub.vr.rwth-aachen.de/VR-Group/in-situ-pipeline/in-situ-pipeline-super-build.git dac8da95)

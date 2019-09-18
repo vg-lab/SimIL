@@ -9,8 +9,15 @@ set( SIMIL_PUBLIC_HEADERS
      ZeroEqEventsManager.h
      SubsetEventManager.h
      H5SubsetEvents.h
-     CorrelationComputer.h
      Spikes.hpp
+     DataSet.h
+     storage/Storage.h
+     storage/StorageSparse.h
+     storage/StorageInt.h
+     storage/StorageFloat.h
+     loaders/LoadSimData.h
+     loaders/LoadblueConfigData.h
+     loaders/LoadHDF5Data.h
 )
 
 set( SIMIL_HEADERS
@@ -23,8 +30,13 @@ set( SIMIL_SOURCES
      SimulationData.cpp
      ZeroEqEventsManager.cpp
      SubsetEventManager.cpp
-     H5SubsetEvents.cpp
-     CorrelationComputer.cpp
+     H5SubsetEvents.cpp     CorrelationComputer.cpp
+     DataSet.cpp
+     storage/StorageSparse.cpp
+     storage/StorageInt.cpp
+     storage/StorageFloat.cpp
+     loaders/LoadblueConfigData.cpp
+     loaders/LoadHDF5Data.cpp
 )
 
 set( SIMIL_LINK_LIBRARIES

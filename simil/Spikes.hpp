@@ -12,13 +12,14 @@
 
 #include "types.h"
 
+
 namespace simil
 {
   class Spikes : public TSpikes
   {
   public:
 
-    SIMIL_API
+    
     Spikes( )
     : TSpikes( )
     , _indexSize( 10000 )
@@ -28,7 +29,7 @@ namespace simil
     , _endTime( 0.0f )
     { }
 
-    SIMIL_API
+    
     Spikes( const TSpikes& other )
     : TSpikes( other )
     , _indexSize( 100 )
@@ -36,7 +37,7 @@ namespace simil
       buildIndex( );
     }
 
-    SIMIL_API
+    
     TSpikes::const_iterator elementAt( float time ) const
     {
       if( _references.empty( ))
@@ -61,13 +62,13 @@ namespace simil
       return result;
     }
 
-    SIMIL_API
+    
     const std::vector< TSpikes::const_iterator >& refData( void ) const
     {
       return _references;
     }
-
-    SIMIL_API
+    
+    
     void rebuildIndex( unsigned int newSize )
     {
       _indexSize = newSize;

@@ -21,13 +21,27 @@
 namespace simil
 {
   class Spikes;
+  class DataSet;
+  class SimulationData;
+  class Storage;
+  class StepData;
+
+  typedef std::vector< DataSet > DataSets;
+  typedef std::vector< SimulationData* > SimulationDatas;
+  typedef std::vector< StepData > StepDatas;
+
 
   typedef std::set< uint32_t > TGIDSet;
   typedef std::unordered_set< uint32_t > TGIDUSet;
   typedef std::vector< vmml::Vector3f > TPosVect;
+  typedef std::vector< int > TNTypeVect;
+
+  typedef std::vector< Storage* > StorageList;
 
   typedef std::pair< float, uint32_t > Spike;
   typedef std::vector< Spike > TSpikes;
+  typedef std::vector< int > IntVec;
+  typedef std::vector< float > FloatVec;
 
   typedef std::pair< float, float > Event;
   typedef std::vector< uint32_t > GIDVec;
@@ -48,6 +62,17 @@ namespace simil
     TSimSpikes,
     TSimVoltages
   } TSimulationType;
+
+ typedef enum 
+  {
+    tTYPE_INT = 0,
+    tTYPE_UINT,
+    tTYPE_FLOAT,
+    tTYPE_DOUBLE,
+    tTYPE_BOOL,
+    tTYPE_VOID
+  }tDataType;
+
 
   typedef enum
   {
