@@ -14,11 +14,11 @@
 namespace simil
 {
 
-LoadHDF5Data::LoadHDF5Data() : LoadSimData() { _h5Network = NULL; }
+LoadHDF5Data::LoadHDF5Data() : LoadSimData() { _h5Network = nullptr; }
 
 LoadHDF5Data::~LoadHDF5Data()
 {
-    if (_h5Network != NULL)
+    if (_h5Network != nullptr)
         delete _h5Network;
 }
 
@@ -27,7 +27,7 @@ DataSet *LoadHDF5Data::LoadNetwork(const std::string &filePath_,
 {
     DataSet *dataset = new DataSet(filePath_, TBlueConfig, target);
 
-    if (_h5Network == NULL)
+    if (_h5Network == nullptr)
     {
         _h5Network = new H5Network(filePath_);
         _h5Network->load();
@@ -50,9 +50,9 @@ DataSet *LoadHDF5Data::LoadNetwork(const std::string &filePath_,
 SimulationData *LoadHDF5Data::LoadSimulationData(const std::string &filePath_,
                                                  const std::string &target)
 {
-    SimulationData *simulationdata = new SimulationData(filePath_, THDF5, target);
+    SimulationData *simulationdata = new SimulationData();
 
-    if (_h5Network == NULL)
+    if (_h5Network == nullptr)
     {
         _h5Network = new H5Network(filePath_);
         _h5Network->load();

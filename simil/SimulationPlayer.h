@@ -27,6 +27,7 @@
 
 #include "types.h"
 #include "SimulationData.h"
+#include "DataSet.h"
 
 namespace simil
 {
@@ -53,7 +54,11 @@ namespace simil
 
     virtual ~SimulationPlayer( );
 
-    virtual void LoadData( SimulationData* data );
+    /*Deprecated*/
+    DEPRECATED virtual void LoadData( SimulationData* data );
+
+
+    virtual void LoadData( DataSet* data );
 
     virtual void LoadData( TDataType dataType,
                            const std::string& networkPath,
@@ -139,52 +144,10 @@ namespace simil
 #endif
 
     SimulationData* _simData;
-
+    DataSet* _simDataSet;
   };
 
-  typedef TSpikes::iterator SpikesIter;
-  typedef TSpikes::const_iterator SpikesCIter;
-
-  typedef std::pair< SpikesIter, SpikesIter > SpikesRange;
-  typedef std::pair< SpikesCIter, SpikesCIter > SpikesCRange;
-
-  class SpikesPlayer : public SimulationPlayer
-  {
-  public:
-
-    SpikesPlayer( void );
-
-    virtual void LoadData( SimulationData* data );
-
-    virtual void LoadData( TDataType dataType,
-                           const std::string& networkPath,
-                           const std::string& activityPath = "" );
-
-    virtual void Clear( void );
-    virtual void PlayAt( float percentage );
-    virtual void Stop( void );
-
-    virtual const Spikes& spikes( void );
-    SpikeData* spikeReport( void ) const;
-
-    SpikesCRange spikesAtTime( float time );
-
-    SpikesCRange spikesBetween( float startTime, float endTime );
-
-    SpikesCRange spikesNow( void );
-
-    void spikesNowVect( std::vector< uint32_t >& );
-
-    SpikeData* data( void ) const;
-
-  protected:
-
-    virtual void FrameProcess( void );
-
-    SpikesCIter _previousSpike;
-    SpikesCIter _currentSpike;
-
-  };
+  
 
 } // namespace simil
 

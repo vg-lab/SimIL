@@ -16,11 +16,11 @@ namespace simil
 LoadblueConfigData::LoadblueConfigData()
     : LoadSimData()
 {
-  _blueConfig = NULL;
+  _blueConfig = nullptr;
 }
 LoadblueConfigData::~LoadblueConfigData()
 {
-  if (_blueConfig != NULL)
+  if (_blueConfig != nullptr)
     delete _blueConfig;
 }
 
@@ -29,7 +29,7 @@ DataSet *LoadblueConfigData::LoadNetwork(const std::string &filePath_,
 {
   DataSet *dataset = new DataSet(filePath_, TBlueConfig, target);
 
-  if (_blueConfig == NULL)
+  if (_blueConfig == nullptr)
   {
     _blueConfig = new brion::BlueConfig(filePath_);
   }
@@ -52,11 +52,11 @@ DataSet *LoadblueConfigData::LoadNetwork(const std::string &filePath_,
 }
 
 SimulationData *LoadblueConfigData::LoadSimulationData(const std::string &filePath_,
-                                                       const std::string &target)
+                                                       const std::string &)
 {
-  SimulationData *simulationdata = new SimulationData(filePath_, TBlueConfig, target);
+  SimulationData *simulationdata = new SimulationData();
 
-  if (_blueConfig == NULL)
+  if (_blueConfig == nullptr)
   {
     _blueConfig = new brion::BlueConfig(filePath_);
   }

@@ -6,10 +6,12 @@ set( SIMIL_PUBLIC_HEADERS
      H5Network.h
      H5Activity.h
      SimulationData.h
+     SpikesData.h
      ZeroEqEventsManager.h
      SubsetEventManager.h
      H5SubsetEvents.h
      Spikes.hpp
+     SpikesPlayer.h
      DataSet.h
      storage/Storage.h
      storage/StorageSparse.h
@@ -28,9 +30,11 @@ set( SIMIL_SOURCES
      H5Network.cpp
      H5Activity.cpp
      SimulationData.cpp
+     SpikesData.cpp
+     SpikesPlayer.cpp
      ZeroEqEventsManager.cpp
      SubsetEventManager.cpp
-     H5SubsetEvents.cpp     CorrelationComputer.cpp
+     H5SubsetEvents.cpp
      DataSet.cpp
      storage/StorageSparse.cpp
      storage/StorageInt.cpp
