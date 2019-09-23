@@ -54,10 +54,6 @@ namespace simil
 
     virtual ~SimulationPlayer( );
 
-    /*Deprecated*/
-    DEPRECATED virtual void LoadData( SimulationData* data );
-
-
     virtual void LoadData( DataSet* data );
 
     virtual void LoadData( TDataType dataType,

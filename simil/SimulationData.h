@@ -35,29 +35,9 @@ public:
 
   virtual ~SimulationData(void);
 
-  /******************
-    We will do this deprecated
-    ****************/
-   DEPRECATED
- SimulationData(const std::string &filePath,
-                 TDataType dataType,
-                 const std::string &target = "");
 
-  DEPRECATED const TGIDSet &gids(void) const;
+  SimulationData *get(void);
 
-  DEPRECATED GIDVec gidsVec(void) const;
-
-  DEPRECATED const TPosVect &positions(void) const;
-
-  DEPRECATED SubsetEventManager *subsetsEvents(void);
-
-  DEPRECATED TSimulationType simulationType(void) const;
-
-  DEPRECATED virtual SimulationData *get(void);
-
-  /******************
-   Until here We will do this deprecated
-    ****************/
 
   void setStartTime(float startTime);
   void setEndTime(float endTime);
@@ -71,35 +51,13 @@ public:
   StorageList getStorage (TSimulationType simtype);
 
 protected:
-//We will do this deprecated
-TSimulationType _simulationType;
 
-#ifdef SIMIL_USE_BRION
-  brion::BlueConfig *_blueConfig;
-#endif
-  H5Network *_h5Network;
 
-  std::string filePath;
-// Unitl Here
   float _startTime;
   float _endTime;
 
-///WE WILL DO DEPRECATED
-  TGIDSet _gids;
-
-  TPosVect _positions;
-
-  
-
-
   simil::SubsetEventManager _subsetEventManager;
 
-  //    simil::SubsetMap _subsets;
-
-
-///TILL HERE
-
-  ///NEW atributes
   StorageList _storage;
 };
 

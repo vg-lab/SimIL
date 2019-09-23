@@ -80,9 +80,9 @@ endif( )
 common_find_package_post( )
 
 add_subdirectory( simil )
-if( QT5CORE_FOUND)
-  add_subdirectory( qsimil )
-endif()
+#if( QT5CORE_FOUND)
+#  add_subdirectory( qsimil )
+#endif()
 add_subdirectory( examples )
 # add_subdirectory( tests )
 

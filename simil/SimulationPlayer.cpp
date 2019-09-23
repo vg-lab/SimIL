@@ -39,24 +39,7 @@ namespace simil
     Clear( );
   }
 
-/*Deprecated*/
-  void SimulationPlayer::LoadData( SimulationData* data_ )
-  {
-    if( !data_ )
-      return;
 
-    assert( ( data_->endTime( ) - data_->startTime( )) > 0 );
-
-    Clear( );
-
-
-    //_gids = _simData->gids( );
-
-
-    std::cout << "GID Set size: " << _gids.size( ) << std::endl;
-
-    _invTimeRange = 1.0f / ( _simData->endTime( ) - _simData->startTime( ));
-  }
 
   void SimulationPlayer::LoadData( DataSet* data_ )
   {
