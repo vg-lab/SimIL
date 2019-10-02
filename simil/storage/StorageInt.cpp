@@ -14,9 +14,10 @@
 namespace simil
 {
 
-StorageInt::StorageInt(const std::string &name, tDataType datatype,
+StorageInt::StorageInt(const std::string &name,
+                       tDataType datatype,
                        TSimulationType simType)
-    : Storage(name, datatype, simType) {}
+                      : Storage(name, datatype, simType) {}
 
 StorageInt::~StorageInt() {}
 

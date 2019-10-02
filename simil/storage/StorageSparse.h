@@ -13,19 +13,18 @@
 #include "Storage.h"
 #include "../Spikes.hpp"
 
-
 namespace simil
 {
 class StorageSparse : public Storage
 {
 public:
-  StorageSparse(const std::string& name,
-          tDataType datatype,
-          TSimulationType simType);
+  StorageSparse(const std::string &name,
+                tDataType datatype,
+                TSimulationType simType);
 
   ~StorageSparse() override;
 
-  size_t getSize() const ;
+  size_t getSize() const;
 
   const Spikes &spikes(void) const;
 
@@ -33,14 +32,10 @@ public:
 
   void setSpikes(Spikes spikes);
 
-  protected:
-  
+protected:
   Spikes _spikes;
-
 };
 
 } // namespace simil
-
-
 
 #endif /* __SIMIL__STORAGESPARSE_H__ */

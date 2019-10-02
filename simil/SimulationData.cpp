@@ -13,18 +13,15 @@
 
 namespace simil
 {
-  SimulationData::SimulationData()
-  : _startTime(0.0f)
-  , _endTime(0.0f)
-  {
-
-  }
-
+SimulationData::SimulationData()
+    : _startTime(0.0f)
+    , _endTime(0.0f)
+{
+}
 
 SimulationData::~SimulationData(void)
 {
 }
-
 
 SimulationData *SimulationData::get(void)
 {
@@ -60,8 +57,8 @@ StorageList SimulationData::getStorage(const std::string &name)
   result.clear();
   for (auto storage : _storage)
   {
-      if (name.compare(storage->_name)==0)
-        result.push_back(storage);
+    if (name.compare(storage->_name) == 0)
+      result.push_back(storage);
   }
   return result;
 }
@@ -71,8 +68,8 @@ StorageList SimulationData::getStorage(tDataType datatype)
   result.clear();
   for (auto storage : _storage)
   {
-      if (storage->_type == datatype)
-        result.push_back(storage);
+    if (storage->_type == datatype)
+      result.push_back(storage);
   }
   return result;
 }
@@ -82,8 +79,8 @@ StorageList SimulationData::getStorage(TSimulationType simtype)
   result.clear();
   for (auto storage : _storage)
   {
-      if (storage->_simulationType == simtype)
-        result.push_back(storage);
+    if (storage->_simulationType == simtype)
+      result.push_back(storage);
   }
   return result;
 }

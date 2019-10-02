@@ -19,7 +19,7 @@ class Storage
 public:
   Storage(const std::string& name,
           tDataType datatype,
-          TSimulationType simType): 
+          TSimulationType simType):
           _name(name),
           _type(datatype),
           _simulationType(simType)
@@ -34,13 +34,12 @@ public:
   TSimulationType _simulationType;
 
 protected:
-  
 };
 
-inline Storage::~Storage() 
-{ 
-    std::cout << "Pure virtual destructor is called"; 
-} 
+inline Storage::~Storage()
+{
+    std::cout << "Pure virtual destructor is called";
+}
 
 } // namespace simil
 

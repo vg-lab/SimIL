@@ -22,60 +22,50 @@
 
 namespace simil
 {
-  class DataSet
-  {
-  public:
-      DataSet( const std::string& filePath,
-                    TDataType dataType,
-                    const std::string& target = "" );
-      virtual ~DataSet( void );
+class DataSet
+{
+public:
+  DataSet(const std::string &filePath,
+          TDataType dataType,
+          const std::string &target = "");
+  virtual ~DataSet(void);
 
-    //StepData getData( float startTime_, float endTime_ ) = 0;
-//    void loadFrom( tFileType type, std::string filename )
+  void setGids(const TGIDSet &gids);
 
-      void setGids(const TGIDSet& gids);
+  const TGIDSet &gids(void) const;
 
-      const TGIDSet& gids( void ) const;
+  GIDVec gidsVec(void) const;
 
-      GIDVec gidsVec( void ) const;
+  const TPosVect &positions(void) const;
 
-      const TPosVect& positions( void ) const;
+  void setPositions(TPosVect positions);
 
-      void setPositions(TPosVect positions);
+  void setSubset(SubsetEventManager subsets);
+  const SubsetEventManager &Subsets();
 
-      void setSubset(SubsetEventManager subsets);
-      const SubsetEventManager& Subsets();
+  const TNTypeVect &neurontypes(void) const;
 
-      const TNTypeVect& neurontypes(void) const;
+  virtual SimulationData *get(uint index);
 
-      virtual SimulationData* get( uint index );
+  void setSimulationData(SimulationData *simData);
 
-      void setSimulationData(SimulationData * simData);
+protected:
 
-  protected:
+  std::string _filePath;
+  TDataType _simOrigin;
+  std::string _target;
 
-    //std::vector< float > _times;
+  TGIDSet _gids;
 
-      std::string _filePath;
-      TDataType _simOrigin;
-      std::string _target;
+  TPosVect _positions;
 
-      TGIDSet _gids;
+  TNTypeVect _neurontypes;
 
-      TPosVect _positions;
+  SimulationDatas _simulationdata;
 
-      TNTypeVect _neurontypes;
+  SubsetEventManager _subsetEventManager;
+};
 
-      SimulationDatas  _simulationdata;
-
-      SubsetEventManager _subsetEventManager;
-
-      
-
-  };
-
-
-}
-
+} // namespace simil
 
 #endif /* SIMIL_DATASET_H_ */

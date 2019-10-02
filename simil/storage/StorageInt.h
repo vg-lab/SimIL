@@ -12,19 +12,18 @@
 
 #include "Storage.h"
 
-
 namespace simil
 {
 class StorageInt : public Storage
 {
 public:
-  StorageInt(const std::string& name,
-          tDataType datatype,
-          TSimulationType simType);
+  StorageInt(const std::string &name,
+             tDataType datatype,
+             TSimulationType simType);
 
   ~StorageInt() override;
 
-  size_t getSize() const ;
+  size_t getSize() const;
 
   const IntVec &values(void) const;
 
@@ -32,14 +31,10 @@ public:
 
   void setValue(IntVec values);
 
-  protected:
-  
+protected:
   IntVec _values;
-
 };
 
 } // namespace simil
-
-
 
 #endif /* __SIMIL__STORAGEINT_H__ */

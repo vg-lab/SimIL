@@ -54,7 +54,7 @@ void DataSet::setSubset(SubsetEventManager subsets)
 {
   _subsetEventManager = subsets;
 }
-const SubsetEventManager& DataSet::Subsets()
+const SubsetEventManager &DataSet::Subsets()
 {
   return _subsetEventManager;
 }

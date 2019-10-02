@@ -14,7 +14,11 @@
 namespace simil
 {
 
-LoadHDF5Data::LoadHDF5Data() : LoadSimData() { _h5Network = nullptr; }
+LoadHDF5Data::LoadHDF5Data()
+    : LoadSimData()
+    , _h5Network(nullptr)
+{
+}
 
 LoadHDF5Data::~LoadHDF5Data()
 {

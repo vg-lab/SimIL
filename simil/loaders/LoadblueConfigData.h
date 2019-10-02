@@ -7,35 +7,34 @@
  *          Do not distribute without further notice.
  */
 
-
 #ifndef __SIMIL__LOADBLUECONFIGDATA_H__
 #define __SIMIL__LOADBLUECONFIGDATA_H__
 
 #include "LoadSimData.h"
+
 #include <brion/brion.h>
 #include <brain/brain.h>
 
 namespace simil
 {
-    class LoadblueConfigData : public LoadSimData
-    {
-        public:
-        LoadblueConfigData();
-        ~LoadblueConfigData();
+class LoadblueConfigData 
+: public LoadSimData
+{
+public:
+    LoadblueConfigData();
+    ~LoadblueConfigData();
 
-        virtual SimulationData* LoadSimulationData(const std::string& filePath_,
-                                                const std::string& target = "" ) override;
-        virtual DataSet* LoadNetwork(const std::string& filePath_,
-                                                const std::string& target = "" ) override;
+    virtual SimulationData *LoadSimulationData(
+        const std::string &filePath_,
+        const std::string &target = "") override;
 
-        protected:
+    virtual DataSet *LoadNetwork(const std::string &filePath_,
+                                 const std::string &target = "") override;
 
-        brion::BlueConfig *_blueConfig;
-    };
+protected:
+    brion::BlueConfig *_blueConfig;
+};
 
-
-}//namespace
-
-
+} // namespace simil
 
 #endif /* __SIMIL__LOADBLUECONFIGDATA_H__ */

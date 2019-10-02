@@ -80,7 +80,6 @@ namespace simil
         //_simData = new SimulationData( networkPath_, dataType );
         break;
       }
-      
 
       default:
         break;

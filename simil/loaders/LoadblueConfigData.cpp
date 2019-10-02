@@ -15,8 +15,8 @@ namespace simil
 
 LoadblueConfigData::LoadblueConfigData()
     : LoadSimData()
+    ,_blueConfig(nullptr)
 {
-  _blueConfig = nullptr;
 }
 LoadblueConfigData::~LoadblueConfigData()
 {
@@ -47,12 +47,12 @@ DataSet *LoadblueConfigData::LoadNetwork(const std::string &filePath_,
 
   delete circuit;
 
-
   return dataset;
 }
 
-SimulationData *LoadblueConfigData::LoadSimulationData(const std::string &filePath_,
-                                                       const std::string &)
+SimulationData *LoadblueConfigData::LoadSimulationData(
+                                    const std::string &filePath_,
+                                    const std::string &)
 {
   SimulationData *simulationdata = new SimulationData();
 

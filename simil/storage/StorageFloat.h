@@ -12,20 +12,18 @@
 
 #include "Storage.h"
 
-
-
 namespace simil
 {
 class StorageFloat : public Storage
 {
 public:
-  StorageFloat(const std::string& name,
-          tDataType datatype,
-          TSimulationType simType);
+  StorageFloat(const std::string &name,
+               tDataType datatype,
+               TSimulationType simType);
 
   ~StorageFloat() override;
 
-  size_t getSize() const ;
+  size_t getSize() const;
 
   const FloatVec &values(void) const;
 
@@ -33,14 +31,10 @@ public:
 
   void setValue(FloatVec values);
 
-  protected:
-  
+protected:
   FloatVec _values;
-
 };
 
 } // namespace simil
-
-
 
 #endif /* __SIMIL__STORAGESPARSE_H__ */
