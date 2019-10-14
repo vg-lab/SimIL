@@ -7,7 +7,6 @@
  *          Do not distribute without further notice.
  */
 
-
 #ifndef __SIMIL__LOADINSITUDATA_H__
 #define __SIMIL__LOADINSITUDATA_H__
 
@@ -15,20 +14,27 @@
 
 namespace simil
 {
-    class LoadInsituData : LoadSimData
-    {
+  class LoadInsituData : public LoadSimData
+  {
+  public:
+      LoadInsituData();
+      ~LoadInsituData();
+    virtual SimulationData*
+      LoadSimulationData( const std::string& filePath_,
+                          const std::string& target = "" ) override;
+    virtual DataSet* LoadNetwork( const std::string& filePath_,
+                                  const std::string& target = "" ) override;
 
-        virtual SimulationData* LoadSimulationData(const std::string& filePath_,
-                                                const std::string& target = "" );
-        virtual DataSet* LoadNetwork(const std::string& filePath_,
-                                                const std::string& target = "" );
+  protected:
+    // void SpikeDetectorCB(const nesci::consumer::SpikeDetectorDataView&
+    // _spikes); void NetworkDataCB(const
+    // nesci::consumer::SetNestMultimeterDataView& _network); void
+    // UnkwonDataCB(const conduit::Node& _unkwon);
+    // Cone _cone;
+    DataSet* _dataset;
+    SimulationData* _simulationdata;
+  };
 
-
-    };
-
-
-}//namespace
-
-
+} // namespace simil
 
 #endif /* __SIMIL__LOADINSITUDATA_H__ */

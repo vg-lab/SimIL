@@ -14,7 +14,8 @@
 namespace simil
 {
 SimulationData::SimulationData()
-    : _startTime(0.0f)
+    : _isNeedUpdate(false)
+    ,_startTime(0.0f)
     , _endTime(0.0f)
 {
 }
@@ -50,6 +51,7 @@ float SimulationData::endTime(void) const
 void SimulationData::addStorage(Storage *newStorage)
 {
   _storage.push_back(newStorage);
+  _isNeedUpdate = true;
 }
 StorageList SimulationData::getStorage(const std::string &name)
 {
@@ -60,6 +62,8 @@ StorageList SimulationData::getStorage(const std::string &name)
     if (name.compare(storage->_name) == 0)
       result.push_back(storage);
   }
+  if (result.size() > 0)
+    _isNeedUpdate = false;
   return result;
 }
 StorageList SimulationData::getStorage(tDataType datatype)
@@ -71,6 +75,8 @@ StorageList SimulationData::getStorage(tDataType datatype)
     if (storage->_type == datatype)
       result.push_back(storage);
   }
+  if (result.size() > 0)
+    _isNeedUpdate = false;
   return result;
 }
 StorageList SimulationData::getStorage(TSimulationType simtype)
@@ -82,6 +88,8 @@ StorageList SimulationData::getStorage(TSimulationType simtype)
     if (storage->_simulationType == simtype)
       result.push_back(storage);
   }
+  if (result.size() > 0)
+    _isNeedUpdate = false;
   return result;
 }
 

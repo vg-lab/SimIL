@@ -27,7 +27,7 @@
 
 #include "types.h"
 #include "SimulationPlayer.h"
-#include "SpikesData.h"
+#include "storage/StorageSparse.h"
 #include "Spikes.hpp"
 
 namespace simil
@@ -44,7 +44,7 @@ namespace simil
 
     SpikesPlayer( void );
 
-    virtual void LoadData( SimulationData* data );
+    //virtual void LoadData( SimulationData* data );
 
     virtual void LoadData( TDataType dataType,
                            const std::string& networkPath,
@@ -55,7 +55,7 @@ namespace simil
     virtual void Stop( void );
 
     virtual const Spikes& spikes( void );
-    SpikeData* spikeReport( void ) const;
+    StorageSparse* spikeReport( void ) const;
 
     SpikesCRange spikesAtTime( float time );
 
@@ -65,7 +65,7 @@ namespace simil
 
     void spikesNowVect( std::vector< uint32_t >& );
 
-    SpikeData* data( void ) const;
+    StorageSparse* data( void ) const;
 
   protected:
 

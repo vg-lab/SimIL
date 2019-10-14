@@ -45,6 +45,7 @@ public:
   StorageList getStorage(TSimulationType simtype);
 
 protected:
+  bool _isNeedUpdate;
   float _startTime;
   float _endTime;
 

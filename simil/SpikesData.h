@@ -29,7 +29,7 @@ namespace simil
 class SpikeData : public SimulationData
 {
 public:
-DEPRECATED
+
   SpikeData(const std::string &filePath, TDataType dataType,
             const std::string &report = "");
 

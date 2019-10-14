@@ -15,23 +15,22 @@
 
 namespace simil
 {
-class LoadHDF5Data
-    : public LoadSimData
-{
-public:
-  LoadHDF5Data();
-  ~LoadHDF5Data();
-  
-  virtual SimulationData *LoadSimulationData(
-      const std::string &filePath_,
-      const std::string &target = "") override;
+  class LoadHDF5Data : public LoadSimData
+  {
+  public:
+    LoadHDF5Data( );
+    ~LoadHDF5Data( );
 
-  virtual DataSet *LoadNetwork(const std::string &filePath_,
-                               const std::string &target = "") override;
+    virtual SimulationData*
+      LoadSimulationData( const std::string& filePath_,
+                          const std::string& target = "" ) override;
 
-protected:
-  simil::H5Network *_h5Network;
-};
+    virtual DataSet* LoadNetwork( const std::string& filePath_,
+                                  const std::string& target = "" ) override;
+
+  protected:
+    simil::H5Network* _h5Network;
+  };
 
 } // namespace simil
 

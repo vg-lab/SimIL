@@ -17,23 +17,22 @@
 
 namespace simil
 {
-class LoadblueConfigData 
-: public LoadSimData
-{
-public:
-    LoadblueConfigData();
-    ~LoadblueConfigData();
+  class LoadblueConfigData : public LoadSimData
+  {
+  public:
+    LoadblueConfigData( );
+    ~LoadblueConfigData( );
 
-    virtual SimulationData *LoadSimulationData(
-        const std::string &filePath_,
-        const std::string &target = "") override;
+    virtual SimulationData*
+      LoadSimulationData( const std::string& filePath_,
+                          const std::string& target = "" ) override;
 
-    virtual DataSet *LoadNetwork(const std::string &filePath_,
-                                 const std::string &target = "") override;
+    virtual DataSet* LoadNetwork( const std::string& filePath_,
+                                  const std::string& target = "" ) override;
 
-protected:
-    brion::BlueConfig *_blueConfig;
-};
+  protected:
+    brion::BlueConfig* _blueConfig;
+  };
 
 } // namespace simil
 

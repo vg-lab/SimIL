@@ -82,6 +82,7 @@ namespace simil
       }
 
       default:
+        importer = new simil::LoadHDF5Data();
         break;
     }
 

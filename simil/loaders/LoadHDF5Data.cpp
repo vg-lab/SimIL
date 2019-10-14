@@ -13,70 +13,70 @@
 
 namespace simil
 {
+  LoadHDF5Data::LoadHDF5Data( )
+    : LoadSimData( )
+    , _h5Network( nullptr )
+  {
+  }
 
-LoadHDF5Data::LoadHDF5Data()
-    : LoadSimData()
-    , _h5Network(nullptr)
-{
-}
+  LoadHDF5Data::~LoadHDF5Data( )
+  {
+    if ( _h5Network != nullptr )
+      delete _h5Network;
+  }
 
-LoadHDF5Data::~LoadHDF5Data()
-{
-    if (_h5Network != nullptr)
-        delete _h5Network;
-}
+  DataSet* LoadHDF5Data::LoadNetwork( const std::string& filePath_,
+                                      const std::string& target )
+  {
+    DataSet* dataset = new DataSet( filePath_, THDF5, target );
 
-DataSet *LoadHDF5Data::LoadNetwork(const std::string &filePath_,
-                                   const std::string &target)
-{
-    DataSet *dataset = new DataSet(filePath_, TBlueConfig, target);
-
-    if (_h5Network == nullptr)
+    if ( _h5Network == nullptr )
     {
-        _h5Network = new H5Network(filePath_);
-        _h5Network->load();
+      _h5Network = new H5Network( filePath_ );
+      _h5Network->load( );
     }
 
-    dataset->setGids(_h5Network->getGIDs());
+    dataset->setGids( _h5Network->getGIDs( ) );
 
-    dataset->setPositions(_h5Network->getComposedPositions());
+    dataset->setPositions( _h5Network->getComposedPositions( ) );
 
     SubsetEventManager subsetEventManager;
-    auto subsetIts = _h5Network->getSubsets();
-    for (simil::SubsetMapCIt it = subsetIts.first; it != subsetIts.second; ++it)
-        subsetEventManager.addSubset(it->first, it->second);
+    auto subsetIts = _h5Network->getSubsets( );
+    for ( simil::SubsetMapCIt it = subsetIts.first; it != subsetIts.second;
+          ++it )
+      subsetEventManager.addSubset( it->first, it->second );
 
-    dataset->setSubset(subsetEventManager);
+    dataset->setSubset( subsetEventManager );
 
     return dataset;
-}
+  }
 
-SimulationData *LoadHDF5Data::LoadSimulationData(const std::string &filePath_,
-                                                 const std::string &target)
-{
-    SimulationData *simulationdata = new SimulationData();
+  SimulationData*
+    LoadHDF5Data::LoadSimulationData( const std::string& filePath_,
+                                      const std::string& target )
+  {
+    SimulationData* simulationdata = new SimulationData( );
 
-    if (_h5Network == nullptr)
+    if ( _h5Network == nullptr )
     {
-        _h5Network = new H5Network(filePath_);
-        _h5Network->load();
+      _h5Network = new H5Network( filePath_ );
+      _h5Network->load( );
     }
 
-    simil::H5Spikes spikeReport(*_h5Network, target);
-    spikeReport.Load();
+    simil::H5Spikes spikeReport( *_h5Network, target );
+    spikeReport.Load( );
 
-    simil::StorageSparse *newStorage = new StorageSparse("Spikes",
-                                                         tTYPE_UINT,
-                                                         TSimSpikes);
+    simil::StorageSparse* newStorage =
+      new StorageSparse( "Spikes", tTYPE_UINT, TSimSpikes );
 
-    newStorage->setSpikes(spikeReport.spikes());
+    newStorage->setSpikes( spikeReport.spikes( ) );
 
-    simulationdata->setStartTime(spikeReport.startTime());
-    simulationdata->setEndTime(spikeReport.endTime());
+    simulationdata->setStartTime( spikeReport.startTime( ) );
+    simulationdata->setEndTime( spikeReport.endTime( ) );
 
-    simulationdata->addStorage(newStorage);
+    simulationdata->addStorage( newStorage );
 
     return simulationdata;
-}
+  }
 
 } // namespace simil

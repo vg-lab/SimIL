@@ -3,6 +3,7 @@ set( SIMIL_PUBLIC_HEADERS
      types.h
      log.h
      SimulationPlayer.h
+     SpikesPlayer.h
      H5Network.h
      H5Activity.h
      SimulationData.h
@@ -16,6 +17,7 @@ set( SIMIL_PUBLIC_HEADERS
      storage/StorageInt.h
      storage/StorageFloat.h
      loaders/LoadSimData.h
+     loaders/LoadInsituData.h
      loaders/LoadblueConfigData.h
      loaders/LoadHDF5Data.h
 )
@@ -25,6 +27,7 @@ set( SIMIL_HEADERS
 
 set( SIMIL_SOURCES
      SimulationPlayer.cpp
+     SpikesPlayer.cpp
      H5Network.cpp
      H5Activity.cpp
      SimulationData.cpp
@@ -35,6 +38,7 @@ set( SIMIL_SOURCES
      storage/StorageSparse.cpp
      storage/StorageInt.cpp
      storage/StorageFloat.cpp
+     loaders/LoadInsituData.cpp
      loaders/LoadblueConfigData.cpp
      loaders/LoadHDF5Data.cpp
 )

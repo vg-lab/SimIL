@@ -46,14 +46,16 @@ int main( int argc, char** argv )
 
     secondaryPath = argv[ 3 ];
   }
+  else{
+    importer = new simil::LoadHDF5Data();
+    std::cerr << "Error: a file must be provided "<< std::endl;
+      return 1;
+  }
 
   std::cout << "--------------------------------------" << std::endl;
   std::cout << "Network" << std::endl;
   std::cout << "--------------------------------------" << std::endl;
 
-
-
-  
 
   simil::DataSet* simDataSet = importer->LoadNetwork(path,secondaryPath);
 

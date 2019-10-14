@@ -44,4 +44,16 @@ void StorageSparse::setSpikes(Spikes spikes)
   _spikes = spikes;
 }
 
+void StorageSparse::setSpikes( FloatVec timesteps,  GIDVec GIDs )
+{
+  //The data is not guaranteed to be sorted in any way.
+  auto it1 = timesteps.begin();
+  auto it2 = GIDs.begin();
+  for ( ;it1 != timesteps.end() || it2 != GIDs.end (); it1++, it2++)
+  {
+    _spikes.push_back (std::make_pair(*it1,*it2));
+   
+  }
+}
+
 } // namespace simil

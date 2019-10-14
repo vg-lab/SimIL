@@ -31,6 +31,7 @@ public:
   Spikes *get(void);
 
   void setSpikes(Spikes spikes);
+  void setSpikes(FloatVec timesteps, GIDVec GIDs );
 
 protected:
   Spikes _spikes;
