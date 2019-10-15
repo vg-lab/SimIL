@@ -27,29 +27,34 @@ namespace simil
   class SimulationData
   {
   public:
+    SimulationData( );
 
-    SimulationData( const std::string& filePath,
-                    TDataType dataType,
+    SimulationData( const std::string& filePath, TDataType dataType,
                     const std::string& target = "" );
     virtual ~SimulationData( void );
 
+    void setGids( const TGIDSet& gids );
     const TGIDSet& gids( void ) const;
 
     GIDVec gidsVec( void ) const;
 
     const TPosVect& positions( void ) const;
+    void setPositions( TPosVect positions );
 
+    void setSubset( SubsetEventManager subsets );
     SubsetEventManager* subsetsEvents( void );
 
+    void setSimulationType( TSimulationType s_type );
     TSimulationType simulationType( void ) const;
 
     virtual SimulationData* get( void );
 
     virtual float startTime( void ) const;
     virtual float endTime( void ) const;
+    void setStartTime( float startTime );
+    void setEndTime( float endTime );
 
   protected:
-
     std::string filePath;
 
     TGIDSet _gids;
@@ -58,7 +63,7 @@ namespace simil
 
     simil::SubsetEventManager _subsetEventManager;
 
-//    simil::SubsetMap _subsets;
+    //    simil::SubsetMap _subsets;
 
     TSimulationType _simulationType;
 
@@ -69,37 +74,32 @@ namespace simil
 
     float _startTime;
     float _endTime;
-
   };
 
   class SpikeData : public SimulationData
   {
   public:
-
+    SpikeData( );
     SpikeData( const std::string& filePath, TDataType dataType,
                const std::string& report = "" );
 
     const Spikes& spikes( void ) const;
+    void setSpikes( Spikes spikes );
 
     SpikeData* get( void );
 
     void reduceDataToGIDS( void );
 
   protected:
-
     Spikes _spikes;
   };
 
   class VoltageData : public SimulationData
   {
-
     VoltageData( const std::string& filePath, TDataType dataType,
-                 const std::string& report = ""  );
-
+                 const std::string& report = "" );
   };
 
 } // namespace simil
-
-
 
 #endif /* __SIMIL__SIMULATIONDATA_H__ */

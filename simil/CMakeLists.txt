@@ -11,6 +11,10 @@ set( SIMIL_PUBLIC_HEADERS
      H5SubsetEvents.h
      CorrelationComputer.h
      Spikes.hpp
+     loaders/LoadSimData.h
+     loaders/LoadHDF5Data.h
+     loaders/LoadblueConfigData.h
+     loaders/LoadInsituData.h
 )
 
 set( SIMIL_HEADERS
@@ -25,6 +29,9 @@ set( SIMIL_SOURCES
      SubsetEventManager.cpp
      H5SubsetEvents.cpp
      CorrelationComputer.cpp
+     loaders/LoadHDF5Data.cpp
+     loaders/LoadblueConfigData.cpp
+     loaders/LoadInsituData.cpp
 )
 
 set( SIMIL_LINK_LIBRARIES
