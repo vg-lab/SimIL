@@ -8,7 +8,9 @@
  */
 
 #include <simil/simil.h>
+#ifdef SIMIL_USE_BRION
 #include <simil/loaders/LoadblueConfigData.h>
+#endif
 #include <simil/loaders/LoadHDF5Data.h>
 #include <iostream>
 
@@ -16,7 +18,16 @@ int main( int argc, char** argv )
 {
   if ( argc < 2 )
   {
-    std::cerr << "Error: a file must be provided as a parameter." << std::endl;
+    std::cerr << "USAGE: loadRefactorExample -bc|-h5 file [target]"
+              << std::endl;
+#ifdef SIMIL_USE_BRION
+    std::cerr << "-bc blueconfig loader" << std::endl;
+#else
+    std::cerr << "-bc NOT available blueconfig loader"
+                 ", consider compile again with BRION support"
+              << std::endl;
+#endif
+    std::cerr << "-h5 HDF5 loader " << std::endl;
     return 1;
   }
   std::string simtype = argv[ 1 ];
@@ -25,14 +36,14 @@ int main( int argc, char** argv )
 
   simil::LoadSimData* importer;
 
-
-
+#ifdef SIMIL_USE_BRION
   if ( simtype == "-bc" )
   {
-
     importer = new simil::LoadblueConfigData( );
   }
-  else if ( simtype == "-h5" )
+  else
+#endif
+    if ( simtype == "-h5" )
   {
     if ( argc < 4 )
     {
@@ -47,7 +58,17 @@ int main( int argc, char** argv )
   else
   {
     importer = new simil::LoadHDF5Data( );
-    std::cerr << "Error: a file must be provided " << std::endl;
+    std::cerr << "USAGE: loadRefactorExample -bc|-h5 file [target]"
+              << std::endl;
+#ifdef SIMIL_USE_BRION
+    std::cerr << "-bc blueconfig loader" << std::endl;
+#else
+    std::cerr << "-bc NOT available blueconfig loader"
+                 ", consider compile again with BRION support"
+              << std::endl;
+#endif
+
+    std::cerr << "-h5 HDF5 loader " << std::endl;
     return 1;
   }
 
