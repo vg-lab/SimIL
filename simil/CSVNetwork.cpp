@@ -63,7 +63,10 @@ namespace simil
       {
 
         if( includesGID && i == 0 )
+        {
+          ++i;
           continue;
+        }
 
         float value = word.toFloat( &ok );
 
