@@ -64,10 +64,10 @@ namespace simil
     float falseHit;
     float result;
 
-    bool operator==( const CorrelationValues& other )
+    bool operator==( const CorrelationValues& other ) const
     { return result == other.result; }
 
-    bool operator>( const CorrelationValues& other )
+    bool operator>( const CorrelationValues& other ) const
     { return result > other.result; }
   };
 

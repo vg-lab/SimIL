@@ -36,12 +36,12 @@ namespace simil
     Clear( );
   }
 
-  void SimulationPlayer::LoadData( SimulationData* data )
+  void SimulationPlayer::LoadData( SimulationData* data_ )
   {
-    if( !data )
+    if( !data_ )
       return;
 
-    assert( ( data->endTime( ) - data->startTime( )) > 0 );
+    assert( ( data_->endTime( ) - data_->startTime( )) > 0 );
 
     Clear( );
 
@@ -76,7 +76,10 @@ namespace simil
   void SimulationPlayer::Clear( void )
   {
     if( _simData )
+    {
       delete _simData;
+      _simData = nullptr;
+    }
 
     _gids.clear( );
   }
@@ -266,30 +269,30 @@ namespace simil
     _simulationType = TSimSpikes;
   }
 
-  void SpikesPlayer::LoadData( SimulationData* data )
+  void SpikesPlayer::LoadData( SimulationData* data_ )
   {
-    if( !data || !dynamic_cast< SpikeData* >( data )  )
+    if( !data_ || !dynamic_cast< SpikeData* >( data_ )  )
       return;
 
-    assert( ( data->endTime( ) - data->startTime( )) > 0 );
+    assert( ( data_->endTime( ) - data_->startTime( )) > 0 );
 
     Clear( );
 
-    _simData = data;
+    _simData = data_;
 
     _gids = _simData->gids( );
 
     std::cout << "GID Set size: " << _gids.size( ) << std::endl;
 
-    SpikeData* spikes = dynamic_cast< SpikeData* >( _simData );
+    SpikeData* spikeData = dynamic_cast< SpikeData* >( _simData );
 
-    std::cout << "Loaded " << spikes->spikes( ).size( ) << " spikes." << std::endl;
+    std::cout << "Loaded " << spikeData->spikes( ).size( ) << " spikes." << std::endl;
 
-    _currentSpike = spikes->spikes( ).begin( );
+    _currentSpike = spikeData->spikes( ).begin( );
     _previousSpike = _currentSpike;
 
-    _startTime = spikes->startTime( );
-    _endTime = spikes->endTime( );
+    _startTime = spikeData->startTime( );
+    _endTime = spikeData->endTime( );
 
     _currentTime = _startTime;
 
@@ -301,9 +304,9 @@ namespace simil
                                const std::string& networkPath,
                                const std::string& activityPath )
   {
-    _simData = new SpikeData( networkPath, dataType, activityPath );
+    auto simData = new SpikeData( networkPath, dataType, activityPath );
 
-    LoadData( _simData );
+    LoadData( simData );
   }
 
   void SpikesPlayer::Clear( void )
@@ -408,10 +411,10 @@ namespace simil
 
   void SpikesPlayer::spikesNowVect( std::vector< uint32_t >& gidsv )
   {
-    auto spikes = this->spikesNow( );
-    gidsv.resize( std::distance( spikes.first, spikes.second ));
+    auto spikes_ = this->spikesNow( );
+    gidsv.resize( std::distance( spikes_.first, spikes_.second ));
     std::vector< uint32_t >::iterator resultIt = gidsv.begin( );
-    for( auto& it = spikes.first; it != spikes.second; ++it, ++resultIt )
+    for( auto& it = spikes_.first; it != spikes_.second; ++it, ++resultIt )
     {
       *resultIt = it->second;
     }
