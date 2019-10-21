@@ -24,6 +24,8 @@ namespace simil
 
   public:
 
+    SubsetEventManager( );
+
     SIMIL_API
     void loadJSON( const std::string& filePath );
 
@@ -54,6 +56,8 @@ namespace simil
     unsigned int numSubsets( void ) const;
     unsigned int numEvents( void ) const;
 
+    float totalTime( void ) const;
+
     SIMIL_API
     std::vector< std::string > subsetNames( void ) const;
 
@@ -70,6 +74,7 @@ namespace simil
     std::map< std::string, std::vector< uint32_t >> _subsets;
     std::map< std::string, std::vector< std::pair< float, float >>> _events;
 
+    float _totalTime;
   };
 
 

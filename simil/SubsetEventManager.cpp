@@ -147,6 +147,10 @@ namespace simil
     return result;
   }
 
+  SubsetEventManager::SubsetEventManager( )
+  : _totalTime( 0.0f )
+  { }
+
   void SubsetEventManager::loadJSON( const std::string& filePath )
   {
 
@@ -198,15 +202,15 @@ namespace simil
 
     H5SubsetEvents reader;
 
-    reader.Load( filePath, "length", "activation" );
+    reader.Load( filePath, "length", "pattern_activation" );
 
     for( auto& subset : reader.subsets( ))
-    {
       addSubset( subset.name, subset.gids );
 
-    }
     for( auto& tf : reader.timeFrames( ))
       _events.insert( std::make_pair( tf.name, tf.timeFrames ));
+
+    _totalTime = reader.totalTime( );
   }
 
   void SubsetEventManager::clear( void )
@@ -264,12 +268,17 @@ namespace simil
 
   unsigned int SubsetEventManager::numSubsets( void ) const
   {
-    return _subsets.size( );
+    return ( unsigned int )_subsets.size( );
   }
 
   unsigned int SubsetEventManager::numEvents( void ) const
   {
-    return _events.size( );
+    return ( unsigned int )_events.size( );
+  }
+
+  float SubsetEventManager::totalTime( void ) const
+  {
+    return _totalTime;
   }
 
   std::vector< std::string > SubsetEventManager::subsetNames( void ) const
@@ -345,8 +354,8 @@ namespace simil
            binIt != eventTime.begin( ) + binEnd; ++binIt )
       {
 
-        lowerBound = std::max( acc, event.first );
-        upperBound = std::min( acc + deltaTime, event.second );
+        lowerBound = (std::max)( acc, event.first );
+        upperBound = (std::min)( acc + deltaTime, event.second );
 
         *binIt += ( upperBound - lowerBound );
 

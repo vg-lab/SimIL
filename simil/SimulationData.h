@@ -40,6 +40,7 @@ namespace simil
     const TPosVect& positions( void ) const;
 
     SubsetEventManager* subsetsEvents( void );
+    const SubsetEventManager* subsetsEvents( void ) const;
 
     TSimulationType simulationType( void ) const;
 
@@ -47,6 +48,12 @@ namespace simil
 
     virtual float startTime( void ) const;
     virtual float endTime( void ) const;
+
+#ifdef SIMIL_USE_BRION
+    const brion::BlueConfig* blueConfig( void ) const;
+
+    const std::string& target( void ) const;
+#endif
 
   protected:
 
@@ -60,10 +67,13 @@ namespace simil
 
 //    simil::SubsetMap _subsets;
 
+    TDataType _dataType;
     TSimulationType _simulationType;
 
 #ifdef SIMIL_USE_BRION
     brion::BlueConfig* _blueConfig;
+
+    std::string _target;
 #endif
     H5Network* _h5Network;
 

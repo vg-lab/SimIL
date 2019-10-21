@@ -31,6 +31,23 @@ namespace simil
 
   public:
 
+    enum TNetworkAttrib
+    {
+      tna_name = 0,
+      tna_label,
+      tna_gids,
+      tna_offset,
+      tna_group,
+      tna_dataset
+    };
+
+    typedef std::tuple< std::string,
+                        std::string,
+                        GIDVec,
+                        unsigned int,
+                        H5::Group,
+                        H5::DataSet > TNetworkAttributes;
+
     H5Network( void );
     H5Network( const std::string& fileName ,
                const std::string& pattern = "neuron" );
@@ -67,6 +84,7 @@ namespace simil
 
     H5::H5File _file;
     std::vector< std::string > _groupNames;
+    std::vector< std::string > _datasetNames;
     simil::SubsetMap _subsets;
 
     std::vector< H5::Group > _groups;
@@ -74,7 +92,7 @@ namespace simil
 
     std::vector< unsigned int > _offsets;
 
-
+    std::unordered_map< std::string, TNetworkAttributes > _attributes;
   };
 
 }
