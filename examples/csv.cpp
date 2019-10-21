@@ -25,8 +25,10 @@ int main( int argc, char** argv )
   simil::TGIDSet gids = network.getGIDs( );
   std::cout << gids.size( ) << std::endl;
 
-//  for( auto gid : gids )
-//    std::cout << gid << std::endl;
+  std::cout << "GIDs: ";
+  for( auto gid : gids )
+    std::cout << " "<< gid;
+  std::cout << std::endl;
 
   simil::TPosVect positions = network.getComposedPositions( );
   std::cout << positions.size( ) << std::endl;
@@ -34,11 +36,11 @@ int main( int argc, char** argv )
 //  for( auto position : positions )
 //    std::cout << position << std::endl;
 
-  simil::CSVSpikes activity( network, activityFile, ',', false );
+  simil::CSVSpikes activity( network, activityFile, '\t', false );
   activity.load( );
 
   simil::TSpikes spikes = activity.spikes( );
 
-  for( auto spike : spikes )
-    std::cout << spike.first << ", " << spike.second << std::endl;
+//  for( auto spike : spikes )
+//    std::cout << spike.first << ", " << spike.second << std::endl;
 }

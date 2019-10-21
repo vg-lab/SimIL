@@ -39,7 +39,10 @@ namespace simil
 //    if( _headerLine )
 //      file.readLine( );
 
+    bool ok = false;
+    bool includesGID = false;
     unsigned int counter = 0;
+    unsigned int gid = 0;
 
     while( !file.atEnd( ))
     {
@@ -51,10 +54,17 @@ namespace simil
 
       vmml::Vector3f coordinates;
 
+      includesGID = wordList.size( ) > 3;
+
+      gid = ( includesGID ) ? stringLine[ 0 ].toUInt( &ok ) : counter;
+
       unsigned int i = 0;
       for( auto word : stringLine )
       {
-        bool ok;
+
+        if( includesGID && i == 0 )
+          continue;
+
         float value = word.toFloat( &ok );
 
         if( !ok )
@@ -65,7 +75,7 @@ namespace simil
         i++;
       }
 
-      _gids.insert( counter );
+      _gids.insert( gid );
       _positions.push_back( coordinates );
 
       counter++;
