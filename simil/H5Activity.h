@@ -42,7 +42,6 @@ namespace simil
     H5::H5File _file;
     std::vector< std::string > _groupNames;
     std::vector< H5::Group > _groups;
-
   };
 
   class H5Spikes : public H5Activity

@@ -81,6 +81,7 @@ namespace simil
 
       // Get object name.
       std::string currentName = _file.getObjnameByIdx( i );
+      std::string label;
 
       // Check if group name contains the pattern word.
       if( currentName.find( _pattern ) == std::string::npos )
@@ -95,7 +96,7 @@ namespace simil
 
         H5std_string newName("");
         group.openAttribute( "name" ).read( type, newName );
-        currentName = newName;
+        label = newName;
       }
       // Get children datasets number
       unsigned int innerDatasets = group.getNumObjs( );
@@ -139,16 +140,24 @@ namespace simil
            subsetGids[ gid ] = _offsets.back( ) + gid;
         }
 
-        _subsets.insert( std::make_pair( currentName, std::move( subsetGids )));
-
-        records += dims[ 0 ];
+        _subsets.insert( std::make_pair( label, std::move( subsetGids )));
 
         // Store group name.
         _groupNames.push_back( currentName );
+
+        _datasetNames.push_back( label );
+
         // Store current group.
         _groups.push_back( group );
         // Store current dataset.
         _datasets.push_back( dataset );
+
+        TNetworkAttributes attribs =
+            std::make_tuple( currentName, label, subsetGids, records, group, dataset );
+
+        _attributes.insert( std::make_pair( currentName, attribs ));
+
+        records += dims[ 0 ];
       }
     }
 
@@ -159,10 +168,13 @@ namespace simil
   void H5Network::clear( void )
   {
     _groupNames.clear( );
+    _datasetNames.clear( );
     _groups.clear( );
     _offsets.clear( );
     _datasets.clear( );
     _subsets.clear( );
+
+    _attributes.clear( );
 
     _totalRecords = 0;
     _fileName.clear( );

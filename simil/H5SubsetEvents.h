@@ -44,12 +44,15 @@ namespace simil
 
     const std::vector< TTimeFrame >& timeFrames( void ) const;
 
+    float totalTime( void ) const;
+
   protected:
 
     std::vector< TSubset > _subsets;
 
     std::vector< TTimeFrame > _events;
 
+    float _totalTime;
   };
 
 }

@@ -11,7 +11,6 @@ set( SIMIL_PUBLIC_HEADERS
      ZeroEqEventsManager.h
      SubsetEventManager.h
      H5SubsetEvents.h
-     CorrelationComputer.h
      Spikes.hpp
 )
 
@@ -28,7 +27,6 @@ set( SIMIL_SOURCES
      ZeroEqEventsManager.cpp
      SubsetEventManager.cpp
      H5SubsetEvents.cpp
-     CorrelationComputer.cpp
 )
 
 set( SIMIL_LINK_LIBRARIES

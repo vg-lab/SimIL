@@ -17,6 +17,7 @@ namespace simil
 {
 
   H5SubsetEvents::H5SubsetEvents( void )
+  : _totalTime( 0.0f )
   { }
 
   void H5SubsetEvents::Load( const std::string& fileName,
@@ -38,6 +39,8 @@ namespace simil
     bool foundMatrix = false;
 
     std::cout << "Found " << outerObjects << " objects." << std::endl;
+
+    unsigned int patternsNumber = 0;
 
     // Read data
     for( unsigned int i = 0; i < outerObjects; ++i )
@@ -62,7 +65,11 @@ namespace simil
       else if( currentName.find( matrixName ) != std::string::npos )
         datasetMatrix = true;
       else if( currentName.find( "pattern" ) != std::string::npos )
+      {
         datasetPattern = true;
+        if( currentName.find( "activation" ) == std::string::npos )
+          ++patternsNumber;
+      }
       else
         datasetBins = datasetMatrix = datasetPattern = false;
 
@@ -85,6 +92,8 @@ namespace simil
         float totalLength = 0.0f;
         for( auto bin : bins )
           totalLength += bin;
+
+        _totalTime = totalLength;
 
         // Check bins length
         std::cout << "Total length: " << totalLength << "." << std::endl;
@@ -133,15 +142,20 @@ namespace simil
       }
     }
 
+    std::cout << "Found " << patternsNumber
+              << " patterns out of matrix rows " << matrixRows << std::endl;
+
+    unsigned int matrixOffset = matrixRows - patternsNumber;
+
     if( bins.size( ) > 0 && matrix.size( ) > 0 )
     {
       std::cout << "Composing time frames..." << std::endl;
       std::vector< int >::const_iterator it = matrix.begin( );
 
-      _events.resize( matrixRows );
+      _events.resize( patternsNumber );
 
       unsigned int counter = 0;
-      for( unsigned int j = 0; j < matrixRows; j++ )
+      for( unsigned int j = 0; j < patternsNumber; j++ )
       {
         TTimeFrame& tf = _events[ j ];
         tf.name = std::string( "pattern_");
@@ -157,7 +171,7 @@ namespace simil
       counter = 0;
       for( auto bin : bins )
       {
-        for( unsigned int i = 0; i < matrixRows; ++i, ++it )
+        for( unsigned int i = 0; i < patternsNumber; ++i, ++it )
         {
           unsigned int value = *it;
           if( value > 0 )
@@ -167,6 +181,7 @@ namespace simil
           }
         }
 
+        it += matrixOffset;
         counter++;
         lastBin += bin;
       }
@@ -174,6 +189,9 @@ namespace simil
       // Compact results by merging contiguous active bins
       for( auto& event : _events )
       {
+        if( event.timeFrames.empty( ))
+          continue;
+
         std::cout << "\tCompacting " << event.name
                   << " with " << event.timeFrames.size( )
                   << std::endl;
@@ -230,6 +248,11 @@ namespace simil
   const std::vector< TTimeFrame >& H5SubsetEvents::timeFrames( void ) const
   {
     return _events;
+  }
+
+  float H5SubsetEvents::totalTime( void ) const
+  {
+    return _totalTime;
   }
 
 }
