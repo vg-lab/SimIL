@@ -24,7 +24,7 @@ OSX:
   - export CMAKE_OSX_ARCHITECTURES=x86_64
   - bash .gitlabci.sh
  tags:
-  - osx
+  - osx-sierra
 
 Ubuntu-Optional-Deps:
  stage: build
@@ -51,7 +51,7 @@ OSX-Optional-Deps:
   - export CMAKE_OSX_ARCHITECTURES=x86_64
   - bash .gitlabci.sh
  tags:
-  - osx
+  - osx-sierra
 
 Win7:
  stage: build

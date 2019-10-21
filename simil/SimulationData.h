@@ -21,6 +21,8 @@
 #include "H5Network.h"
 #include "SubsetEventManager.h"
 #include "Spikes.hpp"
+#include "CSVNetwork.h"
+#include "CSVActivity.h"
 
 namespace simil
 {
@@ -76,6 +78,8 @@ namespace simil
     std::string _target;
 #endif
     H5Network* _h5Network;
+
+    CSVNetwork* _csvNetwork;
 
     float _startTime;
     float _endTime;

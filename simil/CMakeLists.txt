@@ -5,6 +5,8 @@ set( SIMIL_PUBLIC_HEADERS
      SimulationPlayer.h
      H5Network.h
      H5Activity.h
+     CSVNetwork.h
+     CSVActivity.h
      SimulationData.h
      ZeroEqEventsManager.h
      SubsetEventManager.h
@@ -19,6 +21,8 @@ set( SIMIL_SOURCES
      SimulationPlayer.cpp
      H5Network.cpp
      H5Activity.cpp
+     CSVNetwork.cpp
+     CSVActivity.cpp
      SimulationData.cpp
      ZeroEqEventsManager.cpp
      SubsetEventManager.cpp
@@ -29,6 +33,8 @@ set( SIMIL_LINK_LIBRARIES
      vmmlib
      ${Boost_LIBRARIES}
      ${HDF5_LIBRARIES}
+     Qt5::Core
+     Qt5::Widgets
 )
 
 if( BRION_FOUND )
