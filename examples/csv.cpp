@@ -33,10 +33,10 @@ int main( int argc, char** argv )
   simil::TPosVect positions = network.getComposedPositions( );
   std::cout << positions.size( ) << std::endl;
 
-//  for( auto position : positions )
-//    std::cout << position << std::endl;
+  for( auto position : positions )
+    std::cout << position << std::endl;
 
-  simil::CSVSpikes activity( network, activityFile, '\t', false );
+  simil::CSVSpikes activity( network, activityFile, ',', false );
   activity.load( );
 
   simil::TSpikes spikes = activity.spikes( );
