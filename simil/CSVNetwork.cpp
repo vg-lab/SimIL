@@ -32,7 +32,8 @@ namespace simil
     QFile file( QString( _fileName.data( )));
     if( !file.open( QIODevice::ReadOnly | QFile::Text))
     {
-      std::cerr << "Error: Could not open CSV file " << _fileName << "." << std::endl;
+      std::cerr << "Error: Could not open CSV file " << _fileName
+                << "." << std::endl;
       return;
     }
 
@@ -49,6 +50,18 @@ namespace simil
       QStringList stringLine;
       QByteArray line = file.readLine( );
       QList< QByteArray > wordList = line.split( _separator );
+
+      if( wordList.size( ) < 3 || wordList.size( ) > 4 )
+      {
+        std::cerr << std::endl
+                  << "CSV error in line: " << counter
+                  << ". Please check file format and make sure all lines match the following structure for each line:"
+                  << " '[GID,]X,Y,Z'"
+                  << " where the GID is an optional field, and  X,Y,Z are the 3D coordinates."
+                  << std::endl;
+        exit( -1 );
+      }
+
       for( auto word : wordList )
         stringLine.append( word.constData( ));
 
