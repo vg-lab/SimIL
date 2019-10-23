@@ -1,0 +1,8 @@
+{
+    "connection": {
+        "type": "shared_memory",
+        "options": {
+            "name": "shmem_name"
+        }
+    }
+}

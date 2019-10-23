@@ -13,8 +13,7 @@ set( SIMIL_PUBLIC_HEADERS
      Spikes.hpp
      loaders/LoadSimData.h
      loaders/LoadHDF5Data.h
-     loaders/LoadblueConfigData.h
-     loaders/LoadInsituData.h
+
 )
 
 set( SIMIL_HEADERS
@@ -30,8 +29,8 @@ set( SIMIL_SOURCES
      H5SubsetEvents.cpp
      CorrelationComputer.cpp
      loaders/LoadHDF5Data.cpp
-     loaders/LoadblueConfigData.cpp
-     loaders/LoadInsituData.cpp
+
+
 )
 
 set( SIMIL_LINK_LIBRARIES
@@ -42,7 +41,17 @@ set( SIMIL_LINK_LIBRARIES
 
 if( BRION_FOUND )
   list( APPEND SIMIL_LINK_LIBRARIES Brion Brain )
+  list (APPEND SIMIL_PUBLIC_HEADERS loaders/LoadblueConfigData.h)
+  list (APPEND SIMIL_SOURCES loaders/LoadblueConfigData.cpp)
 endif( )
+
+if (SIMIL_USE_CONE)
+    #message("Adding Cone to Simil")
+    list( APPEND SIMIL_LINK_LIBRARIES cone::cone)
+
+    list (APPEND SIMIL_PUBLIC_HEADERS loaders/LoadInsituData.h)
+    list (APPEND SIMIL_SOURCES loaders/LoadInsituData.cpp)
+endif()
 
 
 if( ZEROEQ_FOUND )
@@ -56,6 +65,8 @@ endif( )
 if( LEXIS_FOUND )
   list( APPEND SIMIL_LINK_LIBRARIES Lexis )
 endif( )
+
+
 
 add_definitions( -DSIMIL_SHARED )
 

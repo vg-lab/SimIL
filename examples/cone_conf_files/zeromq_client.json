@@ -1,0 +1,8 @@
+{
+    "connection": {
+        "type": "zeromq_client",
+        "options": {
+            "address": "localhost:8000"
+        }
+    }
+}

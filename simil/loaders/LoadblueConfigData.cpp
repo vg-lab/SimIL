@@ -6,7 +6,7 @@
  * @remarks Copyright (c) GMRV/URJC. All rights reserved.
  *          Do not distribute without further notice.
  */
-#ifdef SIMIL_USE_BRION
+
 
 #include "LoadblueConfigData.h"
 //#include "../storage/StorageSparse.h"
@@ -93,4 +93,4 @@ SimulationData *LoadblueConfigData::LoadSimulationData(
 
 } // namespace simil
 
-#endif
+

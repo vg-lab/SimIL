@@ -9,7 +9,7 @@
 
 #ifndef __SIMIL__LOADBLUECONFIGDATA_H__
 #define __SIMIL__LOADBLUECONFIGDATA_H__
-#ifdef SIMIL_USE_BRION
+
 #include "LoadSimData.h"
 
 #include <brion/brion.h>
@@ -35,5 +35,5 @@ namespace simil
   };
 
 } // namespace simil
-#endif
+
 #endif /* __SIMIL__LOADBLUECONFIGDATA_H__ */

@@ -11,6 +11,8 @@
 #define __SIMIL__LOADINSITUDATA_H__
 
 #include "LoadSimData.h"
+#include <cone/cone.hpp>
+#include <thread>         // std::thread
 
 namespace simil
 {
@@ -26,13 +28,17 @@ namespace simil
                                   const std::string& target = "" ) override;*/
 
   protected:
-    // void SpikeDetectorCB(const nesci::consumer::SpikeDetectorDataView&
-    // _spikes); void NetworkDataCB(const
+     void SpikeDetectorCB(const nesci::consumer::SpikeDetectorDataView& _spikes);
+
+     void CBloop();
+     //void NetworkDataCB(const
     // nesci::consumer::SetNestMultimeterDataView& _network); void
     // UnkwonDataCB(const conduit::Node& _unkwon);
-    // Cone _cone;
+    std::thread looper;
     //DataSet* _dataset;
     SimulationData* _simulationdata;
+    cone::Cone*  _cone;
+    bool waitForData;
   };
 
 } // namespace simil
