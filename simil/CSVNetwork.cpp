@@ -73,7 +73,7 @@ namespace simil
         if( !ok )
           std::cout << "Warning: Value " << word.toStdString( ) << " not converted to float." << std::endl;
 
-        coordinates[ i ] = value;
+        coordinates[ i - includesGID ] = value;
 
         i++;
       }
