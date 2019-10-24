@@ -69,7 +69,7 @@ namespace simil
   {
     if ( _cone == nullptr )
     {
-      if ( filePath_.empty( ) )
+      if ( !filePath_.empty( ) )
       {
         _cone =
           new cone::Cone( cone::ConnectUsingConfigurationFile( filePath_ ) );
@@ -87,7 +87,7 @@ namespace simil
     }
 
     if ( _simulationdata == nullptr )
-      _simulationdata = new SimulationData( );
+      _simulationdata = new SpikeData( );
 
     looper = std::thread( &LoadInsituData::CBloop, this );
 
@@ -111,23 +111,23 @@ namespace simil
   void LoadInsituData::SpikeDetectorCB(
     const nesci::consumer::SpikeDetectorDataView& data )
   {
-    Spikes _spikes = dynamic_cast< SpikeData* >( _simulationdata )->spikes( );
+    SpikeData* _spikes = dynamic_cast< SpikeData* >( _simulationdata );
     auto timesteps = data.GetTimesteps( );
     auto neuron_ids = data.GetNeuronIds( );
 
     uint numOfElem = timesteps.number_of_elements( );
 
-    float startTime = _simulationdata->startTime( );
-    float endTime = _simulationdata->endTime( );
+    float startTime = _spikes->startTime( );
+    float endTime = _spikes->endTime( );
 
     for ( uint i = 0; i < numOfElem; ++i )
     {
       float timestamp = timesteps[ i ];
       if ( timestamp < startTime )
-        _simulationdata->setStartTime( timestamp );
+        _spikes->setStartTime( timestamp );
       if ( timestamp > endTime )
-        _simulationdata->setEndTime( timestamp );
-      _spikes.push_back( std::make_pair( timestamp, neuron_ids[ i ] ) );
+        _spikes->setEndTime( timestamp );
+      _spikes->addSpike( timestamp, neuron_ids[ i ]  );
     }
 
     // simil::StorageSparse *newStorage = new StorageSparse("Spikes",

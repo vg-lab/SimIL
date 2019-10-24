@@ -7,7 +7,7 @@
 #
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 cmake_minimum_required( VERSION 3.1 FATAL_ERROR )
-project( SimIL VERSION 0.2.0 )
+project( SimIL VERSION 0.1.5 )
 set( SimIL_VERSION_ABI 1)
 
 
@@ -45,36 +45,25 @@ else()
 endif()
 
 include( Common )
-set(CMAKE_CXX_STANDARD 14)
-set(BOOST_ROOT /home/aaron/opt/boost)
 
 common_find_package( vmmlib REQUIRED )
 common_find_package( Brion ${SIMIL_OPTS_FIND_ARGS} )
 common_find_package( HDF5 REQUIRED COMPONENTS C CXX )
-common_find_package( Boost 1.66 REQUIRED )
+common_find_package( Boost REQUIRED )
 common_find_package( ZeroEQ )
 common_find_package( Qt5Core 5.4 SYSTEM )
 common_find_package( Qt5Widgets 5.4 SYSTEM )
 
-set(Conduit_DIR /home/aaron/opt/insitu/lib/cmake)
-list (APPEND CMAKE_MODULE_PATH
-        /home/aaron/opt/insitu/lib/cmake/)
-list(APPEND CMAKE_PREFIX_PATH
-        /home/aaron/opt/insitu/lib/cmake/cone
-        /home/aaron/opt/insitu/lib/cmake/contra
-        /home/aaron/opt/insitu/lib/cmake/nesci
-        /home/aaron/opt/src/json/build
-        /home/aaron/opt/insitu/share/cmake/cppzmq
-        /home/aaron/opt/insitu/share/cmake/ZeroMQ
-        )
 
 common_find_package(cone COMPONENTS nlohmann_json producer consumer )
 common_find_package(contra COMPONENTS contra zmq shared_memory )
 common_find_package(nesci COMPONENTS producer consumer )
 common_find_package(nlohmann_json )
 
-
 if (cone_FOUND AND nlohmann_json_FOUND)
+    if (Boost_LIB_VERSION VERSION_LESS 1.66)
+        message("Boost ${Boost_LIB_VERSION} is lower than CONE required.")
+    endif()
     set(SIMIL_USE_CONE TRUE)
     list( APPEND SIMIL_DEPENDENT_LIBRARIES cone )
 else()

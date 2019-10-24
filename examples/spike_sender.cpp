@@ -120,7 +120,7 @@ int main( int argc, char** argv )
   std::cout << "--------------------------------------" << std::endl;
 
 
-    contra::Relay<contra::ZMQTransport> relay(5555);
+    contra::Relay<contra::ZMQTransport> relay(8000);
 
      nesci::producer::SpikeDetector sd{"spike_detector"};
 
@@ -138,7 +138,7 @@ int main( int argc, char** argv )
 
          std::cout << "Sending! number:" <<recorded_spikes << std::endl;
            relay.Send(sd.node());
-         std::this_thread::sleep_for(std::chrono::milliseconds(10000));
+         std::this_thread::sleep_for(std::chrono::milliseconds(3000));
          sd.Clear();
      } while (recorded_spikes < spikes.size( ));
 

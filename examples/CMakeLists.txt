@@ -1,4 +1,3 @@
-set(CMAKE_CXX_STANDARD 14)
 set( EXAMPLES_LINK_LIBRARIES)
 
 set( SIMILREFACTORLOADEXAMPLE_SOURCES loadRefactorExample.cpp )
@@ -27,4 +26,9 @@ if (SIMIL_USE_CONE)
     set( DUMMYRECEIVER_HEADERS )
     set( DUMMYRECEIVER_LINK_LIBRARIES cone::cone  )
     common_application (dummyreceiver)
+
+    set( INSITUEXAMPLE_SOURCES InsituExample.cpp )
+    set( INSITUEXAMPLE_HEADERS )
+    set( INSITUEXAMPLE_LINK_LIBRARIES SimIL cone::cone  )
+    common_application (InsituExample)
 endif()

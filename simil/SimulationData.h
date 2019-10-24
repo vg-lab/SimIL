@@ -85,7 +85,7 @@ namespace simil
 
     const Spikes& spikes( void ) const;
     void setSpikes( Spikes spikes );
-
+    void addSpike(float timestamp, uint gid);
     SpikeData* get( void );
 
     void reduceDataToGIDS( void );

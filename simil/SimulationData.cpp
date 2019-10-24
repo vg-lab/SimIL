@@ -235,6 +235,11 @@ namespace simil
     return _spikes;
   }
 
+  void SpikeData::addSpike(float timestamp, uint gid)
+  {
+    _spikes.push_back(std::make_pair(timestamp,gid));
+  }
+
   SpikeData* SpikeData::get( void )
   {
     return this;
