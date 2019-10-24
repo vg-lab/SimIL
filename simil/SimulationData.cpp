@@ -16,11 +16,14 @@ namespace simil
   SimulationData::SimulationData( const std::string& filePath_,
                                   TDataType dataType,
                                   const std::string& target )
-    : _simulationType( TSimNetwork )
+  : _dataType( dataType )
+  , _simulationType( TSimNetwork )
 #ifdef SIMIL_USE_BRION
     , _blueConfig( nullptr )
+  , _target( target )
 #endif
     , _h5Network( nullptr )
+  , _csvNetwork( nullptr )
     , _startTime( 0.0f )
     , _endTime( 0.0f )
   {
@@ -63,6 +66,16 @@ namespace simil
               ++it )
           _subsetEventManager.addSubset( it->first, it->second );
 
+        break;
+      }
+      case TCSV:
+      {
+        _csvNetwork = new CSVNetwork( filePath_ );
+        _csvNetwork->load( );
+
+        _gids =  _csvNetwork->getGIDs( );
+
+        _positions = _csvNetwork->getComposedPositions( );
         break;
       }
       default:
@@ -135,6 +148,12 @@ namespace simil
     return &_subsetEventManager;
   }
 
+
+  const simil::SubsetEventManager* SimulationData::subsetsEvents( void ) const
+  {
+    return &_subsetEventManager;
+  }
+
   TSimulationType SimulationData::simulationType( void ) const
   {
     return _simulationType;
@@ -152,14 +171,31 @@ namespace simil
 
   float SimulationData::endTime( void ) const
   {
-    return _endTime;
+//    if( _dataType == THDF5 )
+//      return std::max( _endTime, _subsetEventManager.totalTime( ));
+//    else
+      return _endTime;
   }
 
   SpikeData::SpikeData()
   : SimulationData()
   {
-
   }
+#ifdef SIMIL_USE_BRION
+    const brion::BlueConfig* SimulationData::blueConfig( void ) const
+    {
+      return _blueConfig;
+    }
+
+    const std::string& SimulationData::target( void ) const
+    {
+      return _target;
+    }
+
+#endif
+
+
+
 
   SpikeData::SpikeData( const std::string& filePath_, TDataType dataType,
                         const std::string& report )
@@ -200,6 +236,18 @@ namespace simil
         _spikes = spikeReport.spikes( );
 
         _startTime = spikeReport.startTime( );
+        _endTime = spikeReport.endTime( );
+
+        break;
+      }
+      case TCSV:
+      {
+        CSVSpikes spikeReport( *_csvNetwork, report, ',', false );
+        spikeReport.load( );
+
+        _spikes = spikeReport.spikes( );
+
+        _startTime = spikeReport.startTime();
         _endTime = spikeReport.endTime( );
 
         break;

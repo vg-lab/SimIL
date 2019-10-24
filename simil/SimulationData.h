@@ -21,6 +21,8 @@
 #include "H5Network.h"
 #include "SubsetEventManager.h"
 #include "Spikes.hpp"
+#include "CSVNetwork.h"
+#include "CSVActivity.h"
 
 namespace simil
 {
@@ -43,6 +45,7 @@ namespace simil
 
     void setSubset( SubsetEventManager subsets );
     SubsetEventManager* subsetsEvents( void );
+    const SubsetEventManager* subsetsEvents( void ) const;
 
     void setSimulationType( TSimulationType s_type );
     TSimulationType simulationType( void ) const;
@@ -53,6 +56,12 @@ namespace simil
     virtual float endTime( void ) const;
     void setStartTime( float startTime );
     void setEndTime( float endTime );
+
+#ifdef SIMIL_USE_BRION
+    const brion::BlueConfig* blueConfig( void ) const;
+
+    const std::string& target( void ) const;
+#endif
 
   protected:
     std::string filePath;
@@ -65,12 +74,17 @@ namespace simil
 
     //    simil::SubsetMap _subsets;
 
+    TDataType _dataType;
     TSimulationType _simulationType;
 
 #ifdef SIMIL_USE_BRION
     brion::BlueConfig* _blueConfig;
+
+    std::string _target;
 #endif
     H5Network* _h5Network;
+
+    CSVNetwork* _csvNetwork;
 
     float _startTime;
     float _endTime;
