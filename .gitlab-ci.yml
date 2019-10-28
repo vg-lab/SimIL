@@ -19,6 +19,7 @@ OSX:
   - date
   - hostname
   - uname -a
+  - module load Qt-5.9.1
   - export CMAKE_EXTRA_ARGS=-DCLONE_SUBPROJECTS=ON
   - export BUILD_GENERATOR="Unix Makefiles"
   - export CMAKE_OSX_ARCHITECTURES=x86_64
