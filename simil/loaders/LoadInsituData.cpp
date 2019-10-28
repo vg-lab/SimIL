@@ -81,9 +81,13 @@ namespace simil
                      "Connected through SharedMemory by default."
                   << std::endl;
       }
-      auto m_cb = std::bind( &LoadInsituData::SpikeDetectorCB, this,
-                             std::placeholders::_1 );
-      _cone->SetSpikeDetectorCallback( m_cb );
+      auto m_spikecb = std::bind( &LoadInsituData::SpikeDetectorCB, this,
+                                  std::placeholders::_1 );
+      _cone->SetSpikeDetectorCallback( m_spikecb );
+
+      auto m_networkcb = std::bind( &LoadInsituData::NetworkDataCB, this,
+                                    std::placeholders::_1 );
+      _cone->SetNestMultimeterCallback( m_networkcb );
     }
 
     if ( _simulationdata == nullptr )
@@ -127,7 +131,7 @@ namespace simil
         _spikes->setStartTime( timestamp );
       if ( timestamp > endTime )
         _spikes->setEndTime( timestamp );
-      _spikes->addSpike( timestamp, neuron_ids[ i ]  );
+      _spikes->addSpike( timestamp, neuron_ids[ i ] );
     }
 
     // simil::StorageSparse *newStorage = new StorageSparse("Spikes",
@@ -139,14 +143,24 @@ namespace simil
 
     // simulationdata->addStorage(newStorage);
   }
-  /*void LoadInsituData::NetworkDataCB(
-      const nesci::consumer::SetNestMultimeterDataView & NetData)
+  void LoadInsituData::NetworkDataCB(
+    const nesci::consumer::NestMultimeterDataView& NetData )
   {
-      //dataset->setGids(NetData.GetNeuronIds());
+    auto gids = NetData.GetNeuronIds( );
+    for ( uint i = 0; i < gids.number_of_elements( ); i++ )
+    {
+      _simulationdata->setGid( gids[ i ] );
+    }
 
-      //dataset->setPositions(NetData->getComposedPositions());
+    auto pos = NetData.GetFloatingPointAttributeValues( "Positions" );
+    std::cout << "Pos count: " << pos.number_of_elements( ) << std::endl;
+    for ( uint i = 0; i < pos.number_of_elements( ); i++ )
+    {
+      _simulationdata->setPosition(
+        vmml::Vector3f( pos[ i ], pos[ i ], pos[ i ] ) );
+    }
   }
-  void LoadInsituData::UnkwonDataCB(const conduit::Node &)
+  /*void LoadInsituData::UnkwonDataCB(const conduit::Node &)
   {
   }*/
 

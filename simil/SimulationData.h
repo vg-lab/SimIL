@@ -36,12 +36,14 @@ namespace simil
     virtual ~SimulationData( void );
 
     void setGids( const TGIDSet& gids );
+    void setGid( const uint32_t gid );
     const TGIDSet& gids( void ) const;
 
     GIDVec gidsVec( void ) const;
 
     const TPosVect& positions( void ) const;
     void setPositions( TPosVect positions );
+    void setPosition( vmml::Vector3f positions );
 
     void setSubset( SubsetEventManager subsets );
     SubsetEventManager* subsetsEvents( void );
