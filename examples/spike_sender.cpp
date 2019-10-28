@@ -6,6 +6,7 @@
 #include <contra/relay.hpp>
 #include <contra/zmq/zeromq_transport.hpp>
 #include <nesci/producer/spike_detector.hpp>
+#include <nesci/producer/nest_multimeter.hpp>
 #include <simil/simil.h>
 #ifdef SIMIL_USE_BRION
 #include <simil/loaders/LoadblueConfigData.h>
@@ -119,28 +120,44 @@ int main( int argc, char** argv )
 
   std::cout << "--------------------------------------" << std::endl;
 
+  contra::Relay< contra::ZMQTransport > relay( 8000 );
+  std::vector< std::string > double_value_names;
+  std::vector< std::string > long_value_names;
+  double_value_names.push_back( "Positions" );
+  long_value_names.push_back( "void" );
+  nesci::producer::NestMultimeter netM{"Network_detector", double_value_names,
+                                       long_value_names};
+  double* m_array = new double[ 3 ]( );
+  long* m_longs = new long[ 3 ]( );
+  m_longs[ 0 ] = 0;
+  m_longs[ 1 ] = 0;
+  m_longs[ 2 ] = 0;
+  auto it = gids.begin( );
+  for ( uint i = 0; i < gids.size( ); ++i )
+  {
+    m_array[ 0 ] = positions[ i ].x( );
+    m_array[ 1 ] = positions[ i ].y( );
+    m_array[ 2 ] = positions[ i ].z( );
 
-    contra::Relay<contra::ZMQTransport> relay(8000);
+    netM.Record( 0, *( it ), m_array, m_longs );
+    ++it;
+  }
+  relay.Send( netM.node( ) );
 
-     nesci::producer::SpikeDetector sd{"spike_detector"};
+  nesci::producer::SpikeDetector sd{"spike_detector"};
+  uint recorded_spikes = 0;
+  do
+  {
+    for ( int i = 0; i < 10; i++ )
+    {
+      sd.Record( spikes[ recorded_spikes ].first,
+                 spikes[ recorded_spikes ].second );
+      recorded_spikes++;
+    }
 
-
-
-     uint recorded_spikes = 0;
-
-     do {
-
-         for (int i=0; i < 10;i++) {
-           sd.Record(spikes[recorded_spikes].first,
-                     spikes[recorded_spikes].second);
-           recorded_spikes++;
-         }
-
-         std::cout << "Sending! number:" <<recorded_spikes << std::endl;
-           relay.Send(sd.node());
-         std::this_thread::sleep_for(std::chrono::milliseconds(3000));
-         sd.Clear();
-     } while (recorded_spikes < spikes.size( ));
-
-
+    std::cout << "Sending! number:" << recorded_spikes << std::endl;
+    relay.Send( sd.node( ) );
+    std::this_thread::sleep_for( std::chrono::milliseconds( 3000 ) );
+    sd.Clear( );
+  } while ( recorded_spikes < spikes.size( ) );
 }

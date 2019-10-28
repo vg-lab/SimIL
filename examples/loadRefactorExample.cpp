@@ -12,6 +12,7 @@
 #include <simil/loaders/LoadblueConfigData.h>
 #endif
 #include <simil/loaders/LoadHDF5Data.h>
+#include <simil/loaders/LoadCSVData.h>
 #include <iostream>
 
 int main( int argc, char** argv )
@@ -28,6 +29,7 @@ int main( int argc, char** argv )
               << std::endl;
 #endif
     std::cerr << "-h5 HDF5 loader " << std::endl;
+    std::cerr << "-csv CSV loader " << std::endl;
     return 1;
   }
   std::string simtype = argv[ 1 ];
@@ -43,33 +45,40 @@ int main( int argc, char** argv )
   }
   else
 #endif
-    if ( simtype == "-h5" )
-  {
     if ( argc < 4 )
-    {
-      std::cerr << "Error: an activity file must be provided after network file"
-                << std::endl;
-      return 1;
-    }
-    importer = new simil::LoadHDF5Data( );
-
-    secondaryPath = argv[ 3 ];
+  {
+    std::cerr << "Error: an activity file must be provided after network file"
+              << std::endl;
+    return 1;
   }
   else
   {
-    importer = new simil::LoadHDF5Data( );
-    std::cerr << "USAGE: loadRefactorExample -bc|-h5 file [target]"
-              << std::endl;
+    secondaryPath = argv[ 3 ];
+    if ( simtype == "-csv" )
+    {
+      importer = new simil::LoadCSVData( );
+    }
+    else if ( simtype == "-h5" )
+    {
+      importer = new simil::LoadHDF5Data( );
+    }
+    else
+    {
+      importer = new simil::LoadHDF5Data( );
+      std::cerr << "USAGE: loadRefactorExample -bc|-h5 file [target]"
+                << std::endl;
 #ifdef SIMIL_USE_BRION
-    std::cerr << "-bc blueconfig loader" << std::endl;
+      std::cerr << "-bc blueconfig loader" << std::endl;
 #else
-    std::cerr << "-bc NOT available blueconfig loader"
-                 ", consider compile again with BRION support"
-              << std::endl;
+      std::cerr << "-bc NOT available blueconfig loader"
+                   ", consider compile again with BRION support"
+                << std::endl;
 #endif
 
-    std::cerr << "-h5 HDF5 loader " << std::endl;
-    return 1;
+      std::cerr << "-h5 HDF5 loader " << std::endl;
+      std::cerr << "-csv CSV loader " << std::endl;
+      return 1;
+    }
   }
 
   std::cout << "--------------------------------------" << std::endl;

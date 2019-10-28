@@ -15,8 +15,7 @@ int main( int argc, char** argv )
 {
   if ( argc != 2 )
   {
-    std::cerr << "USAGE: InsituExample insituConfigFile"
-              << std::endl;
+    std::cerr << "USAGE: InsituExample insituConfigFile" << std::endl;
     return 1;
   }
 
@@ -30,8 +29,7 @@ int main( int argc, char** argv )
   std::cout << "Network" << std::endl;
   std::cout << "--------------------------------------" << std::endl;
 
-  simil::SimulationData* simData =
-    importer->LoadSimulationData( path );
+  simil::SimulationData* simData = importer->LoadSimulationData( path );
 
   std::cout << "Loaded GIDS: " << simData->gids( ).size( ) << std::endl;
   std::cout << "Loaded positions: " << simData->positions( ).size( )
@@ -67,11 +65,11 @@ int main( int argc, char** argv )
 
   std::cout << "--------------------------------------" << std::endl;
 
-  while(true)
+  while ( true )
   {
+    std::cout << "Loaded gids: " << spkData->gids( ).size( ) << std::endl;
     std::cout << "Loaded spikes: " << spkData->spikes( ).size( ) << std::endl;
-      std::this_thread::sleep_for(std::chrono::milliseconds(3000));
-
+    std::this_thread::sleep_for( std::chrono::milliseconds( 3000 ) );
   }
 
   return 0;

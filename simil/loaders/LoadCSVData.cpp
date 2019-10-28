@@ -52,8 +52,9 @@ namespace simil
   {
     SpikeData* simulationdata = new SpikeData( );
 
-    if ( _csvNetwork != nullptr )
+    if ( _csvNetwork == nullptr )
     {
+
       _csvNetwork = new CSVNetwork( filePath_ );
       _csvNetwork->load( );
     }
@@ -62,7 +63,7 @@ namespace simil
 
     simulationdata->setPositions( _csvNetwork->getComposedPositions( ) );
 
-    if ( _csvActivity != nullptr )
+    if ( _csvActivity == nullptr )
     {
       _csvActivity = new CSVSpikes( *_csvNetwork, target, ',', false );
       _csvActivity->load( );

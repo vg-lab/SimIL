@@ -12,15 +12,15 @@
 
 #include "LoadSimData.h"
 #include <cone/cone.hpp>
-#include <thread>         // std::thread
+#include <thread> // std::thread
 
 namespace simil
 {
   class LoadInsituData : public LoadSimData
   {
   public:
-      LoadInsituData();
-      ~LoadInsituData();
+    LoadInsituData( );
+    ~LoadInsituData( );
     virtual SimulationData*
       LoadSimulationData( const std::string& filePath_,
                           const std::string& target = "" ) override;
@@ -28,16 +28,17 @@ namespace simil
                                   const std::string& target = "" ) override;*/
 
   protected:
-     void SpikeDetectorCB(const nesci::consumer::SpikeDetectorDataView& _spikes);
+    void
+      SpikeDetectorCB( const nesci::consumer::SpikeDetectorDataView& _spikes );
 
-     void CBloop();
-     //void NetworkDataCB(const
-    // nesci::consumer::SetNestMultimeterDataView& _network); void
-    // UnkwonDataCB(const conduit::Node& _unkwon);
+    void CBloop( );
+    void
+      NetworkDataCB( const nesci::consumer::NestMultimeterDataView& _network );
+    // void UnkwonDataCB(const conduit::Node& _unkwon);
     std::thread looper;
-    //DataSet* _dataset;
+    // DataSet* _dataset;
     SimulationData* _simulationdata;
-    cone::Cone*  _cone;
+    cone::Cone* _cone;
     bool waitForData;
   };
 

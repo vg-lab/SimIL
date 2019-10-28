@@ -103,10 +103,18 @@ namespace simil
   {
     _gids = gids;
   }
+  void SimulationData::setGid( const uint32_t gid )
+  {
+    _gids.insert(gid);
+  }
 
   void SimulationData::setPositions( TPosVect positions )
   {
     _positions = positions;
+  }
+  void SimulationData::setPosition( vmml::Vector3f positions )
+  {
+    _positions.push_back(positions);
   }
 
   void SimulationData::setSubset( SubsetEventManager subsets )
