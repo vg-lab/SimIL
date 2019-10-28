@@ -133,7 +133,8 @@ int main( int argc, char** argv )
   m_longs[ 1 ] = 0;
   m_longs[ 2 ] = 0;
   auto it = gids.begin( );
-  for ( uint i = 0; i < gids.size( ); ++i )
+  auto numGids = gids.size( );
+  for ( unsigned int i = 0; i < numGids ; ++i )
   {
     m_array[ 0 ] = positions[ i ].x( );
     m_array[ 1 ] = positions[ i ].y( );

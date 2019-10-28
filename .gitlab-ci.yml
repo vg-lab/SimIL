@@ -46,6 +46,7 @@ OSX-Optional-Deps:
   - date
   - hostname
   - uname -a
+  - module load Qt-5.9.1
   - export CMAKE_EXTRA_ARGS="-DSIMIL_OPTIONALS_AS_REQUIRED=ON -DCLONE_SUBPROJECTS=ON"
   - export BUILD_OPTIONALS_SUBPROJECTS=1
   - export BUILD_GENERATOR="Unix Makefiles"
@@ -53,15 +54,3 @@ OSX-Optional-Deps:
   - bash .gitlabci.sh
  tags:
   - osx-sierra
-
-Win7:
- stage: build
- script:
-  - call %ENVFILESDIR%\Boost-1.56-vs12-x64.bat
-  - call %ENVFILESDIR%\HDF5-1.8.14-vs12-x64.bat
-  - set CMAKE_EXTRA_ARGS=-DCLONE_SUBPROJECTS=ON
-  - set BUILD_GENERATOR=Visual Studio 12 Win64
-  - set PATH=%PATH%;"c:\\Program Files\\Git\\bin"
-  - bash.exe --login .gitlabci.sh
- tags:
-  - win7

@@ -12,7 +12,7 @@
 
 #include "LoadSimData.h"
 #include <cone/cone.hpp>
-#include <thread> // std::thread
+#include <thread>
 
 namespace simil
 {
@@ -30,16 +30,15 @@ namespace simil
   protected:
     void
       SpikeDetectorCB( const nesci::consumer::SpikeDetectorDataView& _spikes );
-
-    void CBloop( );
     void
       NetworkDataCB( const nesci::consumer::NestMultimeterDataView& _network );
-    // void UnkwonDataCB(const conduit::Node& _unkwon);
-    std::thread looper;
-    // DataSet* _dataset;
+
+    void CBloop( );
+
+    std::thread _looper;
     SimulationData* _simulationdata;
     cone::Cone* _cone;
-    bool waitForData;
+    bool _waitForData;
   };
 
 } // namespace simil

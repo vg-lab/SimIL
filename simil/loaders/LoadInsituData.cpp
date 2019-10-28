@@ -20,14 +20,14 @@ namespace simil
     //, _dataset( nullptr )
     , _simulationdata( nullptr )
     , _cone( nullptr )
-    , waitForData( false )
+    , _waitForData( false )
   {
   }
 
   LoadInsituData::~LoadInsituData( )
   {
-    waitForData = false;
-    looper.join( );
+    _waitForData = false;
+    _looper.join( );
     delete _cone;
   }
 
@@ -93,7 +93,7 @@ namespace simil
     if ( _simulationdata == nullptr )
       _simulationdata = new SpikeData( );
 
-    looper = std::thread( &LoadInsituData::CBloop, this );
+    _looper = std::thread( &LoadInsituData::CBloop, this );
 
     return _simulationdata;
   } // namespace simil
@@ -105,8 +105,8 @@ namespace simil
       std::cerr << "Cone not started";
       return;
     }
-    waitForData = true;
-    while ( waitForData )
+    _waitForData = true;
+    while ( _waitForData )
     {
       _cone->Poll( 100 /* optional timeout*/ );
     }
@@ -119,12 +119,12 @@ namespace simil
     auto timesteps = data.GetTimesteps( );
     auto neuron_ids = data.GetNeuronIds( );
 
-    uint numOfElem = timesteps.number_of_elements( );
+    unsigned int numOfElem = timesteps.number_of_elements( );
 
     float startTime = _spikes->startTime( );
     float endTime = _spikes->endTime( );
 
-    for ( uint i = 0; i < numOfElem; ++i )
+    for ( unsigned int i = 0; i < numOfElem; ++i )
     {
       float timestamp = timesteps[ i ];
       if ( timestamp < startTime )
@@ -147,21 +147,20 @@ namespace simil
     const nesci::consumer::NestMultimeterDataView& NetData )
   {
     auto gids = NetData.GetNeuronIds( );
-    for ( uint i = 0; i < gids.number_of_elements( ); i++ )
+    auto numGids =  gids.number_of_elements( );
+    for ( unsigned int i = 0; i <numGids; i++ )
     {
       _simulationdata->setGid( gids[ i ] );
     }
 
     auto pos = NetData.GetFloatingPointAttributeValues( "Positions" );
-    std::cout << "Pos count: " << pos.number_of_elements( ) << std::endl;
-    for ( uint i = 0; i < pos.number_of_elements( ); i++ )
+    auto numPos = pos.number_of_elements( );
+    for ( unsigned int i = 0; i < numPos; i++ )
     {
       _simulationdata->setPosition(
         vmml::Vector3f( pos[ i ], pos[ i ], pos[ i ] ) );
     }
   }
-  /*void LoadInsituData::UnkwonDataCB(const conduit::Node &)
-  {
-  }*/
+
 
 } // namespace simil
