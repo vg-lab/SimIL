@@ -15,7 +15,7 @@
 
 namespace simil
 {
-  class LoadHDF5Data : public LoadSimData
+  class SIMIL_API LoadHDF5Data : public LoadSimData
   {
   public:
     LoadHDF5Data( );

@@ -16,7 +16,7 @@
 
 namespace simil
 {
-  class LoadCSVData : public LoadSimData
+  class SIMIL_API LoadCSVData : public LoadSimData
   {
   public:
     LoadCSVData( );

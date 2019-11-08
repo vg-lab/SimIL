@@ -15,7 +15,7 @@
 namespace simil
 {
 
-class LoadSimData
+class SIMIL_API LoadSimData
 {
 public:
   LoadSimData() {}

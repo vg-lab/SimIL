@@ -29,39 +29,54 @@ namespace simil
   class SimulationData
   {
   public:
+	  SIMIL_API
     SimulationData( );
 
+	SIMIL_API
     SimulationData( const std::string& filePath, TDataType dataType,
                     const std::string& target = "" );
+	SIMIL_API
     virtual ~SimulationData( void );
 
+	SIMIL_API
     void setGids( const TGIDSet& gids );
+	SIMIL_API
     void setGid( const uint32_t gid );
+	SIMIL_API
     const TGIDSet& gids( void ) const;
-
+	SIMIL_API
     GIDVec gidsVec( void ) const;
-
+	SIMIL_API
     const TPosVect& positions( void ) const;
+	SIMIL_API
     void setPositions( TPosVect positions );
+	SIMIL_API
     void setPosition( vmml::Vector3f positions );
-
+	SIMIL_API
     void setSubset( SubsetEventManager subsets );
+	SIMIL_API
     SubsetEventManager* subsetsEvents( void );
+	SIMIL_API
     const SubsetEventManager* subsetsEvents( void ) const;
-
+	SIMIL_API
     void setSimulationType( TSimulationType s_type );
+	SIMIL_API
     TSimulationType simulationType( void ) const;
-
+	SIMIL_API
     virtual SimulationData* get( void );
-
+	SIMIL_API
     virtual float startTime( void ) const;
+	SIMIL_API
     virtual float endTime( void ) const;
+	SIMIL_API
     void setStartTime( float startTime );
+	SIMIL_API
     void setEndTime( float endTime );
 
 #ifdef SIMIL_USE_BRION
+	SIMIL_API
     const brion::BlueConfig* blueConfig( void ) const;
-
+	SIMIL_API
     const std::string& target( void ) const;
 #endif
 
@@ -95,15 +110,20 @@ namespace simil
   class SpikeData : public SimulationData
   {
   public:
+	  SIMIL_API
     SpikeData( );
+	  SIMIL_API
     SpikeData( const std::string& filePath, TDataType dataType,
                const std::string& report = "" );
-
+	  SIMIL_API
     const Spikes& spikes( void ) const;
+	  SIMIL_API
     void setSpikes( Spikes spikes );
-    void addSpike(float timestamp, uint gid);
+	  SIMIL_API
+    void addSpike(float timestamp, unsigned int gid);
+	  SIMIL_API
     SpikeData* get( void );
-
+	  SIMIL_API
     void reduceDataToGIDS( void );
 
   protected:

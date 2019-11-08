@@ -54,3 +54,16 @@ OSX-Optional-Deps:
   - bash .gitlabci.sh
  tags:
   - osx-sierra
+  
+Win7:
+ stage: build
+ script:
+  - call %ENVFILESDIR%\Boost-1.56-vs12-x64.bat
+  - call %ENVFILESDIR%\HDF5-1.8.14-vs12-x64.bat
+  - set CMAKE_EXTRA_ARGS=-DCLONE_SUBPROJECTS=ON
+  - set BUILD_GENERATOR=Visual Studio 12 Win64
+  - set PATH=%PATH%;"c:\\Program Files\\Git\\bin"
+  - bash.exe --login .gitlabci.sh
+ tags:
+  - win7
+

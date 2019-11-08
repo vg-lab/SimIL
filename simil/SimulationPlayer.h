@@ -44,7 +44,7 @@ namespace simil
 
 
 
-  class SimulationPlayer
+  class SIMIL_API SimulationPlayer
   {
 
   public:
@@ -148,7 +148,7 @@ namespace simil
   typedef std::pair< SpikesIter, SpikesIter > SpikesRange;
   typedef std::pair< SpikesCIter, SpikesCIter > SpikesCRange;
 
-  class SpikesPlayer : public SimulationPlayer
+  class SIMIL_API SpikesPlayer : public SimulationPlayer
   {
   public:
 
