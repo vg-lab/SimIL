@@ -112,9 +112,9 @@ namespace simil
   {
     _positions = positions;
   }
-  void SimulationData::setPosition( vmml::Vector3f positions )
+  void SimulationData::setPosition( vmml::Vector3f position )
   {
-    _positions.push_back(positions);
+    _positions.push_back(position);
   }
 
   void SimulationData::setSubset( SubsetEventManager subsets )

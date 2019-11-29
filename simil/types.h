@@ -54,6 +54,8 @@ namespace simil
     TBlueConfig = 0,
     THDF5,
     TCSV,
+    TREST,
+    TCONE,
     TDataUndefined
   } TDataType;
 

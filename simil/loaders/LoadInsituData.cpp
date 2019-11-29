@@ -108,7 +108,7 @@ namespace simil
     _waitForData = true;
     while ( _waitForData )
     {
-      _cone->Poll( 100 /* optional timeout*/ );
+      _cone->Poll( 1 /* optional timeout*/ );
     }
   }
 
@@ -129,9 +129,11 @@ namespace simil
       float timestamp = timesteps[ i ];
       if ( timestamp < startTime )
         _spikes->setStartTime( timestamp );
-      if ( timestamp > endTime )
+      if ( timestamp >= endTime )
+      {
         _spikes->setEndTime( timestamp );
-      _spikes->addSpike( timestamp, neuron_ids[ i ] );
+        _spikes->addSpike( timestamp, neuron_ids[ i ] );
+      }
     }
 
     // simil::StorageSparse *newStorage = new StorageSparse("Spikes",
@@ -147,20 +149,40 @@ namespace simil
     const nesci::consumer::NestMultimeterDataView& NetData )
   {
     auto gids = NetData.GetNeuronIds( );
-    auto numGids =  gids.number_of_elements( );
-    for ( unsigned int i = 0; i <numGids; i++ )
-    {
-      _simulationdata->setGid( gids[ i ] );
-    }
+    auto numGids = gids.number_of_elements( );
+
+    if ( numGids < 1 )
+      return;
+
+    const TGIDSet& spikes = _simulationdata->gids( );
+    if ( spikes.count( gids[ 0 ] ) > 0 )//It's old data
+      return;
 
     auto pos = NetData.GetFloatingPointAttributeValues( "Positions" );
     auto numPos = pos.number_of_elements( );
-    for ( unsigned int i = 0; i < numPos; i++ )
+
+    if ( numPos > 0 )
     {
-      _simulationdata->setPosition(
-        vmml::Vector3f( pos[ i ], pos[ i ], pos[ i ] ) );
+      for ( unsigned int i = 0; i < numPos; i++ )
+      {
+        _simulationdata->setPosition(
+          vmml::Vector3f( pos[ i ], pos[ i ], pos[ i ] ) );
+      }
+      for ( unsigned int i = 0; i < numGids; i++ )
+      {
+        _simulationdata->setGid( gids[ i ] );
+      }
+    }
+    else
+    {
+      unsigned int width = std::sqrt( numGids );
+      for ( unsigned int i = 0; i < numGids; i++ )
+      {
+        _simulationdata->setGid( gids[ i ] );
+        _simulationdata->setPosition(
+          vmml::Vector3f( i / width, i % width, 0 ) );
+      }
     }
   }
-
 
 } // namespace simil

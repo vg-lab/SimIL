@@ -46,11 +46,13 @@ endif()
 
 include( Common )
 
+
 common_find_package( vmmlib REQUIRED SYSTEM )
 common_find_package( Brion ${SIMIL_OPTS_FIND_ARGS} )
 common_find_package( HDF5 REQUIRED COMPONENTS C CXX SYSTEM )
 common_find_package( Boost REQUIRED )
 common_find_package( ZeroEQ )
+common_find_package( CURL )
 common_find_package( Qt5Core SYSTEM )
 common_find_package( Qt5Widgets SYSTEM )
 
@@ -60,20 +62,7 @@ common_find_package(contra COMPONENTS contra zmq shared_memory )
 common_find_package(nesci COMPONENTS producer consumer )
 common_find_package(nlohmann_json )
 
-if (cone_FOUND AND nlohmann_json_FOUND)
-    if (Boost_LIB_VERSION VERSION_LESS 1.66)
-        message("Boost ${Boost_LIB_VERSION} is lower than CONE required.")
-    endif()
-    set(SIMIL_USE_CONE TRUE)
-    list( APPEND SIMIL_DEPENDENT_LIBRARIES cone )
-else()
-    if (NOT cone_FOUND)
-        message("Cone not found. Consider add the directory CMAKE_PREFIX_PATH")
-    endif()
-    if (NOT nlohmann_json_FOUND)
-        message("nlohmann_json not found. Consider add the directory CMAKE_PREFIX_PATH ")
-    endif()
-endif()
+
 
 list( APPEND SIMIL_DEPENDENT_LIBRARIES HDF5 vmmlib Boost )
 
@@ -99,6 +88,26 @@ if( ZEROEQ_FOUND )
   endif( )  
   
 endif( )
+
+if (cone_FOUND AND nlohmann_json_FOUND)
+    if (Boost_VERSION VERSION_LESS 1.66)
+        message("Boost ${Boost_VERSION} is lower than CONE required.")
+    endif()
+    set(SIMIL_USE_CONE TRUE)
+    list( APPEND SIMIL_DEPENDENT_LIBRARIES cone )
+else()
+    if (NOT cone_FOUND)
+        message("Cone not found. Consider add the directory CMAKE_PREFIX_PATH")
+    endif()
+    if (NOT nlohmann_json_FOUND)
+        message("nlohmann_json not found. Consider add the directory CMAKE_PREFIX_PATH ")
+    endif()
+endif()
+
+if (CURL_FOUND)
+    list(APPEND SIMIL_DEPENDENT_LIBRARIES CURL::libcurl)
+    set(SIMIL_USE_REST_API TRUE)
+endif()
 
 common_find_package_post( )
 
