@@ -58,6 +58,14 @@ if (SIMIL_USE_CONE)
 endif()
 
 
+if (SIMIL_USE_REST_API)
+
+    list (APPEND SIMIL_PUBLIC_HEADERS loaders/LoadRestApiData.h)
+    list (APPEND SIMIL_SOURCES loaders/LoadRestApiData.cpp
+                                loaders/HTTPClient.hpp)
+endif()
+
+
 if( ZEROEQ_FOUND )
   list( APPEND SIMIL_LINK_LIBRARIES ZeroEQ ${CMAKE_THREAD_LIBS_INIT} )
 endif( )

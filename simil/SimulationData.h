@@ -43,7 +43,7 @@ namespace simil
 
     const TPosVect& positions( void ) const;
     void setPositions( TPosVect positions );
-    void setPosition( vmml::Vector3f positions );
+    void setPosition( vmml::Vector3f position );
 
     void setSubset( SubsetEventManager subsets );
     SubsetEventManager* subsetsEvents( void );

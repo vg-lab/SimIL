@@ -37,3 +37,11 @@ if (SIMIL_USE_CONE)
     set( INSITUEXAMPLE_LINK_LIBRARIES SimIL cone::cone  )
     common_application (InsituExample)
 endif()
+
+
+if (SIMIL_USE_REST_API)
+    set( RESTAPI_SOURCES RESTExample.cpp )
+    set( RESTAPI_HEADERS )
+    set( RESTAPI_LINK_LIBRARIES SimIL curl)
+    common_application (Restapi)
+endif()
