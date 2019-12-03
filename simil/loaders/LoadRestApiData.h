@@ -38,6 +38,10 @@ namespace simil
     };
 
     void SpikeCB(std::istream& contentdata);
+    void GidsCB(std::istream& contentdata);
+    void PopulationsCB(std::istream& contentdata);
+    void TimeCB(std::istream& contentdata);
+    void NPropertiesCB(std::istream& contentdata);
 
 
     void Spikeloop( );

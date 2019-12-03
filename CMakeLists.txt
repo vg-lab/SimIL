@@ -47,12 +47,14 @@ endif()
 include( Common )
 
 
+
+
 common_find_package( vmmlib REQUIRED SYSTEM )
 common_find_package( Brion ${SIMIL_OPTS_FIND_ARGS} )
 common_find_package( HDF5 REQUIRED COMPONENTS C CXX SYSTEM )
-common_find_package( Boost REQUIRED )
+add_definitions(-DBOOST_ERROR_CODE_HEADER_ONLY)
+common_find_package( Boost REQUIRED COMPONENTS system )
 common_find_package( ZeroEQ )
-common_find_package( CURL )
 common_find_package( Qt5Core SYSTEM )
 common_find_package( Qt5Widgets SYSTEM )
 
@@ -104,10 +106,9 @@ else()
     endif()
 endif()
 
-if (CURL_FOUND)
-    list(APPEND SIMIL_DEPENDENT_LIBRARIES CURL::libcurl)
-    set(SIMIL_USE_REST_API TRUE)
-endif()
+
+set(SIMIL_USE_REST_API TRUE)
+
 
 common_find_package_post( )
 
