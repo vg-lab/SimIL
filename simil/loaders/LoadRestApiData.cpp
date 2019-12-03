@@ -47,7 +47,7 @@ namespace simil
 
     _waitForData = true;
     _networklooper = std::thread( &LoadRestApiData::Networkloop, this );
-    //_spikeslooper = std::thread( &LoadRestApiData::Spikeloop, this );
+    _spikeslooper = std::thread( &LoadRestApiData::Spikeloop, this );
 
     return _simulationdata;
   } // namespace simil
@@ -82,6 +82,30 @@ namespace simil
     }
   }
 
+  void LoadRestApiData::GidsCB( std::istream& contentdata )
+  {
+    boost::property_tree::ptree propertytree;
+    boost::property_tree::read_json( contentdata, propertytree );
+  }
+
+  void LoadRestApiData::PopulationsCB( std::istream& contentdata )
+  {
+    boost::property_tree::ptree propertytree;
+    boost::property_tree::read_json( contentdata, propertytree );
+  }
+
+  void LoadRestApiData::NPropertiesCB( std::istream& contentdata )
+  {
+    boost::property_tree::ptree propertytree;
+    boost::property_tree::read_json( contentdata, propertytree );
+  }
+
+  void LoadRestApiData::TimeCB( std::istream& contentdata )
+  {
+    boost::property_tree::ptree propertytree;
+    boost::property_tree::read_json( contentdata, propertytree );
+  }
+
   void LoadRestApiData::handlerStatic( const HTTPRequest& request,
                                        HTTPResponse& response,
                                        system::error_code error_code )
@@ -101,13 +125,25 @@ namespace simil
           case GETRequest::Spikes:
             loader->SpikeCB( response.get_response( ) );
             break;
+          case GETRequest::Gids:
+            loader->GidsCB( response.get_response( ) );
+            break;
+          case GETRequest::NeuronPro:
+            loader->NPropertiesCB( response.get_response( ) );
+            break;
+          case GETRequest::TimeInfo:
+            loader->TimeCB( response.get_response( ) );
+            break;
+          case GETRequest::Populations:
+            loader->PopulationsCB( response.get_response( ) );
+            break;
           default:
             break;
         }
       }
       else
-         std::cerr << "Status code:" <<response.get_status_message()
-                   << ":" <<response.get_status_code( ) <<"\n";
+        std::cerr << "Status code:" << response.get_status_message( ) << ":"
+                  << response.get_status_code( ) << "\n";
     }
     else if ( error_code == asio::error::operation_aborted )
     {
