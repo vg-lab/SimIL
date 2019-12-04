@@ -53,7 +53,14 @@ namespace simil
   void LoadRestApiData::SpikeCB( std::istream& contentdata )
   {
     boost::property_tree::ptree propertytree;
-    boost::property_tree::read_json( contentdata, propertytree );
+    try {
+     boost::property_tree::read_json( contentdata, propertytree );
+    } catch (std::exception& e)
+    {
+      std::cerr << "Exception JSON PARSER:  " << e.what() << "\n";
+      return;
+    }
+
     // neuron_ids
     // simulation_steps/
 
@@ -190,7 +197,7 @@ namespace simil
       GETPopulations( );
 
       std::this_thread::sleep_for( std::chrono::seconds( 3 ) );
-      std::cout << "Intentamos otra vez\n";
+
     }
   }
 
