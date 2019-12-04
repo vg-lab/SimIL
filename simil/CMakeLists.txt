@@ -38,6 +38,7 @@ set( SIMIL_SOURCES
 set( SIMIL_LINK_LIBRARIES
      vmmlib
      ${Boost_LIBRARIES}
+     ${Boost_SYSTEM_LIBRARY}
      ${HDF5_LIBRARIES}
      Qt5::Core
      Qt5::Widgets
@@ -60,9 +61,11 @@ endif()
 
 if (SIMIL_USE_REST_API)
 
-    list (APPEND SIMIL_PUBLIC_HEADERS loaders/LoadRestApiData.h)
+    list (APPEND SIMIL_PUBLIC_HEADERS loaders/LoadRestApiData.h
+                                      loaders/HTTPSyncClient.h
+                                      )
     list (APPEND SIMIL_SOURCES loaders/LoadRestApiData.cpp
-                                loaders/HTTPClient.hpp)
+                                loaders/HTTPSyncClient.cpp)
 endif()
 
 

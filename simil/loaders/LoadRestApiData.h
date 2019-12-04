@@ -11,11 +11,11 @@
 #define __SIMIL__LOADRESTAPIDATA_H__
 
 #include "LoadSimData.h"
-#include "HTTPClient.hpp"
+
 
 #include <mutex>
 #include <thread>
-#include <mutex>
+
 
 namespace simil
 {
@@ -47,15 +47,12 @@ namespace simil
     void Spikeloop( );
     void Networkloop( );
 
-    void GETTimeInfo();
-    void GETGids();
-    void GETNeuronProperties();
-    void GETPopulations();
-    void GETSpikes();
+    int GETTimeInfo();
+    int GETGids();
+    int GETNeuronProperties();
+    int GETPopulations();
+    int GETSpikes();
 
-    static void handlerStatic(const HTTPRequest& request,
-                                HTTPResponse& response,
-                                system::error_code ec);
 
 
     std::unique_ptr<LoadRestApiData> _instance;
