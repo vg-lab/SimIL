@@ -10,13 +10,11 @@
 #include "LoadRestApiData.h"
 #include "../SimulationData.h"
 
+#include "HTTPSyncClient.h"
+
 #include <iostream>
-#include <exception>
-#include <curl/curl.h>
 #include <boost/property_tree/ptree.hpp>
 #include <boost/property_tree/json_parser.hpp>
-#include <boost/foreach.hpp>
-#include <boost/range/combine.hpp>
 
 namespace simil
 {
@@ -106,11 +104,11 @@ namespace simil
     boost::property_tree::read_json( contentdata, propertytree );
   }
 
-  void LoadRestApiData::handlerStatic( const HTTPRequest& request,
+  /*void LoadRestApiData::handlerStatic( const HTTPRequest& request,
                                        HTTPResponse& response,
-                                       system::error_code error_code )
+                                       boost::system::error_code error_code )
   {
-    if ( error_code == boost::system::errc::success )
+    if ( error_code == 0 )
     {
       if ( response.get_status_code( ) == 200 )
       {
@@ -145,7 +143,7 @@ namespace simil
         std::cerr << "Status code:" << response.get_status_message( ) << ":"
                   << response.get_status_code( ) << "\n";
     }
-    else if ( error_code == asio::error::operation_aborted )
+    else if ( error_code == boost::asio::error::operation_aborted )
     {
       std::cerr << "Request #" << request.get_id( )
                 << " has been cancelled by the user." << std::endl;
@@ -156,14 +154,16 @@ namespace simil
                 << " failed! Error code = " << error_code.value( )
                 << ". Error message = " << error_code.message( ) << std::endl;
     }
-  }
+  }*/
 
   void LoadRestApiData::Spikeloop( )
   {
     while ( _waitForData )
     {
-      GETSpikes( );
-      std::this_thread::sleep_for( std::chrono::milliseconds( 300 ) );
+      if ( GETSpikes( ) == 0 )
+        std::this_thread::sleep_for( std::chrono::milliseconds( 300 ) );
+      else
+        std::this_thread::sleep_for( std::chrono::milliseconds( 300 ) );
     }
   }
   void LoadRestApiData::Networkloop( )
@@ -194,140 +194,88 @@ namespace simil
     }
   }
 
-  void LoadRestApiData::GETTimeInfo( )
+  int LoadRestApiData::GETTimeInfo( )
   {
-    try
+    HTTPSyncClient client;
+
+    client.set_host( _host );
+    client.set_uri( "/simulation_time_info" );
+    client.set_port( _port );
+
+    int result = client.execute( );
+
+    if ( result == 0 ) // Success
     {
-      std::cout << "Llamada Time\n";
-      HTTPClient client;
-
-      std::shared_ptr< HTTPRequest > request = client.create_request( 1 );
-
-      request->set_host( _host );
-      request->set_uri( "/simulation_time_info" );
-      request->set_port( _port );
-      request->set_callback( handlerStatic );
-      request->set_handlerId( GETRequest::TimeInfo );
-      request->set_userpointer( this );
-      request->execute( );
-
-      std::this_thread::sleep_for( std::chrono::milliseconds( 15 ) );
-
-      client.close( );
+      TimeCB( client.get_response( ) );
     }
-    catch ( system::system_error& e )
-    {
-      std::cout << "Error occured! Error code = " << e.code( )
-                << ". Message: " << e.what( );
-    }
+
+    return result;
   }
-  void LoadRestApiData::GETGids( )
+  int LoadRestApiData::GETGids( )
   {
-    try
+    HTTPSyncClient client;
+
+    client.set_host( _host );
+    client.set_uri( "/gids" );
+    client.set_port( _port );
+
+    int result = client.execute( );
+
+    if ( result == 0 ) // Success
     {
-      std::cout << "Llamada Gid\n";
-      HTTPClient client;
-
-      std::shared_ptr< HTTPRequest > request = client.create_request( 1 );
-
-      request->set_host( _host );
-      request->set_uri( "/gids" );
-      request->set_port( _port );
-      request->set_callback( handlerStatic );
-      request->set_handlerId( GETRequest::Gids );
-      request->set_userpointer( this );
-      request->execute( );
-
-      std::this_thread::sleep_for( std::chrono::milliseconds( 15 ) );
-
-      client.close( );
+      GidsCB( client.get_response( ) );
     }
-    catch ( system::system_error& e )
-    {
-      std::cout << "Error occured! Error code = " << e.code( )
-                << ". Message: " << e.what( );
-    }
+    return result;
   }
-  void LoadRestApiData::GETNeuronProperties( )
+  int LoadRestApiData::GETNeuronProperties( )
   {
-    try
+    HTTPSyncClient client;
+
+    client.set_host( _host );
+    client.set_uri( "/neuron_properties" );
+    client.set_port( _port );
+
+    int result = client.execute( );
+
+    if ( result == 0 ) // Success
     {
-      std::cout << "Llamada Neuro\n";
-      HTTPClient client;
-
-      std::shared_ptr< HTTPRequest > request = client.create_request( 1 );
-
-      request->set_host( _host );
-      request->set_uri( "/neuron_properties" );
-      request->set_port( _port );
-      request->set_callback( handlerStatic );
-      request->set_handlerId( GETRequest::NeuronPro );
-      request->set_userpointer( this );
-      request->execute( );
-
-      std::this_thread::sleep_for( std::chrono::milliseconds( 15 ) );
-
-      client.close( );
+      NPropertiesCB( client.get_response( ) );
     }
-    catch ( system::system_error& e )
-    {
-      std::cout << "Error occured! Error code = " << e.code( )
-                << ". Message: " << e.what( );
-    }
+    return result;
   }
-  void LoadRestApiData::GETPopulations( )
+  int LoadRestApiData::GETPopulations( )
   {
-    try
+    HTTPSyncClient client;
+
+    client.set_host( _host );
+    client.set_uri( "/populations" );
+    client.set_port( _port );
+
+    int result = client.execute( );
+
+    if ( result == 0 ) // Success
     {
-      std::cout << "Llamada Population\n";
-      HTTPClient client;
-
-      std::shared_ptr< HTTPRequest > request = client.create_request( 1 );
-
-      request->set_host( _host );
-      request->set_uri( "/populations" );
-      request->set_port( _port );
-      request->set_callback( handlerStatic );
-      request->set_handlerId( GETRequest::Populations );
-      request->set_userpointer( this );
-      request->execute( );
-
-      std::this_thread::sleep_for( std::chrono::milliseconds( 15 ) );
-
-      client.close( );
+      PopulationsCB( client.get_response( ) );
     }
-    catch ( system::system_error& e )
-    {
-      std::cout << "Error occured! Error code = " << e.code( )
-                << ". Message: " << e.what( );
-    }
+
+    return result;
   }
-  void LoadRestApiData::GETSpikes( )
+  int LoadRestApiData::GETSpikes( )
   {
-    try
+    HTTPSyncClient client;
+
+    client.set_host( _host );
+    client.set_uri( "/spikes" );
+    client.set_port( _port );
+
+    int result = client.execute( );
+
+    if ( result == 0 ) // Success
     {
-      std::cout << "Llamada Spike\n";
-      HTTPClient client;
-
-      std::shared_ptr< HTTPRequest > request = client.create_request( 1 );
-
-      request->set_host( _host );
-      request->set_uri( "/spikes" );
-      request->set_port( _port );
-      request->set_callback( handlerStatic );
-      request->set_handlerId( GETRequest::Spikes );
-      request->set_userpointer( this );
-      request->execute( );
-
-      std::this_thread::sleep_for( std::chrono::milliseconds( 15 ) );
-
-      client.close( );
+      SpikeCB( client.get_response( ) );
     }
-    catch ( system::system_error& e )
-    {
-      std::cout << "Error occured! Error code = " << e.code( )
-                << ". Message: " << e.what( );
-    }
+
+    return result;
   }
 
 } // namespace simil
