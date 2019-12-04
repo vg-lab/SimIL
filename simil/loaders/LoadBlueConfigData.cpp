@@ -8,18 +8,18 @@
  */
 
 
-#include "LoadblueConfigData.h"
+#include "LoadBlueConfigData.h"
 //#include "../storage/StorageSparse.h"
 
 namespace simil
 {
 
-LoadblueConfigData::LoadblueConfigData()
+LoadBlueConfigData::LoadBlueConfigData()
     : LoadSimData()
     ,_blueConfig(nullptr)
 {
 }
-LoadblueConfigData::~LoadblueConfigData()
+LoadBlueConfigData::~LoadBlueConfigData()
 {
   if (_blueConfig != nullptr)
     delete _blueConfig;
@@ -51,7 +51,7 @@ LoadblueConfigData::~LoadblueConfigData()
   return dataset;
 }*/
 
-SimulationData *LoadblueConfigData::LoadSimulationData(
+SimulationData *LoadBlueConfigData::LoadSimulationData(
                                     const std::string &filePath_,
                                     const std::string & target)
 {

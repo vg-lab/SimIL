@@ -45,8 +45,8 @@ set( SIMIL_LINK_LIBRARIES
 
 if( BRION_FOUND )
   list( APPEND SIMIL_LINK_LIBRARIES Brion Brain )
-  list (APPEND SIMIL_PUBLIC_HEADERS loaders/LoadblueConfigData.h)
-  list (APPEND SIMIL_SOURCES loaders/LoadblueConfigData.cpp)
+  list (APPEND SIMIL_PUBLIC_HEADERS loaders/LoadBlueConfigData.h)
+  list (APPEND SIMIL_SOURCES loaders/LoadBlueConfigData.cpp)
 endif( )
 
 if (SIMIL_USE_CONE)
