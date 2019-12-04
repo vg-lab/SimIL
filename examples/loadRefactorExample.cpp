@@ -9,7 +9,7 @@
 
 #include <simil/simil.h>
 #ifdef SIMIL_USE_BRION
-#include <simil/loaders/LoadblueConfigData.h>
+#include <simil/loaders/LoadBlueConfigData.h>
 #endif
 #include <simil/loaders/LoadHDF5Data.h>
 #include <simil/loaders/LoadCSVData.h>
@@ -41,7 +41,7 @@ int main( int argc, char** argv )
 #ifdef SIMIL_USE_BRION
   if ( simtype == "-bc" )
   {
-    importer = new simil::LoadblueConfigData( );
+    importer = new simil::LoadBlueConfigData( );
   }
   else
 #endif
