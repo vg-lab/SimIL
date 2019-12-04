@@ -130,12 +130,12 @@ const std::map< std::string, std::string >& HTTPSyncClient::get_headers( )
          std::getline(response_stream, _status_message);
          if (!response_stream || http_version.substr(0, 5) != "HTTP/")
          {
-           std::cout << "Invalid response\n";
+           //std::cout << "Invalid response\n";
            return boost::system::errc::bad_message;
          }
          if (_status_code != 200)
          {
-           std::cout << "Response returned with status code " << _status_code << "\n";
+           //std::cout << "Response returned with status code " << _status_code << "\n";
            return boost::asio::error::operation_aborted;
          }
 
@@ -145,12 +145,14 @@ const std::map< std::string, std::string >& HTTPSyncClient::get_headers( )
          // Process the response headers.
          std::string header;
          while (std::getline(response_stream, header) && header != "\r")
-           std::cout << header << "\n";
-         std::cout << "\n";
+         {
+           //std::cout << header << "\n";
+         }
+         //std::cout << "\n";
 
          // Write whatever content we already have to output.
-         if (response.size() > 0)
-           std::cout << &response;
+         /*if (response.size() > 0)
+           std::cout << &response;*/
 
          // Read until EOF, writing data to output as we go.
          boost::system::error_code error;
@@ -165,7 +167,7 @@ const std::map< std::string, std::string >& HTTPSyncClient::get_headers( )
        }
        catch (std::exception& e)
        {
-         std::cout << "Exception: " << e.what() << "\n";
+         std::cerr << "Exception: " << e.what() << "\n";
          return boost::asio::error::operation_aborted;
        }
 
