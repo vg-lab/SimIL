@@ -17,11 +17,11 @@
 
 namespace simil
 {
-  class LoadblueConfigData : public LoadSimData
+  class LoadBlueConfigData : public LoadSimData
   {
   public:
-    LoadblueConfigData( );
-    ~LoadblueConfigData( );
+    LoadBlueConfigData( );
+    ~LoadBlueConfigData( );
 
     virtual SimulationData*
       LoadSimulationData( const std::string& filePath_,
