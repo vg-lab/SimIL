@@ -1,0 +1,8 @@
+{
+    "connection": {
+        "type": "zeromq_server",
+        "options": {
+            "port": 8000
+        }
+    }
+}

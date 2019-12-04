@@ -7,8 +7,9 @@
 #
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 cmake_minimum_required( VERSION 3.1 FATAL_ERROR )
-project( SimIL VERSION 0.1.0 )
+project( SimIL VERSION 0.1.5 )
 set( SimIL_VERSION_ABI 1)
+
 
 # Disable in source building
 if( "${PROJECT_SOURCE_DIR}" STREQUAL "${PROJECT_BINARY_DIR}" )
@@ -18,6 +19,7 @@ endif()
 list( APPEND CMAKE_MODULE_PATH
   ${PROJECT_SOURCE_DIR}/CMake
   ${CMAKE_SOURCE_DIR}/CMake/common )
+
 
 # Default build type is Debug
 if( NOT CMAKE_BUILD_TYPE )
@@ -51,6 +53,27 @@ common_find_package( Boost REQUIRED )
 common_find_package( ZeroEQ )
 common_find_package( Qt5Core SYSTEM )
 common_find_package( Qt5Widgets SYSTEM )
+
+
+common_find_package(cone COMPONENTS nlohmann_json producer consumer )
+common_find_package(contra COMPONENTS contra zmq shared_memory )
+common_find_package(nesci COMPONENTS producer consumer )
+common_find_package(nlohmann_json )
+
+if (cone_FOUND AND nlohmann_json_FOUND)
+    if (Boost_LIB_VERSION VERSION_LESS 1.66)
+        message("Boost ${Boost_LIB_VERSION} is lower than CONE required.")
+    endif()
+    set(SIMIL_USE_CONE TRUE)
+    list( APPEND SIMIL_DEPENDENT_LIBRARIES cone )
+else()
+    if (NOT cone_FOUND)
+        message("Cone not found. Consider add the directory CMAKE_PREFIX_PATH")
+    endif()
+    if (NOT nlohmann_json_FOUND)
+        message("nlohmann_json not found. Consider add the directory CMAKE_PREFIX_PATH ")
+    endif()
+endif()
 
 list( APPEND SIMIL_DEPENDENT_LIBRARIES HDF5 vmmlib Boost )
 

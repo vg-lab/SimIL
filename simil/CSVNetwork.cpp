@@ -29,7 +29,8 @@ namespace simil
 
   void CSVNetwork::load( void )
   {
-    QFile file( QString( _fileName.data( )));
+
+    QFile file( QString::fromStdString( _fileName));
     if( !file.open( QIODevice::ReadOnly | QFile::Text))
     {
       std::cerr << "Error: Could not open CSV file " << _fileName

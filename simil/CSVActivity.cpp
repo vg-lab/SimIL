@@ -119,7 +119,7 @@ namespace simil
     return result;
   }
 
-  float CSVSpikes::starTime( void )
+  float CSVSpikes::startTime( void )
   {
     return _startTime;
   }

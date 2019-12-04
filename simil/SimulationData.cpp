@@ -13,23 +13,22 @@
 
 namespace simil
 {
-
   SimulationData::SimulationData( const std::string& filePath_,
                                   TDataType dataType,
                                   const std::string& target )
   : _dataType( dataType )
   , _simulationType( TSimNetwork )
 #ifdef SIMIL_USE_BRION
-  , _blueConfig( nullptr )
+    , _blueConfig( nullptr )
   , _target( target )
 #endif
-  , _h5Network( nullptr )
+    , _h5Network( nullptr )
   , _csvNetwork( nullptr )
-  , _startTime( 0.0f )
-  , _endTime( 0.0f )
+    , _startTime( 0.0f )
+    , _endTime( 0.0f )
   {
     target.size( ); // TODO remove this workaround to unused variable error
-    switch( dataType )
+    switch ( dataType )
     {
       case TBlueConfig:
       {
@@ -39,7 +38,7 @@ namespace simil
 
         brain::Circuit* circuit = new brain::Circuit( *_blueConfig );
 
-        if( !target.empty( ))
+        if ( !target.empty( ) )
           _gids = brion::Target::parse( targets, target );
         else
           _gids = circuit->getGIDs( );
@@ -58,12 +57,13 @@ namespace simil
         _h5Network = new H5Network( filePath_ );
         _h5Network->load( );
 
-        _gids =  _h5Network->getGIDs( );
+        _gids = _h5Network->getGIDs( );
 
         _positions = _h5Network->getComposedPositions( );
 
         auto subsetIts = _h5Network->getSubsets( );
-        for( simil::SubsetMapCIt it = subsetIts.first; it != subsetIts.second; ++it )
+        for ( simil::SubsetMapCIt it = subsetIts.first; it != subsetIts.second;
+              ++it )
           _subsetEventManager.addSubset( it->first, it->second );
 
         break;
@@ -83,9 +83,57 @@ namespace simil
     }
   }
 
+  SimulationData::SimulationData( )
+    : _simulationType( TSimNetwork )
+#ifdef SIMIL_USE_BRION
+    , _blueConfig( nullptr )
+#endif
+    , _h5Network( nullptr )
+    , _startTime( 0.0f )
+    , _endTime( 0.0f )
+
+  {
+  }
+
   SimulationData::~SimulationData( void )
   {
+  }
 
+  void SimulationData::setGids( const TGIDSet& gids )
+  {
+    _gids = gids;
+  }
+  void SimulationData::setGid( const uint32_t gid )
+  {
+    _gids.insert(gid);
+  }
+
+  void SimulationData::setPositions( TPosVect positions )
+  {
+    _positions = positions;
+  }
+  void SimulationData::setPosition( vmml::Vector3f positions )
+  {
+    _positions.push_back(positions);
+  }
+
+  void SimulationData::setSubset( SubsetEventManager subsets )
+  {
+    _subsetEventManager = subsets;
+  }
+
+  void SimulationData::setSimulationType( TSimulationType s_type )
+  {
+    _simulationType = s_type;
+  }
+
+  void SimulationData::setStartTime( float startTime )
+  {
+    _startTime = startTime;
+  }
+  void SimulationData::setEndTime( float endTime )
+  {
+    _endTime = endTime;
   }
 
   const TGIDSet& SimulationData::gids( void ) const
@@ -95,7 +143,7 @@ namespace simil
 
   GIDVec SimulationData::gidsVec( void ) const
   {
-    return GIDVec( _gids.begin( ), _gids.end( ));
+    return GIDVec( _gids.begin( ), _gids.end( ) );
   }
 
   const TPosVect& SimulationData::positions( void ) const
@@ -137,6 +185,10 @@ namespace simil
       return _endTime;
   }
 
+  SpikeData::SpikeData()
+  : SimulationData()
+  {
+  }
 #ifdef SIMIL_USE_BRION
     const brion::BlueConfig* SimulationData::blueConfig( void ) const
     {
@@ -152,22 +204,23 @@ namespace simil
 
 
 
-  SpikeData::SpikeData( const std::string& filePath_, TDataType dataType,
-                        const std::string& report  )
-  : SimulationData( filePath_, dataType, report )
-  {
 
+  SpikeData::SpikeData( const std::string& filePath_, TDataType dataType,
+                        const std::string& report )
+    : SimulationData( filePath_, dataType, report )
+  {
     _simulationType = simil::TSimSpikes;
 
-    switch( dataType )
+    switch ( dataType )
     {
       case TBlueConfig:
       {
 #ifdef SIMIL_USE_BRION
-        if( _blueConfig )
+        if ( _blueConfig )
         {
-          brain::SpikeReportReader spikeReport(  _blueConfig->getSpikeSource( ));
-          _spikes = spikeReport.getSpikes(0, spikeReport.getEndTime( ));
+          brain::SpikeReportReader spikeReport(
+            _blueConfig->getSpikeSource( ) );
+          _spikes = spikeReport.getSpikes( 0, spikeReport.getEndTime( ) );
 
           _startTime = 0.0f;
           _endTime = spikeReport.getEndTime( );
@@ -180,13 +233,13 @@ namespace simil
       }
       case THDF5:
       {
-        if( report.empty( ))
+        if ( report.empty( ) )
         {
           std::cerr << "Error: Activity file path is empty." << std::endl;
         }
 
         H5Spikes spikeReport( *_h5Network, report );
-        spikeReport.Load(  );
+        spikeReport.Load( );
 
         _spikes = spikeReport.spikes( );
 
@@ -202,7 +255,7 @@ namespace simil
 
         _spikes = spikeReport.spikes( );
 
-        _startTime = spikeReport.starTime( );
+        _startTime = spikeReport.startTime();
         _endTime = spikeReport.endTime( );
 
         break;
@@ -210,16 +263,20 @@ namespace simil
       default:
         break;
     }
+  }
 
+  void SpikeData::setSpikes( Spikes spikes )
+  {
+    _spikes = spikes;
   }
 
   void SpikeData::reduceDataToGIDS( void )
   {
     std::cout << "Before: " << _spikes.size( ) << std::endl;
     TSpikes aux;
-    aux.reserve( _spikes.size( ));
-    for( auto spike : _spikes )
-      if( _gids.find( spike.second ) != _gids.end( ))
+    aux.reserve( _spikes.size( ) );
+    for ( auto spike : _spikes )
+      if ( _gids.find( spike.second ) != _gids.end( ) )
         aux.push_back( spike );
 
     aux.shrink_to_fit( );
@@ -234,12 +291,14 @@ namespace simil
     return _spikes;
   }
 
+  void SpikeData::addSpike(float timestamp, uint gid)
+  {
+    _spikes.push_back(std::make_pair(timestamp,gid));
+  }
+
   SpikeData* SpikeData::get( void )
   {
     return this;
   }
 
-
 } // namespace simil
-
-

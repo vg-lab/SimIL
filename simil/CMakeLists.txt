@@ -12,6 +12,9 @@ set( SIMIL_PUBLIC_HEADERS
      SubsetEventManager.h
      H5SubsetEvents.h
      Spikes.hpp
+     loaders/LoadSimData.h
+     loaders/LoadHDF5Data.h
+     loaders/LoadCSVData.h
 )
 
 set( SIMIL_HEADERS
@@ -27,6 +30,9 @@ set( SIMIL_SOURCES
      ZeroEqEventsManager.cpp
      SubsetEventManager.cpp
      H5SubsetEvents.cpp
+     loaders/LoadHDF5Data.cpp
+    loaders/LoadCSVData.cpp
+
 )
 
 set( SIMIL_LINK_LIBRARIES
@@ -39,7 +45,17 @@ set( SIMIL_LINK_LIBRARIES
 
 if( BRION_FOUND )
   list( APPEND SIMIL_LINK_LIBRARIES Brion Brain )
+  list (APPEND SIMIL_PUBLIC_HEADERS loaders/LoadBlueConfigData.h)
+  list (APPEND SIMIL_SOURCES loaders/LoadBlueConfigData.cpp)
 endif( )
+
+if (SIMIL_USE_CONE)
+    #message("Adding Cone to Simil")
+    list( APPEND SIMIL_LINK_LIBRARIES cone::cone)
+
+    list (APPEND SIMIL_PUBLIC_HEADERS loaders/LoadInsituData.h)
+    list (APPEND SIMIL_SOURCES loaders/LoadInsituData.cpp)
+endif()
 
 
 if( ZEROEQ_FOUND )
@@ -53,6 +69,8 @@ endif( )
 if( LEXIS_FOUND )
   list( APPEND SIMIL_LINK_LIBRARIES Lexis )
 endif( )
+
+
 
 add_definitions( -DSIMIL_SHARED )
 

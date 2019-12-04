@@ -53,7 +53,7 @@ namespace simil
     void load( void );
 
     TSpikes spikes( void );
-    float starTime( void );
+    float startTime( void );
     float endTime( void );
 
   protected:

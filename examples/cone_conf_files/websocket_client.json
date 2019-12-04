@@ -1,0 +1,8 @@
+{
+    "connection": {
+        "type": "websocket_client",
+        "options": {
+            "address": "localhost:8000"
+        }
+    }
+}
