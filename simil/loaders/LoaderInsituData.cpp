@@ -9,14 +9,14 @@
 
 #include <iostream>
 
-#include "LoadInsituData.h"
+#include "LoaderInsituData.h"
 #include "../SimulationData.h"
 
 namespace simil
 {
   // Cone _cone;
-  LoadInsituData::LoadInsituData( )
-    : LoadSimData( )
+  LoaderInsituData::LoaderInsituData( )
+    : LoaderSimData( )
     //, _dataset( nullptr )
     , _simulationdata( nullptr )
     , _cone( nullptr )
@@ -24,7 +24,7 @@ namespace simil
   {
   }
 
-  LoadInsituData::~LoadInsituData( )
+  LoaderInsituData::~LoaderInsituData( )
   {
     _waitForData = false;
     _looper.join( );
@@ -64,8 +64,8 @@ namespace simil
   }*/
 
   SimulationData*
-    LoadInsituData::LoadSimulationData( const std::string& filePath_,
-                                        const std::string& )
+    LoaderInsituData::loadSimulationData( const std::string& filePath_,
+                                          const std::string& )
   {
     if ( _cone == nullptr )
     {
@@ -81,11 +81,11 @@ namespace simil
                      "Connected through SharedMemory by default."
                   << std::endl;
       }
-      auto m_spikecb = std::bind( &LoadInsituData::SpikeDetectorCB, this,
+      auto m_spikecb = std::bind( &LoaderInsituData::SpikeDetectorCB, this,
                                   std::placeholders::_1 );
       _cone->SetSpikeDetectorCallback( m_spikecb );
 
-      auto m_networkcb = std::bind( &LoadInsituData::NetworkDataCB, this,
+      auto m_networkcb = std::bind( &LoaderInsituData::NetworkDataCB, this,
                                     std::placeholders::_1 );
       _cone->SetNestMultimeterCallback( m_networkcb );
     }
@@ -93,12 +93,12 @@ namespace simil
     if ( _simulationdata == nullptr )
       _simulationdata = new SpikeData( );
 
-    _looper = std::thread( &LoadInsituData::CBloop, this );
+    _looper = std::thread( &LoaderInsituData::CBloop, this );
 
     return _simulationdata;
   } // namespace simil
 
-  void LoadInsituData::CBloop( )
+  void LoaderInsituData::CBloop( )
   {
     if ( _cone == nullptr )
     {
@@ -112,7 +112,7 @@ namespace simil
     }
   }
 
-  void LoadInsituData::SpikeDetectorCB(
+  void LoaderInsituData::SpikeDetectorCB(
     const nesci::consumer::SpikeDetectorDataView& data )
   {
     SpikeData* _spikes = dynamic_cast< SpikeData* >( _simulationdata );
@@ -145,7 +145,7 @@ namespace simil
 
     // simulationdata->addStorage(newStorage);
   }
-  void LoadInsituData::NetworkDataCB(
+  void LoaderInsituData::NetworkDataCB(
     const nesci::consumer::NestMultimeterDataView& NetData )
   {
     auto gids = NetData.GetNeuronIds( );
@@ -155,7 +155,7 @@ namespace simil
       return;
 
     const TGIDSet& spikes = _simulationdata->gids( );
-    if ( spikes.count( gids[ 0 ] ) > 0 )//It's old data
+    if ( spikes.count( gids[ 0 ] ) > 0 ) // It's old data
       return;
 
     auto pos = NetData.GetFloatingPointAttributeValues( "Positions" );

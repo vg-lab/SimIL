@@ -12,9 +12,9 @@ set( SIMIL_PUBLIC_HEADERS
      SubsetEventManager.h
      H5SubsetEvents.h
      Spikes.hpp
-     loaders/LoadSimData.h
-     loaders/LoadHDF5Data.h
-     loaders/LoadCSVData.h
+     loaders/LoaderSimData.h
+     loaders/LoaderHDF5Data.h
+     loaders/LoaderCSVData.h
 )
 
 set( SIMIL_HEADERS
@@ -30,8 +30,8 @@ set( SIMIL_SOURCES
      ZeroEqEventsManager.cpp
      SubsetEventManager.cpp
      H5SubsetEvents.cpp
-     loaders/LoadHDF5Data.cpp
-    loaders/LoadCSVData.cpp
+     loaders/LoaderHDF5Data.cpp
+    loaders/LoaderCSVData.cpp
 
 )
 
@@ -46,26 +46,24 @@ set( SIMIL_LINK_LIBRARIES
 
 if( BRION_FOUND )
   list( APPEND SIMIL_LINK_LIBRARIES Brion Brain )
-  list (APPEND SIMIL_PUBLIC_HEADERS loaders/LoadBlueConfigData.h)
-  list (APPEND SIMIL_SOURCES loaders/LoadBlueConfigData.cpp)
+  list (APPEND SIMIL_PUBLIC_HEADERS loaders/LoaderBlueConfigData.h)
+  list (APPEND SIMIL_SOURCES loaders/LoaderBlueConfigData.cpp)
 endif( )
 
 if (SIMIL_USE_CONE)
-    #message("Adding Cone to Simil")
     list( APPEND SIMIL_LINK_LIBRARIES cone::cone)
-
-    list (APPEND SIMIL_PUBLIC_HEADERS loaders/LoadInsituData.h)
-    list (APPEND SIMIL_SOURCES loaders/LoadInsituData.cpp)
+    list (APPEND SIMIL_PUBLIC_HEADERS loaders/LoaderInsituData.h)
+    list (APPEND SIMIL_SOURCES loaders/LoaderInsituData.cpp)
 endif()
 
 
 if (SIMIL_USE_REST_API)
 
-    list (APPEND SIMIL_PUBLIC_HEADERS loaders/LoadRestApiData.h
-                                      loaders/HTTPSyncClient.h
+    list (APPEND SIMIL_PUBLIC_HEADERS loaders/LoaderRestData.h
+                                      loaders/HTTP/SyncClient.h
                                       )
-    list (APPEND SIMIL_SOURCES loaders/LoadRestApiData.cpp
-                                loaders/HTTPSyncClient.cpp)
+    list (APPEND SIMIL_SOURCES loaders/LoaderRestData.cpp
+                                loaders/HTTP/SyncClient.cpp)
 endif()
 
 

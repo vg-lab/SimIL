@@ -8,24 +8,20 @@
  */
 
 #include <simil/simil.h>
-#include <simil/loaders/LoadRestApiData.h>
+#include <simil/loaders/LoaderRestData.h>
 #include <iostream>
 
 int main( int , char**  )
 {
+  simil::LoaderSimData* importer;
 
-
-
-
-  simil::LoadSimData* importer;
-
-  importer = new simil::LoadRestApiData( );
+  importer = new simil::LoaderRestData( );
 
   std::cout << "--------------------------------------" << std::endl;
   std::cout << "Network" << std::endl;
   std::cout << "--------------------------------------" << std::endl;
 
-  simil::SimulationData* simData = importer->LoadSimulationData("");
+  simil::SimulationData* simData = importer->loadSimulationData("");
 
   std::cout << "Loaded GIDS: " << simData->gids( ).size( ) << std::endl;
   std::cout << "Loaded positions: " << simData->positions( ).size( )

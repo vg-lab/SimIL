@@ -10,19 +10,19 @@
 #ifndef __SIMIL__LOADINSITUDATA_H__
 #define __SIMIL__LOADINSITUDATA_H__
 
-#include "LoadSimData.h"
+#include "LoaderSimData.h"
 #include <cone/cone.hpp>
 #include <thread>
 
 namespace simil
 {
-  class LoadInsituData : public LoadSimData
+  class LoaderInsituData : public LoaderSimData
   {
   public:
-    LoadInsituData( );
-    ~LoadInsituData( );
+    LoaderInsituData( );
+    ~LoaderInsituData( );
     virtual SimulationData*
-      LoadSimulationData( const std::string& filePath_,
+      loadSimulationData( const std::string& filePath_,
                           const std::string& target = "" ) override;
     /*virtual DataSet* LoadNetwork( const std::string& filePath_,
                                   const std::string& target = "" ) override;*/

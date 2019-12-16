@@ -1,4 +1,4 @@
-#include "HTTPSyncClient.h"
+#include "SyncClient.h"
 
 
 #include <iostream>

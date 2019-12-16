@@ -7,20 +7,20 @@
  *          Do not distribute without further notice.
  */
 
-#include "LoadCSVData.h"
+#include "LoaderCSVData.h"
 
 //#include "../storage/StorageSparse.h"
 
 namespace simil
 {
-  LoadCSVData::LoadCSVData( )
-    : LoadSimData( )
+  LoaderCSVData::LoaderCSVData( )
+    : LoaderSimData( )
     , _csvNetwork( nullptr )
     , _csvActivity( nullptr )
   {
   }
 
-  LoadCSVData::~LoadCSVData( )
+  LoaderCSVData::~LoaderCSVData( )
   {
     if ( _csvNetwork != nullptr )
       delete _csvNetwork;
@@ -47,14 +47,14 @@ namespace simil
     return dataset;
   }*/
 
-  SimulationData* LoadCSVData::LoadSimulationData( const std::string& filePath_,
-                                                   const std::string& target )
+  SimulationData*
+    LoaderCSVData::loadSimulationData( const std::string& filePath_,
+                                       const std::string& target )
   {
     SpikeData* simulationdata = new SpikeData( );
 
     if ( _csvNetwork == nullptr )
     {
-
       _csvNetwork = new CSVNetwork( filePath_ );
       _csvNetwork->load( );
     }
@@ -69,7 +69,7 @@ namespace simil
       _csvActivity->load( );
     }
 
-    CSVSpikes* _csvSpikes = dynamic_cast<CSVSpikes*>(_csvActivity);
+    CSVSpikes* _csvSpikes = dynamic_cast< CSVSpikes* >( _csvActivity );
 
     /*simil::StorageSparse* newStorage =
       new StorageSparse( "Spikes", tTYPE_UINT, TSimSpikes );*/
