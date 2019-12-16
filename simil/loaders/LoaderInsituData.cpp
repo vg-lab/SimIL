@@ -17,8 +17,8 @@ namespace simil
   // Cone _cone;
   LoaderInsituData::LoaderInsituData( )
     : LoaderSimData( )
-    //, _dataset( nullptr )
     , _simulationdata( nullptr )
+    , _network( nullptr )
     , _cone( nullptr )
     , _waitForData( false )
   {
@@ -31,10 +31,12 @@ namespace simil
     delete _cone;
   }
 
-  /*DataSet* LoadInsituData::LoadNetwork( const std::string& filePath_,
-                                        const std::string& target )
+  Network* LoaderInsituData::loadNetwork( const std::string& ,
+                                          const std::string& target )
   {
-    _dataset = new DataSet( filePath_, TInSitu, target );
+    _network = new Network( );
+
+    _network->setDataType( TCONE );
 
     // Cone cone;
     // if (cone == nullptr)
@@ -60,8 +62,8 @@ namespace simil
 
     // cone.SetNestMultimeterCallback(NetworkDataCB);
 
-    return _dataset;
-  }*/
+    return _network;
+  }
 
   SimulationData*
     LoaderInsituData::loadSimulationData( const std::string& filePath_,

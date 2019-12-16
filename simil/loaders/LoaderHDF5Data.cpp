@@ -25,20 +25,21 @@ namespace simil
       delete _h5Network;
   }
 
-  /*DataSet* LoadHDF5Data::LoadNetwork( const std::string& filePath_,
-                                      const std::string& target )
+  Network* LoaderHDF5Data::loadNetwork( const std::string& filePath_,
+                                      const std::string&  )
   {
-    DataSet* dataset = new DataSet( filePath_, THDF5, target );
+    Network* _network = new Network( );
 
     if ( _h5Network == nullptr )
     {
       _h5Network = new H5Network( filePath_ );
       _h5Network->load( );
     }
+    _network->setDataType(THDF5);
 
-    dataset->setGids( _h5Network->getGIDs( ) );
+    _network->setGids( _h5Network->getGIDs( ) );
 
-    dataset->setPositions( _h5Network->getComposedPositions( ) );
+    _network->setPositions( _h5Network->getComposedPositions( ) );
 
     SubsetEventManager subsetEventManager;
     auto subsetIts = _h5Network->getSubsets( );
@@ -46,10 +47,10 @@ namespace simil
           ++it )
       subsetEventManager.addSubset( it->first, it->second );
 
-    dataset->setSubset( subsetEventManager );
+    _network->setSubset( subsetEventManager );
 
-    return dataset;
-  }*/
+    return _network;
+  }
 
   SimulationData*
     LoaderHDF5Data::loadSimulationData( const std::string& filePath_,

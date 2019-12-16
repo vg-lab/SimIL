@@ -3,11 +3,13 @@ set( SIMIL_PUBLIC_HEADERS
      types.h
      log.h
      SimulationPlayer.h
+     DataSet.h
+     SimulationData.h
+     Network.h
      H5Network.h
      H5Activity.h
      CSVNetwork.h
      CSVActivity.h
-     SimulationData.h
      ZeroEqEventsManager.h
      SubsetEventManager.h
      H5SubsetEvents.h
@@ -22,11 +24,13 @@ set( SIMIL_HEADERS
 
 set( SIMIL_SOURCES
      SimulationPlayer.cpp
+     DataSet.cpp
+     SimulationData.cpp
+     Network.cpp
      H5Network.cpp
      H5Activity.cpp
      CSVNetwork.cpp
      CSVActivity.cpp
-     SimulationData.cpp
      ZeroEqEventsManager.cpp
      SubsetEventManager.cpp
      H5SubsetEvents.cpp

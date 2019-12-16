@@ -26,6 +26,11 @@ namespace simil
       loadSimulationData( const std::string& filePath_,
                           const std::string& target = "" ) override;
 
+    virtual Network* loadNetwork( const std::string& filePath_,
+                                  const std::string& target = "" ) override;
+
+    void network( Network* network);
+
   protected:
     enum GETRequest
     {
@@ -36,14 +41,14 @@ namespace simil
       Spikes
     };
 
-    void SpikeCB( std::istream& contentdata );
-    void GidsCB( std::istream& contentdata );
-    void PopulationsCB( std::istream& contentdata );
-    void TimeCB( std::istream& contentdata );
-    void NPropertiesCB( std::istream& contentdata );
+    void callbackSpikes( std::istream& contentdata );
+    void callbackGids( std::istream& contentdata );
+    void callbackPopulations( std::istream& contentdata );
+    void callbackTime( std::istream& contentdata );
+    void callbackNProperties( std::istream& contentdata );
 
-    void Spikeloop( );
-    void Networkloop( );
+    void loopSpikes( );
+    void loopNetwork( );
 
     int GETTimeInfo( );
     int GETGids( );
@@ -52,9 +57,10 @@ namespace simil
     int GETSpikes( );
 
     std::unique_ptr< LoaderRestData > _instance;
-    std::thread _spikeslooper;
-    std::thread _networklooper;
+    std::thread _looperSpikes;
+    std::thread _looperNetwork;
     SimulationData* _simulationdata;
+    Network* _network;
     bool _waitForData;
     std::string _host;
     unsigned int _port;

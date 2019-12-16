@@ -10,7 +10,7 @@
 #ifndef __SIMIL__LOADSIMDATA_H__
 #define __SIMIL__LOADSIMDATA_H__
 
-#include "../SimulationData.h"
+#include "../DataSet.h"
 
 namespace simil
 {
@@ -25,8 +25,8 @@ namespace simil
     virtual SimulationData*
       loadSimulationData( const std::string& filePath_,
                           const std::string& target = "" ) = 0;
-    /*virtual DataSet *LoadNetwork(const std::string &filePath_,
-                                 const std::string &target = "") = 0;*/
+    virtual Network* loadNetwork( const std::string& filePath_,
+                                  const std::string& target = "" ) = 0;
   };
 
   inline LoaderSimData::~LoaderSimData( )
