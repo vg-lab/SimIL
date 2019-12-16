@@ -26,8 +26,8 @@ namespace simil
       loadSimulationData( const std::string& filePath_,
                           const std::string& target = "" ) override;
 
-    /*virtual DataSet* LoadNetwork( const std::string& filePath_,
-                                  const std::string& target = "" ) override;*/
+    virtual Network* loadNetwork( const std::string& filePath_,
+                                  const std::string& target = "" ) override;
 
   protected:
     simil::CSVNetwork* _csvNetwork;

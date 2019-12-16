@@ -8,7 +8,7 @@
  */
 
 #include "LoaderBlueConfigData.h"
-//#include "../storage/StorageSparse.h"
+
 
 namespace simil
 {
@@ -23,31 +23,34 @@ namespace simil
       delete _blueConfig;
   }
 
-  /*DataSet *LoadblueConfigData::LoadNetwork(const std::string &filePath_,
+  Network *LoaderBlueConfigData::loadNetwork(const std::string &filePath_,
                                            const std::string &target)
   {
-    DataSet *dataset = new DataSet(filePath_, TBlueConfig, target);
+
+    Network * _network = new Network();
 
     if (_blueConfig == nullptr)
     {
       _blueConfig = new brion::BlueConfig(filePath_);
     }
 
+    _network->setDataType(TBlueConfig);
+
     brion::Targets targets = _blueConfig->getTargets();
 
     brain::Circuit *circuit = new brain::Circuit(*_blueConfig);
 
     if (!target.empty())
-      dataset->setGids(brion::Target::parse(targets, target));
+      _network->setGids(brion::Target::parse(targets, target));
     else
-      dataset->setGids(circuit->getGIDs());
+      _network->setGids(circuit->getGIDs());
 
-    dataset->setPositions(circuit->getPositions(dataset->gids()));
+    _network->setPositions(circuit->getPositions(_network->gids()));
 
     delete circuit;
 
-    return dataset;
-  }*/
+    return _network;
+  }
 
   SimulationData*
     LoaderBlueConfigData::loadSimulationData( const std::string& filePath_,
@@ -79,13 +82,7 @@ namespace simil
     simulationdata->setStartTime( 0.0f );
     simulationdata->setEndTime( spikeReport.getEndTime( ) );
 
-    /*StorageSparse *newStorage = new StorageSparse("Spikes",
-                                                  tTYPE_UINT,
-                                                  TSimSpikes);*/
 
-    /*newStorage->setSpikes(spikeReport.getSpikes(0, spikeReport.getEndTime()));
-
-    simulationdata->addStorage(newStorage);*/
 
     return simulationdata;
   }

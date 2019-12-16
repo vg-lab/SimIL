@@ -24,8 +24,8 @@ namespace simil
     virtual SimulationData*
       loadSimulationData( const std::string& filePath_,
                           const std::string& target = "" ) override;
-    /*virtual DataSet* LoadNetwork( const std::string& filePath_,
-                                  const std::string& target = "" ) override;*/
+    virtual Network* loadNetwork( const std::string& filePath_,
+                                  const std::string& target = "" ) override;
 
   protected:
     void
@@ -37,6 +37,7 @@ namespace simil
 
     std::thread _looper;
     SimulationData* _simulationdata;
+    Network * _network;
     cone::Cone* _cone;
     bool _waitForData;
   };

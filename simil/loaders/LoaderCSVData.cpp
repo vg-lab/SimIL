@@ -29,23 +29,24 @@ namespace simil
       delete _csvActivity;
   }
 
-  /*DataSet* LoadCSVData::LoadNetwork( const std::string& filePath_,
-                                      const std::string& target )
+  Network* LoaderCSVData::loadNetwork( const std::string& filePath_,
+                                      const std::string&  )
   {
-    DataSet* dataset = new DataSet( filePath_, THDF5, target );
+    Network* _network = new Network( );
 
     if ( _csvNetwork != nullptr )
     {
       _csvNetwork = new CSVNetwork( filePath_ );
       _csvNetwork->load( );
     }
+    _network->setDataType(TCSV);
 
-    dataset->setGids( _csvNetwork->getGIDs( ) );
+    _network->setGids( _csvNetwork->getGIDs( ) );
 
-    dataset->setPositions( _csvNetwork->getComposedPositions( ) );
+    _network->setPositions( _csvNetwork->getComposedPositions( ) );
 
-    return dataset;
-  }*/
+    return _network;
+  }
 
   SimulationData*
     LoaderCSVData::loadSimulationData( const std::string& filePath_,
@@ -71,15 +72,12 @@ namespace simil
 
     CSVSpikes* _csvSpikes = dynamic_cast< CSVSpikes* >( _csvActivity );
 
-    /*simil::StorageSparse* newStorage =
-      new StorageSparse( "Spikes", tTYPE_UINT, TSimSpikes );*/
-
     simulationdata->setSimulationType( TSimSpikes );
     simulationdata->setSpikes( _csvSpikes->spikes( ) );
     simulationdata->setStartTime( _csvSpikes->startTime( ) );
     simulationdata->setEndTime( _csvSpikes->endTime( ) );
 
-    // simulationdata->addStorage( newStorage );
+
 
     return simulationdata;
   }
