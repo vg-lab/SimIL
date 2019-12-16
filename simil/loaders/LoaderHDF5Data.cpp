@@ -7,19 +7,19 @@
  *          Do not distribute without further notice.
  */
 
-#include "LoadHDF5Data.h"
+#include "LoaderHDF5Data.h"
 
 //#include "../storage/StorageSparse.h"
 
 namespace simil
 {
-  LoadHDF5Data::LoadHDF5Data( )
-    : LoadSimData( )
+  LoaderHDF5Data::LoaderHDF5Data( )
+    : LoaderSimData( )
     , _h5Network( nullptr )
   {
   }
 
-  LoadHDF5Data::~LoadHDF5Data( )
+  LoaderHDF5Data::~LoaderHDF5Data( )
   {
     if ( _h5Network != nullptr )
       delete _h5Network;
@@ -52,10 +52,10 @@ namespace simil
   }*/
 
   SimulationData*
-    LoadHDF5Data::LoadSimulationData( const std::string& filePath_,
-                                      const std::string& target )
+    LoaderHDF5Data::loadSimulationData( const std::string& filePath_,
+                                        const std::string& target )
   {
-    SpikeData *simulationdata = new SpikeData();
+    SpikeData* simulationdata = new SpikeData( );
 
     if ( _h5Network == nullptr )
     {
@@ -81,12 +81,12 @@ namespace simil
     /*simil::StorageSparse* newStorage =
       new StorageSparse( "Spikes", tTYPE_UINT, TSimSpikes );*/
 
-    simulationdata->setSimulationType(TSimSpikes);
+    simulationdata->setSimulationType( TSimSpikes );
     simulationdata->setSpikes( spikeReport.spikes( ) );
     simulationdata->setStartTime( spikeReport.startTime( ) );
     simulationdata->setEndTime( spikeReport.endTime( ) );
 
-    //simulationdata->addStorage( newStorage );
+    // simulationdata->addStorage( newStorage );
 
     return simulationdata;
   }

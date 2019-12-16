@@ -10,59 +10,54 @@
 #ifndef __SIMIL__LOADRESTAPIDATA_H__
 #define __SIMIL__LOADRESTAPIDATA_H__
 
-#include "LoadSimData.h"
-
+#include "LoaderSimData.h"
 
 #include <mutex>
 #include <thread>
 
-
 namespace simil
 {
-  class LoadRestApiData : public LoadSimData
+  class LoaderRestData : public LoaderSimData
   {
   public:
-    LoadRestApiData( );
-    ~LoadRestApiData( );
+    LoaderRestData( );
+    ~LoaderRestData( );
     virtual SimulationData*
-      LoadSimulationData( const std::string& filePath_,
+      loadSimulationData( const std::string& filePath_,
                           const std::string& target = "" ) override;
-  protected:
 
-    enum GETRequest{
-        TimeInfo = 0,
-        Gids,
-        NeuronPro,
-        Populations,
-        Spikes
+  protected:
+    enum GETRequest
+    {
+      TimeInfo = 0,
+      Gids,
+      NeuronPro,
+      Populations,
+      Spikes
     };
 
-    void SpikeCB(std::istream& contentdata);
-    void GidsCB(std::istream& contentdata);
-    void PopulationsCB(std::istream& contentdata);
-    void TimeCB(std::istream& contentdata);
-    void NPropertiesCB(std::istream& contentdata);
-
+    void SpikeCB( std::istream& contentdata );
+    void GidsCB( std::istream& contentdata );
+    void PopulationsCB( std::istream& contentdata );
+    void TimeCB( std::istream& contentdata );
+    void NPropertiesCB( std::istream& contentdata );
 
     void Spikeloop( );
     void Networkloop( );
 
-    int GETTimeInfo();
-    int GETGids();
-    int GETNeuronProperties();
-    int GETPopulations();
-    int GETSpikes();
+    int GETTimeInfo( );
+    int GETGids( );
+    int GETNeuronProperties( );
+    int GETPopulations( );
+    int GETSpikes( );
 
-
-
-    std::unique_ptr<LoadRestApiData> _instance;
+    std::unique_ptr< LoaderRestData > _instance;
     std::thread _spikeslooper;
     std::thread _networklooper;
     SimulationData* _simulationdata;
     bool _waitForData;
     std::string _host;
     unsigned int _port;
-
   };
 
 } // namespace simil

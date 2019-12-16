@@ -7,10 +7,10 @@
  *          Do not distribute without further notice.
  */
 
-#include "LoadRestApiData.h"
+#include "LoaderRestData.h"
 #include "../SimulationData.h"
 
-#include "HTTPSyncClient.h"
+#include "HTTP/SyncClient.h"
 
 #include <iostream>
 #include <boost/property_tree/ptree.hpp>
@@ -19,8 +19,8 @@
 namespace simil
 {
   // Cone _cone;
-  LoadRestApiData::LoadRestApiData( )
-    : LoadSimData( )
+  LoaderRestData::LoaderRestData( )
+    : LoaderSimData( )
     //, _dataset( nullptr )
     , _instance( nullptr )
     , _simulationdata( nullptr )
@@ -30,34 +30,36 @@ namespace simil
   {
   }
 
-  LoadRestApiData::~LoadRestApiData( )
+  LoaderRestData::~LoaderRestData( )
   {
     _waitForData = false;
     _spikeslooper.join( );
     _networklooper.join( );
   }
 
-  SimulationData* LoadRestApiData::LoadSimulationData( const std::string&,
-                                                       const std::string& )
+  SimulationData* LoaderRestData::loadSimulationData( const std::string&,
+                                                      const std::string& )
   {
     if ( _simulationdata == nullptr )
       _simulationdata = new SpikeData( );
 
     _waitForData = true;
-    _networklooper = std::thread( &LoadRestApiData::Networkloop, this );
-    _spikeslooper = std::thread( &LoadRestApiData::Spikeloop, this );
+    _networklooper = std::thread( &LoaderRestData::Networkloop, this );
+    _spikeslooper = std::thread( &LoaderRestData::Spikeloop, this );
 
     return _simulationdata;
   } // namespace simil
 
-  void LoadRestApiData::SpikeCB( std::istream& contentdata )
+  void LoaderRestData::SpikeCB( std::istream& contentdata )
   {
     boost::property_tree::ptree propertytree;
-    try {
-     boost::property_tree::read_json( contentdata, propertytree );
-    } catch (std::exception& e)
+    try
     {
-      std::cerr << "Exception JSON PARSER:  " << e.what() << "\n";
+      boost::property_tree::read_json( contentdata, propertytree );
+    }
+    catch ( std::exception& e )
+    {
+      std::cerr << "Exception JSON PARSER:  " << e.what( ) << "\n";
       return;
     }
 
@@ -87,25 +89,25 @@ namespace simil
     }
   }
 
-  void LoadRestApiData::GidsCB( std::istream& contentdata )
+  void LoaderRestData::GidsCB( std::istream& contentdata )
   {
     boost::property_tree::ptree propertytree;
     boost::property_tree::read_json( contentdata, propertytree );
   }
 
-  void LoadRestApiData::PopulationsCB( std::istream& contentdata )
+  void LoaderRestData::PopulationsCB( std::istream& contentdata )
   {
     boost::property_tree::ptree propertytree;
     boost::property_tree::read_json( contentdata, propertytree );
   }
 
-  void LoadRestApiData::NPropertiesCB( std::istream& contentdata )
+  void LoaderRestData::NPropertiesCB( std::istream& contentdata )
   {
     boost::property_tree::ptree propertytree;
     boost::property_tree::read_json( contentdata, propertytree );
   }
 
-  void LoadRestApiData::TimeCB( std::istream& contentdata )
+  void LoaderRestData::TimeCB( std::istream& contentdata )
   {
     boost::property_tree::ptree propertytree;
     boost::property_tree::read_json( contentdata, propertytree );
@@ -163,7 +165,7 @@ namespace simil
     }
   }*/
 
-  void LoadRestApiData::Spikeloop( )
+  void LoaderRestData::Spikeloop( )
   {
     while ( _waitForData )
     {
@@ -173,7 +175,7 @@ namespace simil
         std::this_thread::sleep_for( std::chrono::milliseconds( 300 ) );
     }
   }
-  void LoadRestApiData::Networkloop( )
+  void LoaderRestData::Networkloop( )
   {
     while ( _waitForData )
     {
@@ -197,11 +199,10 @@ namespace simil
       GETPopulations( );
 
       std::this_thread::sleep_for( std::chrono::seconds( 3 ) );
-
     }
   }
 
-  int LoadRestApiData::GETTimeInfo( )
+  int LoaderRestData::GETTimeInfo( )
   {
     HTTPSyncClient client;
 
@@ -218,7 +219,7 @@ namespace simil
 
     return result;
   }
-  int LoadRestApiData::GETGids( )
+  int LoaderRestData::GETGids( )
   {
     HTTPSyncClient client;
 
@@ -234,7 +235,7 @@ namespace simil
     }
     return result;
   }
-  int LoadRestApiData::GETNeuronProperties( )
+  int LoaderRestData::GETNeuronProperties( )
   {
     HTTPSyncClient client;
 
@@ -250,7 +251,7 @@ namespace simil
     }
     return result;
   }
-  int LoadRestApiData::GETPopulations( )
+  int LoaderRestData::GETPopulations( )
   {
     HTTPSyncClient client;
 
@@ -267,7 +268,7 @@ namespace simil
 
     return result;
   }
-  int LoadRestApiData::GETSpikes( )
+  int LoaderRestData::GETSpikes( )
   {
     HTTPSyncClient client;
 

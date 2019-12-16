@@ -8,7 +8,7 @@
  */
 
 #include <simil/simil.h>
-#include <simil/loaders/LoadInsituData.h>
+#include <simil/loaders/LoaderInsituData.h>
 #include <iostream>
 
 int main( int argc, char** argv )
@@ -21,15 +21,15 @@ int main( int argc, char** argv )
 
   std::string path = argv[ 1 ];
 
-  simil::LoadSimData* importer;
+  simil::LoaderSimData* importer;
 
-  importer = new simil::LoadInsituData( );
+  importer = new simil::LoaderInsituData( );
 
   std::cout << "--------------------------------------" << std::endl;
   std::cout << "Network" << std::endl;
   std::cout << "--------------------------------------" << std::endl;
 
-  simil::SimulationData* simData = importer->LoadSimulationData( path );
+  simil::SimulationData* simData = importer->loadSimulationData( path );
 
   std::cout << "Loaded GIDS: " << simData->gids( ).size( ) << std::endl;
   std::cout << "Loaded positions: " << simData->positions( ).size( )

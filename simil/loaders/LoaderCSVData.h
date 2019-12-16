@@ -10,20 +10,20 @@
 #ifndef __SIMIL__LOADCSVDATA_H__
 #define __SIMIL__LOADCSVDATA_H__
 
-#include "LoadSimData.h"
+#include "LoaderSimData.h"
 #include "../CSVActivity.h"
 #include "../CSVNetwork.h"
 
 namespace simil
 {
-  class LoadCSVData : public LoadSimData
+  class LoaderCSVData : public LoaderSimData
   {
   public:
-    LoadCSVData( );
-    ~LoadCSVData( );
+    LoaderCSVData( );
+    ~LoaderCSVData( );
 
     virtual SimulationData*
-      LoadSimulationData( const std::string& filePath_,
+      loadSimulationData( const std::string& filePath_,
                           const std::string& target = "" ) override;
 
     /*virtual DataSet* LoadNetwork( const std::string& filePath_,

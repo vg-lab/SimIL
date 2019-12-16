@@ -9,9 +9,9 @@
 #include <nesci/producer/nest_multimeter.hpp>
 #include <simil/simil.h>
 #ifdef SIMIL_USE_BRION
-#include <simil/loaders/LoadblueConfigData.h>
+#include <simil/loaders/LoaderBlueConfigData.h>
 #endif
-#include <simil/loaders/LoadHDF5Data.h>
+#include <simil/loaders/LoaderHDF5Data.h>
 
 #include <chrono>
 #include <thread>
@@ -41,12 +41,12 @@ int main( int argc, char** argv )
   std::string path = argv[ 2 ];
   std::string secondaryPath;
 
-  simil::LoadSimData* importer;
+  simil::LoaderSimData* importer;
 
 #ifdef SIMIL_USE_BRION
   if ( simtype == "-bc" )
   {
-    importer = new simil::LoadblueConfigData( );
+    importer = new simil::LoaderBlueConfigData( );
   }
   else
 #endif
@@ -60,11 +60,11 @@ int main( int argc, char** argv )
           secondaryPath = argv[ 3 ];
           if ( simtype == "-csv" )
           {
-            importer = new simil::LoadCSVData( );
+            importer = new simil::LoaderCSVData( );
           }
           else if ( simtype == "-h5" )
           {
-            importer = new simil::LoadHDF5Data( );
+            importer = new simil::LoaderHDF5Data( );
           }
       }
 
@@ -74,7 +74,7 @@ int main( int argc, char** argv )
   std::cout << "--------------------------------------" << std::endl;
 
   simil::SimulationData* simData =
-    importer->LoadSimulationData( path, secondaryPath );
+    importer->loadSimulationData( path, secondaryPath );
 
   std::cout << "Loaded GIDS: " << simData->gids( ).size( ) << std::endl;
   std::cout << "Loaded positions: " << simData->positions( ).size( )

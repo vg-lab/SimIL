@@ -1,5 +1,5 @@
 /*
- * @file  LoadHDF5Data.h
+ * @file  LoadblueConfigData.h
  * @brief
  * @author Aaron Sújar <aaron.sujar@urjc.es>
  * @date
@@ -7,31 +7,33 @@
  *          Do not distribute without further notice.
  */
 
-#ifndef __SIMIL__LOADHDF5DATA_H__
-#define __SIMIL__LOADHDF5DATA_H__
+#ifndef __SIMIL__LOADBLUECONFIGDATA_H__
+#define __SIMIL__LOADBLUECONFIGDATA_H__
 
-#include "LoadSimData.h"
-#include "../H5Activity.h"
+#include "LoaderSimData.h"
+
+#include <brion/brion.h>
+#include <brain/brain.h>
 
 namespace simil
 {
-  class LoadHDF5Data : public LoadSimData
+  class LoaderBlueConfigData : public LoaderSimData
   {
   public:
-    LoadHDF5Data( );
-    ~LoadHDF5Data( );
+    LoaderBlueConfigData( );
+    ~LoaderBlueConfigData( );
 
     virtual SimulationData*
-      LoadSimulationData( const std::string& filePath_,
+      loadSimulationData( const std::string& filePath_,
                           const std::string& target = "" ) override;
 
     /*virtual DataSet* LoadNetwork( const std::string& filePath_,
                                   const std::string& target = "" ) override;*/
 
   protected:
-    simil::H5Network* _h5Network;
+    brion::BlueConfig* _blueConfig;
   };
 
 } // namespace simil
 
-#endif /* __SIMIL__LOADHDF5DATA_H__ */
+#endif /* __SIMIL__LOADBLUECONFIGDATA_H__ */
