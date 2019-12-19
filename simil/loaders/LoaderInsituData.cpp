@@ -66,15 +66,15 @@ namespace simil
   }
 
   SimulationData*
-    LoaderInsituData::loadSimulationData( const std::string& filePath_,
+    LoaderInsituData::loadSimulationData( const std::string& configFilePath,
                                           const std::string& )
   {
     if ( _cone == nullptr )
     {
-      if ( !filePath_.empty( ) )
+      if ( !configFilePath.empty( ) )
       {
         _cone =
-          new cone::Cone( cone::ConnectUsingConfigurationFile( filePath_ ) );
+          new cone::Cone( cone::ConnectUsingConfigurationFile( configFilePath ) );
       }
       else
       {

@@ -22,7 +22,7 @@ namespace simil
     LoaderInsituData( );
     ~LoaderInsituData( );
     virtual SimulationData*
-      loadSimulationData( const std::string& filePath_,
+      loadSimulationData( const std::string& configFilePath,
                           const std::string& target = "" ) override;
     virtual Network* loadNetwork( const std::string& filePath_,
                                   const std::string& target = "" ) override;

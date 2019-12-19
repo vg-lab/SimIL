@@ -22,11 +22,11 @@ namespace simil
     ~LoaderHDF5Data( );
 
     virtual SimulationData*
-      loadSimulationData( const std::string& filePath_,
-                          const std::string& target = "" ) override;
+      loadSimulationData( const std::string& networkFile,
+                          const std::string& activityFile="" ) override;
 
-    virtual Network* loadNetwork( const std::string& filePath_,
-                                  const std::string& target = "" ) override;
+    virtual Network* loadNetwork( const std::string& networkFile,
+                                  const std::string& aux = "" ) override;
 
   protected:
     simil::H5Network* _h5Network;

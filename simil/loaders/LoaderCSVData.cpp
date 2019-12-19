@@ -34,10 +34,11 @@ namespace simil
   {
     Network* _network = new Network( );
 
-    if ( _csvNetwork != nullptr )
+    if ( _csvNetwork == nullptr )
     {
       _csvNetwork = new CSVNetwork( filePath_ );
       _csvNetwork->load( );
+
     }
     _network->setDataType(TCSV);
 
@@ -49,24 +50,15 @@ namespace simil
   }
 
   SimulationData*
-    LoaderCSVData::loadSimulationData( const std::string& filePath_,
-                                       const std::string& target )
+    LoaderCSVData::loadSimulationData( const std::string& ,
+                                       const std::string& activityFile )
   {
     SpikeData* simulationdata = new SpikeData( );
 
-    if ( _csvNetwork == nullptr )
-    {
-      _csvNetwork = new CSVNetwork( filePath_ );
-      _csvNetwork->load( );
-    }
-
-    simulationdata->setGids( _csvNetwork->getGIDs( ) );
-
-    simulationdata->setPositions( _csvNetwork->getComposedPositions( ) );
 
     if ( _csvActivity == nullptr )
     {
-      _csvActivity = new CSVSpikes( *_csvNetwork, target, ',', false );
+      _csvActivity = new CSVSpikes( *_csvNetwork, activityFile, ',', false );
       _csvActivity->load( );
     }
 
@@ -76,8 +68,6 @@ namespace simil
     simulationdata->setSpikes( _csvSpikes->spikes( ) );
     simulationdata->setStartTime( _csvSpikes->startTime( ) );
     simulationdata->setEndTime( _csvSpikes->endTime( ) );
-
-
 
     return simulationdata;
   }
