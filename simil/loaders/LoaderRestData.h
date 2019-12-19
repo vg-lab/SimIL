@@ -23,13 +23,13 @@ namespace simil
     LoaderRestData( );
     ~LoaderRestData( );
     virtual SimulationData*
-      loadSimulationData( const std::string& filePath_,
-                          const std::string& target = "" ) override;
+      loadSimulationData( const std::string& hostURL,
+                          const std::string& port ="" ) override;
 
-    virtual Network* loadNetwork( const std::string& filePath_,
-                                  const std::string& target = "" ) override;
+    virtual Network* loadNetwork( const std::string& hostURL,
+                                  const std::string& port ="" ) override;
 
-    void network( Network* network);
+    void network( Network* network );
 
   protected:
     enum GETRequest

@@ -23,11 +23,11 @@ namespace simil
     ~LoaderCSVData( );
 
     virtual SimulationData*
-      loadSimulationData( const std::string& filePath_,
-                          const std::string& target = "" ) override;
+      loadSimulationData( const std::string& activityFile,
+                          const std::string& aux = "" ) override;
 
-    virtual Network* loadNetwork( const std::string& filePath_,
-                                  const std::string& target = "" ) override;
+    virtual Network* loadNetwork( const std::string& aux,
+                                  const std::string& activityFile="" ) override;
 
   protected:
     simil::CSVNetwork* _csvNetwork;

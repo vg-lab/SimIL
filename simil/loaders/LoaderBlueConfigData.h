@@ -25,10 +25,10 @@ namespace simil
 
     virtual SimulationData*
       loadSimulationData( const std::string& filePath_,
-                          const std::string& target = "" ) override;
+                          const std::string& aux = "" ) override;
 
     virtual Network* loadNetwork( const std::string& filePath_,
-                                  const std::string& target = "" ) override;
+                                  const std::string& targets = "" ) override;
 
   protected:
     brion::BlueConfig* _blueConfig;

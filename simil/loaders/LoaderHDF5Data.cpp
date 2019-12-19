@@ -25,14 +25,14 @@ namespace simil
       delete _h5Network;
   }
 
-  Network* LoaderHDF5Data::loadNetwork( const std::string& filePath_,
+  Network* LoaderHDF5Data::loadNetwork( const std::string& networkFile,
                                       const std::string&  )
   {
     Network* _network = new Network( );
 
     if ( _h5Network == nullptr )
     {
-      _h5Network = new H5Network( filePath_ );
+      _h5Network = new H5Network( networkFile );
       _h5Network->load( );
     }
     _network->setDataType(THDF5);
@@ -53,14 +53,14 @@ namespace simil
   }
 
   SimulationData*
-    LoaderHDF5Data::loadSimulationData( const std::string& filePath_,
-                                        const std::string& target )
+    LoaderHDF5Data::loadSimulationData( const std::string& networkFile,
+                                        const std::string& activityFile )
   {
     SpikeData* simulationdata = new SpikeData( );
 
     if ( _h5Network == nullptr )
     {
-      _h5Network = new H5Network( filePath_ );
+      _h5Network = new H5Network( networkFile );
       _h5Network->load( );
     }
 
@@ -76,7 +76,7 @@ namespace simil
 
     simulationdata->setSubset( subsetEventManager );
 
-    simil::H5Spikes spikeReport( *_h5Network, target );
+    simil::H5Spikes spikeReport( *_h5Network, activityFile );
     spikeReport.Load( );
 
     /*simil::StorageSparse* newStorage =

@@ -24,9 +24,9 @@ namespace simil
 
     virtual SimulationData*
       loadSimulationData( const std::string& filePath_,
-                          const std::string& target = "" ) = 0;
+                          const std::string& aux ="" ) = 0;
     virtual Network* loadNetwork( const std::string& filePath_,
-                                  const std::string& target = "" ) = 0;
+                                  const std::string& aux ="" ) = 0;
   };
 
   inline LoaderSimData::~LoaderSimData( )

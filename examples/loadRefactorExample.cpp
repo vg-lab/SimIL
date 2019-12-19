@@ -85,16 +85,21 @@ int main( int argc, char** argv )
   std::cout << "Network" << std::endl;
   std::cout << "--------------------------------------" << std::endl;
 
-  simil::SimulationData* simData =
-    importer->loadSimulationData( path, secondaryPath );
 
-  std::cout << "Loaded GIDS: " << simData->gids( ).size( ) << std::endl;
-  std::cout << "Loaded positions: " << simData->positions( ).size( )
+
+  simil::Network * netData =
+          importer->loadNetwork( path, secondaryPath );
+
+  std::cout << "Loaded GIDS: " << netData->gids( ).size( ) << std::endl;
+  std::cout << "Loaded positions: " << netData->positions( ).size( )
             << std::endl;
 
   std::cout << "--------------------------------------" << std::endl;
   std::cout << "Spikes" << std::endl;
   std::cout << "--------------------------------------" << std::endl;
+
+  simil::SimulationData* simData =
+    importer->loadSimulationData( path, secondaryPath );
 
   simil::SpikeData* spkData = dynamic_cast< simil::SpikeData* >( simData );
 
@@ -105,13 +110,9 @@ int main( int argc, char** argv )
     return 1;
   }
 
-  simil::TGIDSet gids = spkData->gids( );
+  simil::TGIDSet gids = netData->gids( );
 
   std::cout << "Loaded GIDS: " << gids.size( ) << std::endl;
-
-  simil::TPosVect positions = spkData->positions( );
-
-  std::cout << "Loaded positions: " << positions.size( ) << std::endl;
 
   simil::TSpikes spikes = spkData->spikes( );
   float startTime = spkData->startTime( );

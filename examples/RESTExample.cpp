@@ -21,10 +21,12 @@ int main( int , char**  )
   std::cout << "Network" << std::endl;
   std::cout << "--------------------------------------" << std::endl;
 
-  simil::SimulationData* simData = importer->loadSimulationData("");
+  simil::SimulationData* simData = importer->loadSimulationData("localhost","8080");
 
-  std::cout << "Loaded GIDS: " << simData->gids( ).size( ) << std::endl;
-  std::cout << "Loaded positions: " << simData->positions( ).size( )
+  simil::Network* netData = importer->loadNetwork("localhost","8080");
+
+  std::cout << "Loaded GIDS: " << netData->gids( ).size( ) << std::endl;
+  std::cout << "Loaded positions: " << netData->positions( ).size( )
             << std::endl;
 
   std::cout << "--------------------------------------" << std::endl;
@@ -40,13 +42,7 @@ int main( int , char**  )
     return 1;
   }
 
-  simil::TGIDSet gids = spkData->gids( );
 
-  std::cout << "Loaded GIDS: " << gids.size( ) << std::endl;
-
-  simil::TPosVect positions = spkData->positions( );
-
-  std::cout << "Loaded positions: " << positions.size( ) << std::endl;
 
   simil::TSpikes spikes = spkData->spikes( );
   float startTime = spkData->startTime( );
@@ -59,7 +55,7 @@ int main( int , char**  )
 
   while ( true )
   {
-    std::cout << "Loaded gids: " << spkData->gids( ).size( ) << std::endl;
+    std::cout << "Loaded gids: " << netData->gids( ).size( ) << std::endl;
     std::cout << "Loaded spikes: " << spkData->spikes( ).size( ) << std::endl;
     std::this_thread::sleep_for( std::chrono::milliseconds( 3000 ) );
   }

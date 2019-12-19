@@ -24,7 +24,7 @@ namespace simil
   }
 
   Network *LoaderBlueConfigData::loadNetwork(const std::string &filePath_,
-                                           const std::string &target)
+                                           const std::string &aux)
   {
 
     Network * _network = new Network();
@@ -40,8 +40,8 @@ namespace simil
 
     brain::Circuit *circuit = new brain::Circuit(*_blueConfig);
 
-    if (!target.empty())
-      _network->setGids(brion::Target::parse(targets, target));
+    if (!aux.empty())
+      _network->setGids(brion::Target::parse(targets, aux));
     else
       _network->setGids(circuit->getGIDs());
 
@@ -54,7 +54,7 @@ namespace simil
 
   SimulationData*
     LoaderBlueConfigData::loadSimulationData( const std::string& filePath_,
-                                              const std::string& target )
+                                              const std::string&  )
   {
     SpikeData* simulationdata = new SpikeData( );
 
@@ -62,18 +62,6 @@ namespace simil
     {
       _blueConfig = new brion::BlueConfig( filePath_ );
     }
-
-    brion::Targets targets = _blueConfig->getTargets( );
-
-    brain::Circuit* circuit = new brain::Circuit( *_blueConfig );
-
-    if ( !target.empty( ) )
-      simulationdata->setGids( brion::Target::parse( targets, target ) );
-    else
-      simulationdata->setGids( circuit->getGIDs( ) );
-
-    simulationdata->setPositions(
-      circuit->getPositions( circuit->getGIDs( ) ) );
 
     brain::SpikeReportReader spikeReport( _blueConfig->getSpikeSource( ) );
     simulationdata->setSimulationType( TSimSpikes );
