@@ -28,6 +28,8 @@ namespace simil
 #ifdef SIMIL_USE_ZEROEQ
   , _zeqEvents( nullptr )
 #endif
+  , _dataset( nullptr )
+  , _network( nullptr )
   , _simData( nullptr )
   { }
 
@@ -50,6 +52,34 @@ namespace simil
     std::cout << "GID Set size: " << _gids.size( ) << std::endl;
 
     _invTimeRange = 1.0f / ( _simData->endTime( ) - _simData->startTime( ));
+  }
+
+  void SimulationPlayer::LoadData(DataSet * dataset_)
+  {
+
+      if( !dataset_ )
+        return;
+
+      Clear( );
+
+      _dataset = dataset_;
+      LoadData(dataset_->network(),dataset_->simulationData());
+  }
+
+  void SimulationPlayer::LoadData( Network* net_ ,SimulationData* data_ )
+  {
+    if( !net_ || !data_)
+      return;
+    _network = net_;
+    _simData = data_;
+
+    _gids = net_->gids( );
+
+    std::cout << "GID Set size: " << _gids.size( ) << std::endl;
+    if (( data_->endTime( ) - data_->startTime( ))>0)
+        _invTimeRange = 1.0f / ( _simData->endTime( ) - _simData->startTime( ));
+    else
+        _invTimeRange = 1.0f;
   }
 
   void SimulationPlayer::LoadData( TDataType dataType,
@@ -79,6 +109,18 @@ namespace simil
     {
       delete _simData;
       _simData = nullptr;
+    }
+
+    if (_network)
+    {
+        delete _network;
+        _network = nullptr;
+    }
+
+    if (_dataset)
+    {
+        delete _dataset;
+        _dataset = nullptr;
     }
 
     _gids.clear( );
@@ -206,6 +248,9 @@ namespace simil
 
   TPosVect SimulationPlayer::positions( void ) const
   {
+    if (_network)
+      return _network->positions( );
+
     return _simData->positions( );
   }
 
@@ -300,6 +345,40 @@ namespace simil
 
   }
 
+  void SpikesPlayer::LoadData( Network* net_ ,SimulationData* data_ )
+  {
+      if( !data_ || !dynamic_cast< SpikeData* >( data_ ) || !net_  )
+        return;
+
+      assert( ( data_->endTime( ) - data_->startTime( )) > 0 );
+
+      Clear( );
+
+      _simData = data_;
+      _network = net_;
+
+      _gids = net_->gids( );
+
+      std::cout << "GID Set size: " << _gids.size( ) << std::endl;
+
+      SpikeData* spikeData = dynamic_cast< SpikeData* >( _simData );
+
+      std::cout << "Loaded " << spikeData->spikes( ).size( ) << " spikes." << std::endl;
+
+      _currentSpike = spikeData->spikes( ).begin( );
+      _previousSpike = _currentSpike;
+
+      _startTime = spikeData->startTime( );
+      _endTime = spikeData->endTime( );
+
+      _currentTime = _startTime;
+
+    if (( data_->endTime( ) - data_->startTime( ))>0)
+        _invTimeRange = 1.0f / ( _simData->endTime( ) - _simData->startTime( ));
+    else
+        _invTimeRange = 1.0f;
+  }
+
   void SpikesPlayer::LoadData( TDataType dataType,
                                const std::string& networkPath,
                                const std::string& activityPath )
@@ -330,6 +409,7 @@ namespace simil
 
   void SpikesPlayer::PlayAt( float percentage )
   {
+      Update();
     SimulationPlayer::PlayAt( percentage );
 
     const Spikes& spikes_ = spikes( );
@@ -382,6 +462,7 @@ namespace simil
 
   SpikesCRange SpikesPlayer::spikesBetween( float startTime_, float endTime_ )
   {
+    Update();
     assert( endTime_ > startTime_ );
 
     const Spikes& spikes_ = spikes( );
@@ -424,4 +505,22 @@ namespace simil
   {
     return dynamic_cast< SpikeData* >( _simData );
   }
+
+  void SpikesPlayer::Update()
+  {
+      SpikeData* spikeData = static_cast< SpikeData* >( _simData );
+
+      std::cout << "Loaded " << spikeData->spikes( ).size( ) << " spikes." << std::endl;
+
+      _currentSpike = spikeData->spikes( ).begin( );
+
+      _startTime = spikeData->startTime( );
+      _endTime = spikeData->endTime( );
+
+    if (( _simData->endTime( ) - _simData->startTime( ))>0)
+        _invTimeRange = 1.0f / ( _simData->endTime( ) - _simData->startTime( ));
+    else
+        _invTimeRange = 1.0f;
+  }
+
 }
