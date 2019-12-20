@@ -27,6 +27,7 @@
 
 #include "types.h"
 #include "SimulationData.h"
+#include "DataSet.h"
 
 namespace simil
 {
@@ -54,6 +55,10 @@ namespace simil
     virtual ~SimulationPlayer( );
 
     virtual void LoadData( SimulationData* data );
+
+    virtual void LoadData(DataSet*);
+
+    virtual void LoadData( Network* network,SimulationData* data);
 
     virtual void LoadData( TDataType dataType,
                            const std::string& networkPath,
@@ -137,8 +142,10 @@ namespace simil
 #ifdef SIMIL_USE_ZEROEQ
     ZeroEqEventsManager* _zeqEvents;
 #endif
-
+    DataSet* _dataset;
+    Network* _network;
     SimulationData* _simData;
+
 
   };
 
@@ -155,6 +162,8 @@ namespace simil
     SpikesPlayer( void );
 
     virtual void LoadData( SimulationData* data );
+
+    virtual void LoadData( Network* network,SimulationData* data);
 
     virtual void LoadData( TDataType dataType,
                            const std::string& networkPath,
@@ -180,6 +189,8 @@ namespace simil
   protected:
 
     virtual void FrameProcess( void );
+
+    void Update();
 
     SpikesCIter _previousSpike;
     SpikesCIter _currentSpike;

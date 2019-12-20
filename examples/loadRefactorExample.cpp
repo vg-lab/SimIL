@@ -15,11 +15,9 @@
 #include <simil/loaders/LoaderCSVData.h>
 #include <iostream>
 
-int main( int argc, char** argv )
+void usage()
 {
-  if ( argc < 2 )
-  {
-    std::cerr << "USAGE: loadRefactorExample -bc|-h5 file [target]"
+    std::cerr << "USAGE: similRefactorLoadExample -bc|-h5|-csv file [target]"
               << std::endl;
 #ifdef SIMIL_USE_BRION
     std::cerr << "-bc blueconfig loader" << std::endl;
@@ -30,6 +28,15 @@ int main( int argc, char** argv )
 #endif
     std::cerr << "-h5 HDF5 loader " << std::endl;
     std::cerr << "-csv CSV loader " << std::endl;
+
+}
+
+
+int main( int argc, char** argv )
+{
+  if ( argc < 2 )
+  {
+    usage();
     return 1;
   }
   std::string simtype = argv[ 1 ];
@@ -65,18 +72,7 @@ int main( int argc, char** argv )
     else
     {
       importer = new simil::LoaderHDF5Data( );
-      std::cerr << "USAGE: loadRefactorExample -bc|-h5 file [target]"
-                << std::endl;
-#ifdef SIMIL_USE_BRION
-      std::cerr << "-bc blueconfig loader" << std::endl;
-#else
-      std::cerr << "-bc NOT available blueconfig loader"
-                   ", consider compile again with BRION support"
-                << std::endl;
-#endif
-
-      std::cerr << "-h5 HDF5 loader " << std::endl;
-      std::cerr << "-csv CSV loader " << std::endl;
+      usage();
       return 1;
     }
   }
