@@ -32,8 +32,10 @@ namespace simil
              const std::string& target = "" );
     virtual ~Network( void );
 
-    void setGids( const TGIDSet& gids );
-    const TGIDSet& gids( void ) const;
+    bool isUpdated();
+
+    void setGids( const TGIDSet& gids, bool generatePos = false );
+    const TGIDSet& gids( void );
 
     void setDataType( TDataType dataType );
     TDataType dataType( );
@@ -69,6 +71,8 @@ namespace simil
 
     TDataType _dataType;
     TSimulationType _simulationType;
+
+    bool _needUpdate;
 
 #ifdef SIMIL_USE_BRION
     brion::BlueConfig* _blueConfig;

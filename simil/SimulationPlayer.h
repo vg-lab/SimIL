@@ -99,6 +99,7 @@ namespace simil
     bool loop( void );
 
     const TGIDSet& gids( void ) const;
+    unsigned int gidsSize() const;
     TPosVect positions( void ) const;
 
     TSimulationType simulationType( void ) const ;
@@ -174,6 +175,7 @@ namespace simil
     virtual void Stop( void );
 
     virtual const Spikes& spikes( void );
+    unsigned int spikesSize() const;
     SpikeData* spikeReport( void ) const;
 
     SpikesCRange spikesAtTime( float time );

@@ -24,6 +24,7 @@ namespace simil
     //, _dataset( nullptr )
     , _instance( nullptr )
     , _simulationdata( nullptr )
+    , _network ( nullptr )
     , _waitForData( false )
     , _host( "localhost" )
     , _port( 8080 )
@@ -82,6 +83,7 @@ namespace simil
 
   void LoaderRestData::callbackSpikes( std::istream& contentdata )
   {
+
     boost::property_tree::ptree propertytree;
     try
     {
@@ -89,7 +91,7 @@ namespace simil
     }
     catch ( std::exception& e )
     {
-      std::cerr << "Exception JSON PARSER:  " << e.what( ) << "\n";
+      std::cerr << "Spikes Exception JSON PARSER:  " << e.what( )  <<"\n";
       return;
     }
 
@@ -125,7 +127,7 @@ namespace simil
     }
     catch ( std::exception& e )
     {
-      std::cerr << "Exception JSON PARSER:  " << e.what( ) << "\n";
+      std::cerr << "Gids Exception JSON PARSER:  " << e.what( ) << "\n";
       return;
     }
 
@@ -139,7 +141,7 @@ namespace simil
       float number = it_gids->second.get_value< float >( );
       gidSet.insert( static_cast< unsigned int >( number ) );
     }
-    _network->setGids( gidSet );
+    _network->setGids( gidSet, true );
   }
 
   void LoaderRestData::callbackPopulations( std::istream& contentdata )
@@ -247,6 +249,9 @@ namespace simil
         std::this_thread::sleep_for( std::chrono::milliseconds( 300 ) );
       else
         std::this_thread::sleep_for( std::chrono::milliseconds( 300 ) );
+
+      SpikeData* _spikes = dynamic_cast< SpikeData* >( _simulationdata );
+      std::cout << "Loaded spikes: " << _spikes->spikes( ).size( ) << std::endl;
     }
   }
   void LoaderRestData::loopNetwork( )
@@ -278,6 +283,9 @@ namespace simil
           gidsRead = true;
       }
       GETPopulations( );
+
+      std::cout << "Loaded gids: " << _network->gids( ).size( ) << std::endl;
+
 
       std::this_thread::sleep_for( std::chrono::seconds( 3 ) );
     }

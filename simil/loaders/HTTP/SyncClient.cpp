@@ -120,10 +120,10 @@ const std::map< std::string, std::string >& HTTPSyncClient::get_headers( )
          // grow to accommodate the entire line. The growth may be limited by passing
          // a maximum size to the streambuf constructor.
          boost::asio::streambuf response;
-         boost::asio::read_until(socket, response, "\r\n");
+         boost::asio::read_until(socket, _response_buf, "\r\n");
 
          // Check that response is OK.
-         std::istream response_stream(&response);
+         std::istream response_stream(&_response_buf);
          std::string http_version;
          response_stream >> http_version;
          response_stream >> _status_code;
@@ -139,15 +139,24 @@ const std::map< std::string, std::string >& HTTPSyncClient::get_headers( )
            return boost::asio::error::operation_aborted;
          }
 
-         // Read the response headers, which are terminated by a blank line.
-         boost::asio::read_until(socket, response, "\r\n\r\n");
-
          // Process the response headers.
          std::string header;
          while (std::getline(response_stream, header) && header != "\r")
          {
            //std::cout << header << "\n";
          }
+
+         /*boost::system::error_code error;
+         while (boost::asio::read(socket, _response_buf,
+               boost::asio::transfer_at_least(1), error))
+         {
+             std::cerr << &_response_buf;
+         }
+
+         if (error != boost::asio::error::eof)
+           throw boost::system::system_error(error);*/
+
+
          //std::cout << "\n";
 
          // Write whatever content we already have to output.
@@ -155,15 +164,7 @@ const std::map< std::string, std::string >& HTTPSyncClient::get_headers( )
            std::cout << &response;*/
 
          // Read until EOF, writing data to output as we go.
-         boost::system::error_code error;
-         while (boost::asio::read(socket, _response_buf,
-               boost::asio::transfer_at_least(1), error))
-         {
-             //std::cerr << &_response_buf;
-         }
 
-         if (error != boost::asio::error::eof)
-           throw boost::system::system_error(error);
        }
        catch (std::exception& e)
        {

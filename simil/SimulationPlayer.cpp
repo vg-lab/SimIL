@@ -73,10 +73,10 @@ namespace simil
     _network = net_;
     _simData = data_;
 
-    _gids = net_->gids( );
+    _gids = _network->gids( );
 
     std::cout << "GID Set size: " << _gids.size( ) << std::endl;
-    if (( data_->endTime( ) - data_->startTime( ))>0)
+    if (( _simData->endTime( ) - _simData->startTime( ))>0)
         _invTimeRange = 1.0f / ( _simData->endTime( ) - _simData->startTime( ));
     else
         _invTimeRange = 1.0f;
@@ -243,7 +243,15 @@ namespace simil
 
   const TGIDSet& SimulationPlayer::gids( void ) const
   {
-    return _gids;
+      if (_network)
+    return _network->gids();
+      else
+          return _simData->gids();
+  }
+
+  unsigned int SimulationPlayer::gidsSize() const
+  {
+      return _network->gids().size();
   }
 
   TPosVect SimulationPlayer::positions( void ) const
@@ -341,7 +349,7 @@ namespace simil
 
     _currentTime = _startTime;
 
-    _invTimeRange = 1.0f / ( _simData->endTime( ) - _simData->startTime( ));
+    _invTimeRange = 1.0f / ( _endTime - _startTime);
 
   }
 
@@ -350,14 +358,14 @@ namespace simil
       if( !data_ || !dynamic_cast< SpikeData* >( data_ ) || !net_  )
         return;
 
-      assert( ( data_->endTime( ) - data_->startTime( )) > 0 );
+      //assert( ( data_->endTime( ) - data_->startTime( )) > 0 );
 
       Clear( );
 
       _simData = data_;
       _network = net_;
 
-      _gids = net_->gids( );
+      _gids = _network->gids( );
 
       std::cout << "GID Set size: " << _gids.size( ) << std::endl;
 
@@ -373,8 +381,8 @@ namespace simil
 
       _currentTime = _startTime;
 
-    if (( data_->endTime( ) - data_->startTime( ))>0)
-        _invTimeRange = 1.0f / ( _simData->endTime( ) - _simData->startTime( ));
+    if (( _endTime - _startTime)>0)
+        _invTimeRange = 1.0f / ( _endTime - _startTime);
     else
         _invTimeRange = 1.0f;
   }
@@ -448,6 +456,12 @@ namespace simil
   {
     return dynamic_cast< SpikeData* >( _simData )->spikes( );
   }
+
+  unsigned int SpikesPlayer::spikesSize() const
+  {
+      return dynamic_cast< SpikeData* >( _simData )->spikes( ).size();
+  }
+
 
   SpikeData* SpikesPlayer::spikeReport( void ) const
   {
