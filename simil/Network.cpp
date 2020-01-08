@@ -18,6 +18,7 @@ namespace simil
                                   const std::string& target )
   : _dataType( dataType )
   , _simulationType( TSimNetwork )
+  , _needUpdate( false )
 #ifdef SIMIL_USE_BRION
     , _blueConfig( nullptr )
   , _target( target )
@@ -83,15 +84,31 @@ namespace simil
 
   Network::Network( )
     : _simulationType( TSimNetwork )
+    , _needUpdate( false )
 #ifdef SIMIL_USE_BRION
     , _blueConfig( nullptr )
 #endif
     , _h5Network( nullptr )
   {
+      TGIDSet gidSet;
+      gidSet.insert(0);
+      _gids = gidSet;
+
+      TPosVect posVec;
+      for(unsigned int i = 0;i< _gids.size();i++)
+        posVec.push_back(vmml::Vector3f(i,i,0));
+      _positions = posVec;
+
+
   }
 
   Network::~Network( void )
   {
+  }
+
+  bool Network::isUpdated()
+  {
+      return _needUpdate;
   }
 
 
@@ -104,19 +121,29 @@ namespace simil
       return _dataType;
   }
 
-  void Network::setGids( const TGIDSet& gids )
+  void Network::setGids( const TGIDSet& gids, bool generatePos )
   {
     _gids = gids;
+    if (generatePos)
+    {
+        TPosVect posVec;
+        for(unsigned int i = 0;i< _gids.size();i++)
+          posVec.push_back(vmml::Vector3f(i,i,0));
+        _positions = posVec;
+    }
+    _needUpdate = true;
   }
 
   void Network::setPositions( TPosVect positions )
   {
     _positions = positions;
+    _needUpdate = true;
   }
 
   void Network::setSubset( SubsetEventManager subsets )
   {
     _subsetEventManager = subsets;
+    _needUpdate = true;
   }
 
   void Network::setSimulationType( TSimulationType s_type )
@@ -125,8 +152,9 @@ namespace simil
   }
 
 
-  const TGIDSet& Network::gids( void ) const
+  const TGIDSet& Network::gids( void )
   {
+    _needUpdate = false;
     return _gids;
   }
 
