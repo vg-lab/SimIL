@@ -128,6 +128,7 @@ namespace simil
 
   void SimulationPlayer::Frame( void )
   {
+    _checkSimData();
     if( _playing )
     {
       _previousTime = _currentTime;
@@ -141,6 +142,7 @@ namespace simil
 
   void SimulationPlayer::Reset( void )
   {
+    _checkSimData();
     Stop( );
     Play( );
   }
@@ -148,6 +150,7 @@ namespace simil
 
   void SimulationPlayer::Play( void )
   {
+    _checkSimData();
     _playing = true;
     _finished = false;
   }
@@ -194,6 +197,7 @@ namespace simil
 
   float SimulationPlayer::GetRelativeTime( void )
   {
+    _checkSimData();
     return _relativeTime;
   }
 
@@ -219,11 +223,13 @@ namespace simil
 
   float SimulationPlayer::startTime( void )
   {
+    _checkSimData();
     return _startTime;
   }
 
   float SimulationPlayer::endTime( void )
   {
+    _checkSimData();
     return _endTime;
   }
 
@@ -243,10 +249,11 @@ namespace simil
 
   const TGIDSet& SimulationPlayer::gids( void ) const
   {
-      if (_network)
-    return _network->gids();
-      else
-          return _simData->gids();
+
+    if (_network)
+     return _network->gids();
+    else
+     return _simData->gids();
   }
 
   unsigned int SimulationPlayer::gidsSize() const
@@ -273,6 +280,7 @@ namespace simil
     std::cout << "Finished simulation." << std::endl;
     if( _loop )
     {
+      _checkSimData();
       Play( );
     }
   }
@@ -280,6 +288,23 @@ namespace simil
   SimulationData* SimulationPlayer::data( void ) const
   {
     return _simData;
+  }
+
+  void SimulationPlayer::_checkSimData( void )
+  {
+
+     if (_simData)
+     {
+         if (_simData->isDirty())
+         {
+             if (( _simData->endTime( ) - _simData->startTime( ))>0)
+                 _invTimeRange = 1.0f / ( _simData->endTime( ) - _simData->startTime( ));
+             else
+                 _invTimeRange = 1.0f;
+             _simData->cleanDirty();
+         }
+     }
+
   }
 
 #ifdef SIMIL_USE_ZEROEQ
@@ -410,6 +435,7 @@ namespace simil
 
   void SpikesPlayer::Stop( void )
   {
+   _checkSimData();
     SimulationPlayer::Stop( );
     _currentSpike = spikes( ).begin( );
     _previousSpike = _currentSpike;
@@ -417,7 +443,7 @@ namespace simil
 
   void SpikesPlayer::PlayAt( float percentage )
   {
-      Update();
+    _checkSimData();
     SimulationPlayer::PlayAt( percentage );
 
     const Spikes& spikes_ = spikes( );
@@ -433,6 +459,9 @@ namespace simil
 
   void SpikesPlayer::FrameProcess( void )
   {
+    _checkSimData();
+    if (_endTime == _startTime)
+        return;
     const TSpikes& spikes_ = spikes( );
     _previousSpike = _currentSpike;
     SpikesCIter last;
@@ -476,7 +505,7 @@ namespace simil
 
   SpikesCRange SpikesPlayer::spikesBetween( float startTime_, float endTime_ )
   {
-    Update();
+    _checkSimData();
     assert( endTime_ > startTime_ );
 
     const Spikes& spikes_ = spikes( );
@@ -506,6 +535,7 @@ namespace simil
 
   void SpikesPlayer::spikesNowVect( std::vector< uint32_t >& gidsv )
   {
+    _checkSimData();
     auto spikes_ = this->spikesNow( );
     gidsv.resize( std::distance( spikes_.first, spikes_.second ));
     std::vector< uint32_t >::iterator resultIt = gidsv.begin( );
@@ -520,21 +550,26 @@ namespace simil
     return dynamic_cast< SpikeData* >( _simData );
   }
 
-  void SpikesPlayer::Update()
+  void SpikesPlayer::_checkSimData( void )
   {
       SpikeData* spikeData = static_cast< SpikeData* >( _simData );
+      if (spikeData->isDirty())
+      {
+          std::cout << "Loaded " << spikeData->spikes( ).size( ) << " spikes." << std::endl;
 
-      std::cout << "Loaded " << spikeData->spikes( ).size( ) << " spikes." << std::endl;
+          _currentSpike = spikeData->spikes( ).begin( );
 
-      _currentSpike = spikeData->spikes( ).begin( );
+          _startTime = spikeData->startTime( );
+          _endTime = spikeData->endTime( );
 
-      _startTime = spikeData->startTime( );
-      _endTime = spikeData->endTime( );
-
-    if (( _simData->endTime( ) - _simData->startTime( ))>0)
-        _invTimeRange = 1.0f / ( _simData->endTime( ) - _simData->startTime( ));
-    else
-        _invTimeRange = 1.0f;
+            if (( _simData->endTime( ) - _simData->startTime( ))>0)
+                _invTimeRange = 1.0f / ( _simData->endTime( ) - _simData->startTime( ));
+            else
+                _invTimeRange = 1.0f;
+         spikeData->cleanDirty();
+      }
   }
+
+
 
 }

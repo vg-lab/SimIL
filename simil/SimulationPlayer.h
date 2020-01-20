@@ -119,6 +119,8 @@ namespace simil
 
   protected:
 
+    virtual void _checkSimData( void );
+
     virtual void FrameProcess( void ) = 0;
     virtual void Finished( void );
 
@@ -189,6 +191,7 @@ namespace simil
     SpikeData* data( void ) const;
 
   protected:
+    virtual void _checkSimData( void );
 
     virtual void FrameProcess( void );
 

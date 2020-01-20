@@ -59,6 +59,10 @@ namespace simil
     void setStartTime( float startTime );
     void setEndTime( float endTime );
 
+    bool isDirty( void ) const;
+    void cleanDirty( void );
+
+
 #ifdef SIMIL_USE_BRION
     const brion::BlueConfig* blueConfig( void ) const;
 
@@ -90,6 +94,8 @@ namespace simil
 
     float _startTime;
     float _endTime;
+
+    bool _isDirty;
   };
 
   class SpikeData : public SimulationData
@@ -101,7 +107,7 @@ namespace simil
 
     const Spikes& spikes( void ) const;
     void setSpikes( Spikes spikes );
-    void addSpike(float timestamp, uint gid);
+    void addSpikes(TSpikes & spikes);
     SpikeData* get( void );
 
     void reduceDataToGIDS( void );

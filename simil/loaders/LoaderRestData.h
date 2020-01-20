@@ -31,6 +31,9 @@ namespace simil
 
     void network( Network* network );
 
+    void deltaTime( float deltaTime);
+    float deltaTime();
+
   protected:
     enum GETRequest
     {
@@ -64,6 +67,7 @@ namespace simil
     bool _waitForData;
     std::string _host;
     unsigned int _port;
+    float _deltaTime;
   };
 
 } // namespace simil

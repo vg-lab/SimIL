@@ -9,22 +9,20 @@
 
 #include "Network.h"
 
-
-
 namespace simil
 {
-  Network::Network( const std::string& filePath_,
-                                  TDataType dataType,
-                                  const std::string& target )
-  : _dataType( dataType )
-  , _simulationType( TSimNetwork )
-  , _needUpdate( false )
+  Network::Network( const std::string& filePath_, TDataType dataType,
+                    const std::string& target )
+    : _gidSize( 0 )
+    , _dataType( dataType )
+    , _simulationType( TSimNetwork )
+    , _needUpdate( false )
 #ifdef SIMIL_USE_BRION
     , _blueConfig( nullptr )
-  , _target( target )
+    , _target( target )
 #endif
     , _h5Network( nullptr )
-  , _csvNetwork( nullptr )
+    , _csvNetwork( nullptr )
   {
     target.size( ); // TODO remove this workaround to unused variable error
     switch ( dataType )
@@ -72,7 +70,7 @@ namespace simil
         _csvNetwork = new CSVNetwork( filePath_ );
         _csvNetwork->load( );
 
-        _gids =  _csvNetwork->getGIDs( );
+        _gids = _csvNetwork->getGIDs( );
 
         _positions = _csvNetwork->getComposedPositions( );
         break;
@@ -83,61 +81,105 @@ namespace simil
   }
 
   Network::Network( )
-    : _simulationType( TSimNetwork )
+    : _gidSize( 0 )
+    , _simulationType( TSimNetwork )
     , _needUpdate( false )
 #ifdef SIMIL_USE_BRION
     , _blueConfig( nullptr )
 #endif
     , _h5Network( nullptr )
   {
-      TGIDSet gidSet;
-      gidSet.insert(0);
-      _gids = gidSet;
-
-      TPosVect posVec;
-      for(unsigned int i = 0;i< _gids.size();i++)
-        posVec.push_back(vmml::Vector3f(i,i,0));
-      _positions = posVec;
-
-
+    _gids.insert( 0 );
+    _positions.push_back( vmml::Vector3f( 0, 0, 0 ) );
+    _gidsV.push_back( 0 );
+    _gidSize = 1;
   }
 
   Network::~Network( void )
   {
   }
 
-  bool Network::isUpdated()
+  bool Network::isUpdated( )
   {
-      return _needUpdate;
+    return _needUpdate;
   }
-
 
   void Network::setDataType( TDataType dataType )
   {
-      _dataType = dataType;
+    _dataType = dataType;
   }
   TDataType Network::dataType( )
   {
-      return _dataType;
+    return _dataType;
   }
 
   void Network::setGids( const TGIDSet& gids, bool generatePos )
   {
-    _gids = gids;
-    if (generatePos)
+
+
+    if ( gids.size( ) == 0 )
     {
-        TPosVect posVec;
-        for(unsigned int i = 0;i< _gids.size();i++)
-          posVec.push_back(vmml::Vector3f(i,i,0));
-        _positions = posVec;
+      return;
+    }
+
+    unsigned int width = sqrt( gids.size( )+_gidSize );
+    unsigned int i = 0;
+
+    for (auto it_gids = gids.begin( ) ; it_gids != gids.end( ); ++it_gids )
+    {
+      unsigned int number = *it_gids;
+      if ( _gids.count( number ) < 1 )
+      {
+        _gids.insert( ( number ) );
+        _gidsV.push_back( number );
+
+        if ( generatePos )
+        {
+          _positions.push_back( vmml::Vector3f( i % width, i / width, 0 ) );
+          ++i;
+        }
+      }
+    }
+
+    if ( generatePos )
+      _gidSize = _positions.size( );
+
+    _needUpdate = true;
+  }
+
+  void Network::setPositions( TPosVect positions, bool append )
+  {
+    if ( append )
+    {
+      _positions.insert( _positions.begin( ), positions.begin( ),
+                         positions.end( ) );
+      _gidSize = _positions.size( );
+    }
+    else
+    {
+      _positions.clear( );
+      _positions = positions;
+      _gidSize = _positions.size( );
     }
     _needUpdate = true;
   }
 
-  void Network::setPositions( TPosVect positions )
+  void Network::setNeurons( const TGIDVect& gids, const TPosVect& positions)
   {
-    _positions = positions;
-    _needUpdate = true;
+
+      for (unsigned int i = 0; i < gids.size();++i)
+      {
+          unsigned int number = gids[i];
+          if ( _gids.count( number ) < 1 )
+          {
+            _gids.insert( ( number ) );
+            _gidsV.push_back( number );
+            _positions.push_back(positions[i]);
+
+          }
+      }
+      _gidSize = _positions.size();
+
   }
 
   void Network::setSubset( SubsetEventManager subsets )
@@ -151,16 +193,20 @@ namespace simil
     _simulationType = s_type;
   }
 
-
   const TGIDSet& Network::gids( void )
   {
     _needUpdate = false;
     return _gids;
   }
 
-  GIDVec Network::gidsVec( void ) const
+  unsigned int Network::gidsSize( void )
   {
-    return GIDVec( _gids.begin( ), _gids.end( ) );
+      return _gidSize;
+  }
+
+  const GIDVec& Network::gidsVec( void ) const
+  {
+    return _gidsV;
   }
 
   const TPosVect& Network::positions( void ) const
@@ -173,7 +219,6 @@ namespace simil
     return &_subsetEventManager;
   }
 
-
   const simil::SubsetEventManager* Network::subsetsEvents( void ) const
   {
     return &_subsetEventManager;
@@ -183,8 +228,5 @@ namespace simil
   {
     return _simulationType;
   }
-
-
-
 
 } // namespace simil
