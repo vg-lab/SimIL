@@ -37,13 +37,17 @@ namespace simil
     void setGids( const TGIDSet& gids, bool generatePos = false );
     const TGIDSet& gids( void );
 
+    unsigned int gidsSize( void );
+
     void setDataType( TDataType dataType );
     TDataType dataType( );
 
-    GIDVec gidsVec( void ) const;
+    const GIDVec& gidsVec( void ) const;
 
     const TPosVect& positions( void ) const;
-    void setPositions( TPosVect positions );
+    void setPositions( TPosVect positions, bool append = false );
+
+    void setNeurons( const TGIDVect& gids, const TPosVect& positions);
 
     void setSubset( SubsetEventManager subsets );
     SubsetEventManager* subsetsEvents( void );
@@ -62,8 +66,10 @@ namespace simil
     std::string filePath;
 
     TGIDSet _gids;
-
+    TGIDVect _gidsV;
     TPosVect _positions;
+
+    unsigned int _gidSize;
 
     simil::SubsetEventManager _subsetEventManager;
 

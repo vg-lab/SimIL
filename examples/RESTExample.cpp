@@ -21,9 +21,9 @@ int main( int , char**  )
   std::cout << "Network" << std::endl;
   std::cout << "--------------------------------------" << std::endl;
 
-  simil::SimulationData* simData = importer->loadSimulationData("localhost","3000");
+  simil::SimulationData* simData = importer->loadSimulationData("localhost","8080");
 
-  simil::Network* netData = importer->loadNetwork("localhost","3000");
+  simil::Network* netData = importer->loadNetwork("localhost","8080");
 
   std::cout << "Loaded GIDS: " << netData->gids( ).size( ) << std::endl;
   std::cout << "Loaded positions: " << netData->positions( ).size( )

@@ -24,6 +24,7 @@ namespace simil
 
   typedef std::set< uint32_t > TGIDSet;
   typedef std::unordered_set< uint32_t > TGIDUSet;
+  typedef std::vector< uint32_t > TGIDVect;
   typedef std::vector< vmml::Vector3f > TPosVect;
 
   typedef std::pair< float, uint32_t > Spike;

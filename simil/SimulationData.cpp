@@ -26,6 +26,7 @@ namespace simil
   , _csvNetwork( nullptr )
     , _startTime( 0.0f )
     , _endTime( 0.0f )
+    , _isDirty( false )
   {
     target.size( ); // TODO remove this workaround to unused variable error
     switch ( dataType )
@@ -129,10 +130,12 @@ namespace simil
 
   void SimulationData::setStartTime( float startTime )
   {
+    _isDirty = true;
     _startTime = startTime;
   }
   void SimulationData::setEndTime( float endTime )
   {
+    _isDirty = true;
     _endTime = endTime;
   }
 
@@ -183,6 +186,15 @@ namespace simil
 //      return std::max( _endTime, _subsetEventManager.totalTime( ));
 //    else
       return _endTime;
+  }
+
+  bool SimulationData::isDirty( void ) const
+  {
+    return _isDirty;
+  }
+  void SimulationData::cleanDirty( void )
+  {
+    _isDirty = false;
   }
 
   SpikeData::SpikeData()
@@ -267,11 +279,13 @@ namespace simil
 
   void SpikeData::setSpikes( Spikes spikes )
   {
+    _isDirty=true;
     _spikes = spikes;
   }
 
   void SpikeData::reduceDataToGIDS( void )
   {
+    _isDirty = true;
     std::cout << "Before: " << _spikes.size( ) << std::endl;
     TSpikes aux;
     aux.reserve( _spikes.size( ) );
@@ -291,9 +305,10 @@ namespace simil
     return _spikes;
   }
 
-  void SpikeData::addSpike(float timestamp, uint gid)
+  void SpikeData::addSpikes(TSpikes & spikes)
   {
-    _spikes.push_back(std::make_pair(timestamp,gid));
+    _isDirty = true;
+    _spikes.insert(_spikes.end(),spikes.begin(),spikes.end());
   }
 
   SpikeData* SpikeData::get( void )

@@ -126,16 +126,28 @@ namespace simil
     float startTime = _spikes->startTime( );
     float endTime = _spikes->endTime( );
 
+    TSpikes vecSpikes;
+    vecSpikes.reserve(100);//Probably we can change it for N in order to ask N in the http request
+
+
     for ( unsigned int i = 0; i < numOfElem; ++i )
     {
       float timestamp = timesteps[ i ];
       if ( timestamp < startTime )
-        _spikes->setStartTime( timestamp );
+        startTime = timestamp;
       if ( timestamp >= endTime )
       {
-        _spikes->setEndTime( timestamp );
-        _spikes->addSpike( timestamp, neuron_ids[ i ] );
+          endTime = timestamp;
+          vecSpikes.push_back(std::make_pair( timestamp,
+                             neuron_ids[i] ));
       }
+    }
+
+    if (vecSpikes.size()>0)
+    {
+        _spikes->addSpikes(vecSpikes);
+        _spikes->setStartTime(startTime);
+        _spikes->setEndTime(endTime);
     }
 
     // simil::StorageSparse *newStorage = new StorageSparse("Spikes",

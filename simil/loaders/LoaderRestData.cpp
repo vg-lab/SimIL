@@ -28,6 +28,7 @@ namespace simil
     , _waitForData( false )
     , _host( "localhost" )
     , _port( 8080 )
+    , _deltaTime(0.1f)
   {
   }
 
@@ -76,9 +77,20 @@ namespace simil
     return _network;
   }
 
+
   void LoaderRestData::network( Network* network )
   {
     _network = network;
+  }
+
+  void LoaderRestData::deltaTime( float deltaTime)
+  {
+      _deltaTime = deltaTime;
+  }
+
+  float LoaderRestData::deltaTime( )
+  {
+      return _deltaTime;
   }
 
   void LoaderRestData::callbackSpikes( std::istream& contentdata )
@@ -104,18 +116,29 @@ namespace simil
     auto it_times = propertytree.get_child( "simulation_times" ).begin( );
     auto gids_end = propertytree.get_child( "gids" ).end( );
 
+    TSpikes vecSpikes;
+    vecSpikes.reserve(100);//Probably we can change it for N in order to ask N in the http request
+
     for ( ; it_gids != gids_end; ++it_gids, ++it_times )
     {
-      float timestamp = it_times->second.get_value< unsigned int >( );
+      float timestamp = it_times->second.get_value< float >( )* _deltaTime;
       if ( timestamp < startTime )
-        _spikes->setStartTime( timestamp );
+        startTime = timestamp;
       if ( timestamp > endTime )
       {
-        _spikes->setEndTime( timestamp );
-        _spikes->addSpike( timestamp,
-                           it_gids->second.get_value< unsigned int >( ) );
+        endTime = timestamp;
+        vecSpikes.push_back(std::make_pair( timestamp,
+                           it_gids->second.get_value< unsigned int >( ) ));
       }
     }
+
+    if (vecSpikes.size()>0)
+    {
+        _spikes->addSpikes(vecSpikes);
+        _spikes->setStartTime(startTime);
+        _spikes->setEndTime(endTime);
+    }
+
   }
 
   void LoaderRestData::callbackGids( std::istream& contentdata )
@@ -141,7 +164,8 @@ namespace simil
       float number = it_gids->second.get_value< float >( );
       gidSet.insert( static_cast< unsigned int >( number ) );
     }
-    _network->setGids( gidSet, true );
+    if (gidSet.size() >0)
+        _network->setGids( gidSet, true );
   }
 
   void LoaderRestData::callbackPopulations( std::istream& contentdata )
@@ -168,10 +192,51 @@ namespace simil
     }
     catch ( std::exception& e )
     {
-      std::cerr << "Exception JSON PARSER:  " << e.what( ) << "\n";
-      std::cerr << contentdata.rdbuf();
+      std::cerr << "NProp Exception JSON PARSER:  " << e.what( ) << "\n";
+      //std::cerr << contentdata.rdbuf();
       return;
     }
+
+    auto it_neuron = propertytree.begin( );
+    auto it_end = propertytree.end( );
+
+    SubsetMap populationMap;
+    TGIDVect gids;
+    TPosVect positions;
+    float pos[3]{ 0, 0, 0 };
+
+    for ( ; it_neuron != it_end; ++it_neuron )
+    {
+
+       unsigned int gid = it_neuron->second.get_child("gid").get_value<unsigned int>();
+       gids.push_back(gid);
+
+       auto properties = it_neuron->second.get_child("properties");
+
+       std::string group = properties.get_child("population").get_value<std::string>();
+       populationMap[group].push_back(gid);
+
+       auto position = properties.get_child("position");
+
+       int i = 0;
+       for ( auto it = position.begin();it!=position.end();++it)
+       {
+          pos[i] = it->second.get_value<float>();
+          ++i;
+       }
+       vmml::Vector3f x(pos[0],pos[1],pos[2]);
+       positions.push_back(x);
+    }
+
+
+    _network->setNeurons(gids,positions);
+    for(auto it = populationMap.begin();it!=populationMap.end();++it)
+    {
+        _network->subsetsEvents()->addSubset(it->first,it->second);
+    }
+
+
+
   }
 
   void LoaderRestData::callbackTime( std::istream& contentdata )
@@ -246,17 +311,17 @@ namespace simil
     while ( _waitForData )
     {
       if ( GETSpikes( ) == 0 )
-        std::this_thread::sleep_for( std::chrono::milliseconds( 300 ) );
+        std::this_thread::sleep_for( std::chrono::milliseconds( 1000 ) );
       else
-        std::this_thread::sleep_for( std::chrono::milliseconds( 300 ) );
+        std::this_thread::sleep_for( std::chrono::milliseconds( 1000 ) );
 
-      SpikeData* _spikes = dynamic_cast< SpikeData* >( _simulationdata );
-      std::cout << "Loaded spikes: " << _spikes->spikes( ).size( ) << std::endl;
+      //SpikeData* _spikes = dynamic_cast< SpikeData* >( _simulationdata );
+      //std::cout << "Loaded spikes: " << _spikes->spikes( ).size( ) << std::endl;
     }
   }
   void LoaderRestData::loopNetwork( )
   {
-    bool gidsRead = false;
+
 
     while ( _waitForData )
     {
@@ -276,18 +341,14 @@ namespace simil
       }*/
 
       GETTimeInfo( );
-      if ( !gidsRead )
-      {
-        int result = GETGids( );
-        if ( result == 0 )
-          gidsRead = true;
-      }
-      GETPopulations( );
+      //GETGids( );
+      GETNeuronProperties();
+      //GETPopulations( );
 
-      std::cout << "Loaded gids: " << _network->gids( ).size( ) << std::endl;
+      //std::cout << "Loaded gids: " << _network->gids( ).size( ) << std::endl;
 
 
-      std::this_thread::sleep_for( std::chrono::seconds( 3 ) );
+      std::this_thread::sleep_for( std::chrono::milliseconds( 30000 ) );
     }
   }
 
