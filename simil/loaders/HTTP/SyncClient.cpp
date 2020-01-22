@@ -173,6 +173,6 @@ const std::map< std::string, std::string >& HTTPSyncClient::get_headers( )
          return boost::asio::error::operation_aborted;
        }
 
-     return 0;
+     return boost::system::errc::success;
 
  }

@@ -34,6 +34,9 @@ namespace simil
     void deltaTime( float deltaTime);
     float deltaTime();
 
+    void dataOffset( unsigned int offset);
+    unsigned int dataOffeset();
+
   protected:
     enum GETRequest
     {
@@ -44,20 +47,28 @@ namespace simil
       Spikes
     };
 
-    void callbackSpikes( std::istream& contentdata );
-    void callbackGids( std::istream& contentdata );
-    void callbackPopulations( std::istream& contentdata );
-    void callbackTime( std::istream& contentdata );
-    void callbackNProperties( std::istream& contentdata );
+    enum RESTERROR
+    {
+      NOTCONNECT = -2,
+      EXCEPTION = -1,
+      NODATA = 0,
+      NEWDATA = 1
+    };
+
+    int callbackSpikes( std::istream& contentdata );
+    int callbackGids( std::istream& contentdata );
+    int callbackPopulations( std::istream& contentdata );
+    int callbackTime( std::istream& contentdata );
+    int callbackNProperties( std::istream& contentdata );
 
     void loopSpikes( );
     void loopNetwork( );
 
     int GETTimeInfo( );
     int GETGids( );
-    int GETNeuronProperties( );
-    int GETPopulations( );
-    int GETSpikes( );
+    int GETNeuronProperties(  );
+    int GETPopulations(  );
+    int GETSpikes();
 
     std::unique_ptr< LoaderRestData > _instance;
     std::thread _looperSpikes;
@@ -68,6 +79,11 @@ namespace simil
     std::string _host;
     unsigned int _port;
     float _deltaTime;
+    unsigned int _dataOffset;
+
+    unsigned int _spikesRead;
+
+
   };
 
 } // namespace simil

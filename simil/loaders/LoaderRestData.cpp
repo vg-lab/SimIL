@@ -24,11 +24,13 @@ namespace simil
     //, _dataset( nullptr )
     , _instance( nullptr )
     , _simulationdata( nullptr )
-    , _network ( nullptr )
+    , _network( nullptr )
     , _waitForData( false )
     , _host( "localhost" )
     , _port( 8080 )
-    , _deltaTime(0.1f)
+    , _deltaTime( 0.1f )
+    , _dataOffset(500)
+    , _spikesRead(0)
   {
   }
 
@@ -43,18 +45,17 @@ namespace simil
     LoaderRestData::loadSimulationData( const std::string& hostURL,
                                         const std::string& port )
   {
-      _host = hostURL;
-      if (port.empty())
-          _port =8080;
-      else
-          _port= static_cast<unsigned int>(std::stoi( port ));
+    _host = hostURL;
+    if ( port.empty( ) )
+      _port = 8080;
+    else
+      _port = static_cast< unsigned int >( std::stoi( port ) );
 
     if ( _simulationdata == nullptr )
       _simulationdata = new SpikeData( );
 
     _waitForData = true;
     _looperSpikes = std::thread( &LoaderRestData::loopSpikes, this );
-
 
     return _simulationdata;
   } // namespace simil
@@ -63,10 +64,10 @@ namespace simil
                                         const std::string& port )
   {
     _host = hostURL;
-    if (port.empty())
-        _port =8080;
+    if ( port.empty( ) )
+      _port = 8080;
     else
-        _port= static_cast<unsigned int>(std::stoi( port ));
+      _port = static_cast< unsigned int >( std::stoi( port ) );
 
     if ( _network == nullptr )
       _network = new Network( );
@@ -77,25 +78,32 @@ namespace simil
     return _network;
   }
 
-
   void LoaderRestData::network( Network* network )
   {
     _network = network;
   }
 
-  void LoaderRestData::deltaTime( float deltaTime)
+  void LoaderRestData::deltaTime( float deltaTime )
   {
-      _deltaTime = deltaTime;
+    _deltaTime = deltaTime;
   }
 
   float LoaderRestData::deltaTime( )
   {
-      return _deltaTime;
+    return _deltaTime;
   }
 
-  void LoaderRestData::callbackSpikes( std::istream& contentdata )
+  void LoaderRestData::dataOffset( unsigned int offset)
   {
+     _dataOffset = offset;
+  }
+  unsigned int LoaderRestData::dataOffeset()
+  {
+    return _dataOffset;
+  }
 
+  int LoaderRestData::callbackSpikes( std::istream& contentdata )
+  {
     boost::property_tree::ptree propertytree;
     try
     {
@@ -103,8 +111,8 @@ namespace simil
     }
     catch ( std::exception& e )
     {
-      std::cerr << "Spikes Exception JSON PARSER:  " << e.what( )  <<"\n";
-      return;
+      std::cerr << "Spikes Exception JSON PARSER:  " << e.what( ) << "\n";
+      return EXCEPTION;
     }
 
     SpikeData* _spikes = dynamic_cast< SpikeData* >( _simulationdata );
@@ -117,31 +125,34 @@ namespace simil
     auto gids_end = propertytree.get_child( "gids" ).end( );
 
     TSpikes vecSpikes;
-    vecSpikes.reserve(100);//Probably we can change it for N in order to ask N in the http request
+    vecSpikes.reserve( 100 ); // Probably we can change it for N in order to ask
+                              // N in the http request
 
     for ( ; it_gids != gids_end; ++it_gids, ++it_times )
     {
-      float timestamp = it_times->second.get_value< float >( )* _deltaTime;
+      float timestamp = it_times->second.get_value< float >( ) * _deltaTime;
       if ( timestamp < startTime )
         startTime = timestamp;
-      if ( timestamp > endTime )
+      if ( timestamp >= endTime )
       {
         endTime = timestamp;
-        vecSpikes.push_back(std::make_pair( timestamp,
-                           it_gids->second.get_value< unsigned int >( ) ));
+        vecSpikes.push_back( std::make_pair(
+          timestamp, it_gids->second.get_value< unsigned int >( ) ) );
       }
     }
 
-    if (vecSpikes.size()>0)
+    if ( vecSpikes.size( ) > 0 )
     {
-        _spikes->addSpikes(vecSpikes);
-        _spikes->setStartTime(startTime);
-        _spikes->setEndTime(endTime);
+      _spikes->addSpikes( vecSpikes );
+      _spikes->setStartTime( startTime );
+      _spikes->setEndTime( endTime );
+      return NEWDATA;
     }
 
+    return NODATA;
   }
 
-  void LoaderRestData::callbackGids( std::istream& contentdata )
+  int LoaderRestData::callbackGids( std::istream& contentdata )
   {
     boost::property_tree::ptree propertytree;
     try
@@ -151,7 +162,7 @@ namespace simil
     catch ( std::exception& e )
     {
       std::cerr << "Gids Exception JSON PARSER:  " << e.what( ) << "\n";
-      return;
+      return EXCEPTION;
     }
 
     auto it_gids = propertytree.begin( );
@@ -164,11 +175,15 @@ namespace simil
       float number = it_gids->second.get_value< float >( );
       gidSet.insert( static_cast< unsigned int >( number ) );
     }
-    if (gidSet.size() >0)
-        _network->setGids( gidSet, true );
+    if ( gidSet.size( ) > 0 )
+    {
+      _network->setGids( gidSet, true );
+      return NEWDATA;
+    }
+    return NODATA;
   }
 
-  void LoaderRestData::callbackPopulations( std::istream& contentdata )
+  int LoaderRestData::callbackPopulations( std::istream& contentdata )
   {
     boost::property_tree::ptree propertytree;
     try
@@ -178,12 +193,13 @@ namespace simil
     catch ( std::exception& e )
     {
       std::cerr << "Exception JSON PARSER:  " << e.what( ) << "\n";
-      std::cerr << contentdata.rdbuf();
-      return;
+      std::cerr << contentdata.rdbuf( );
+      return EXCEPTION;
     }
+    return NODATA;
   }
 
-  void LoaderRestData::callbackNProperties( std::istream& contentdata )
+  int LoaderRestData::callbackNProperties( std::istream& contentdata )
   {
     boost::property_tree::ptree propertytree;
     try
@@ -193,8 +209,8 @@ namespace simil
     catch ( std::exception& e )
     {
       std::cerr << "NProp Exception JSON PARSER:  " << e.what( ) << "\n";
-      //std::cerr << contentdata.rdbuf();
-      return;
+
+      return EXCEPTION;
     }
 
     auto it_neuron = propertytree.begin( );
@@ -203,43 +219,43 @@ namespace simil
     SubsetMap populationMap;
     TGIDVect gids;
     TPosVect positions;
-    float pos[3]{ 0, 0, 0 };
+    float pos[ 3 ]{0, 0, 0};
 
     for ( ; it_neuron != it_end; ++it_neuron )
     {
+      unsigned int gid =
+        it_neuron->second.get_child( "gid" ).get_value< unsigned int >( );
+      gids.push_back( gid );
 
-       unsigned int gid = it_neuron->second.get_child("gid").get_value<unsigned int>();
-       gids.push_back(gid);
+      auto properties = it_neuron->second.get_child( "properties" );
 
-       auto properties = it_neuron->second.get_child("properties");
+      std::string group =
+        properties.get_child( "population" ).get_value< std::string >( );
+      populationMap[ group ].push_back( gid );
 
-       std::string group = properties.get_child("population").get_value<std::string>();
-       populationMap[group].push_back(gid);
+      auto position = properties.get_child( "position" );
 
-       auto position = properties.get_child("position");
-
-       int i = 0;
-       for ( auto it = position.begin();it!=position.end();++it)
-       {
-          pos[i] = it->second.get_value<float>();
-          ++i;
-       }
-       vmml::Vector3f x(pos[0],pos[1],pos[2]);
-       positions.push_back(x);
+      int i = 0;
+      for ( auto it = position.begin( ); it != position.end( ); ++it )
+      {
+        pos[ i ] = it->second.get_value< float >( );
+        ++i;
+      }
+      vmml::Vector3f x( pos[ 0 ], pos[ 1 ], pos[ 2 ] );
+      positions.push_back( x );
     }
 
+    _network->setNeurons( gids, positions );
 
-    _network->setNeurons(gids,positions);
-    for(auto it = populationMap.begin();it!=populationMap.end();++it)
+    for ( auto it = populationMap.begin( ); it != populationMap.end( ); ++it )
     {
-        _network->subsetsEvents()->addSubset(it->first,it->second);
+      _network->subsetsEvents( )->addSubset( it->first, it->second );
     }
 
-
-
+    return NEWDATA; // Check this
   }
 
-  void LoaderRestData::callbackTime( std::istream& contentdata )
+  int LoaderRestData::callbackTime( std::istream& contentdata )
   {
     boost::property_tree::ptree propertytree;
     try
@@ -249,9 +265,10 @@ namespace simil
     catch ( std::exception& e )
     {
       std::cerr << "Exception JSON PARSER:  " << e.what( ) << "\n";
-      std::cerr << contentdata.rdbuf();
-      return;
+      std::cerr << contentdata.rdbuf( );
+      return EXCEPTION;
     }
+    return NODATA;
   }
 
   /*void LoadRestApiData::handlerStatic( const HTTPRequest& request,
@@ -308,47 +325,54 @@ namespace simil
 
   void LoaderRestData::loopSpikes( )
   {
+    int result = NOTCONNECT;
     while ( _waitForData )
     {
-      if ( GETSpikes( ) == 0 )
-        std::this_thread::sleep_for( std::chrono::milliseconds( 1000 ) );
-      else
-        std::this_thread::sleep_for( std::chrono::milliseconds( 1000 ) );
+      result = GETSpikes( );
 
-      //SpikeData* _spikes = dynamic_cast< SpikeData* >( _simulationdata );
-      //std::cout << "Loaded spikes: " << _spikes->spikes( ).size( ) << std::endl;
+      switch ( result )
+      {
+        case NOTCONNECT:
+          std::this_thread::sleep_for( std::chrono::milliseconds( 1000 ) );
+          break;
+        case EXCEPTION:
+          std::this_thread::sleep_for( std::chrono::milliseconds( 100 ) );
+          break;
+        case NODATA:
+          std::this_thread::sleep_for( std::chrono::milliseconds( 1000 ) );
+          break;
+        case NEWDATA:
+          std::this_thread::sleep_for( std::chrono::milliseconds( 100 ) );
+          break;
+      }
     }
   }
   void LoaderRestData::loopNetwork( )
   {
-
-
+    int result = NOTCONNECT;
     while ( _waitForData )
     {
-      /*auto gids = NetData.GetNeuronIds( );
-      auto numGids = gids.number_of_elements( );
-      for ( unsigned int i = 0; i < numGids; i++ )
-      {
-        _simulationdata->setGid( gids[ i ] );
-      }
-
-      auto pos = NetData.GetFloatingPointAttributeValues( "Positions" );
-      auto numPos = pos.number_of_elements( );
-      for ( unsigned int i = 0; i < numPos; i++ )
-      {
-        _simulationdata->setPosition(
-          vmml::Vector3f( pos[ i ], pos[ i ], pos[ i ] ) );
-      }*/
 
       GETTimeInfo( );
-      //GETGids( );
-      GETNeuronProperties();
-      //GETPopulations( );
+      // GETGids( );
+      result = GETNeuronProperties( );
+      // GETPopulations( );
 
-      //std::cout << "Loaded gids: " << _network->gids( ).size( ) << std::endl;
-
-
-      std::this_thread::sleep_for( std::chrono::milliseconds( 30000 ) );
+      switch ( result )
+      {
+        case NOTCONNECT:
+          std::this_thread::sleep_for( std::chrono::milliseconds( 1000 ) );
+          break;
+        case EXCEPTION:
+          std::this_thread::sleep_for( std::chrono::milliseconds( 100 ) );
+          break;
+        case NODATA:
+          std::this_thread::sleep_for( std::chrono::milliseconds( 30000 ) );
+          break;
+        case NEWDATA:
+          std::this_thread::sleep_for( std::chrono::milliseconds( 1000 ) );
+          break;
+      }
     }
   }
 
@@ -362,10 +386,12 @@ namespace simil
 
     int result = client.execute( );
 
-    if ( result == 0 ) // Success
+    if ( result == boost::system::errc::success ) // Success
     {
-      callbackTime( client.get_response( ) );
+      result = callbackTime( client.get_response( ) );
     }
+    else
+      result = NOTCONNECT;
 
     return result;
   }
@@ -379,10 +405,13 @@ namespace simil
 
     int result = client.execute( );
 
-    if ( result == 0 ) // Success
+    if ( result == boost::system::errc::success ) // Success
     {
-      callbackGids( client.get_response( ) );
+      result = callbackGids( client.get_response( ) );
     }
+    else
+      result = NOTCONNECT;
+
     return result;
   }
   int LoaderRestData::GETNeuronProperties( )
@@ -395,10 +424,12 @@ namespace simil
 
     int result = client.execute( );
 
-    if ( result == 0 ) // Success
+    if ( result == boost::system::errc::success ) // Success
     {
-      callbackNProperties( client.get_response( ) );
+      result = callbackNProperties( client.get_response( ) );
     }
+    else
+      result = NOTCONNECT;
     return result;
   }
   int LoaderRestData::GETPopulations( )
@@ -411,27 +442,39 @@ namespace simil
 
     int result = client.execute( );
 
-    if ( result == 0 ) // Success
+    if ( result == boost::system::errc::success ) // Success
     {
-      callbackPopulations( client.get_response( ) );
+      result = callbackPopulations( client.get_response( ) );
     }
+    else
+      result = NOTCONNECT;
 
     return result;
   }
+
   int LoaderRestData::GETSpikes( )
   {
     HTTPSyncClient client;
 
+    std::string uri("/spikes?limit=");
+    uri.append(std::to_string(_dataOffset));
+    uri.append("&offset=");
+    uri.append(std::to_string(_spikesRead));
+
     client.set_host( _host );
-    client.set_uri( "/spikes" );
+    client.set_uri( uri );
     client.set_port( _port );
 
     int result = client.execute( );
 
-    if ( result == 0 ) // Success
+    if ( result == boost::system::errc::success ) // Success
     {
-      callbackSpikes( client.get_response( ) );
+      result = callbackSpikes( client.get_response( ) );
+      if (result == NEWDATA)
+          _spikesRead += _dataOffset;
     }
+    else
+      result = NOTCONNECT;
 
     return result;
   }

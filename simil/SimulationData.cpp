@@ -200,6 +200,7 @@ namespace simil
   SpikeData::SpikeData()
   : SimulationData()
   {
+      _simulationType = simil::TSimSpikes;
   }
 #ifdef SIMIL_USE_BRION
     const brion::BlueConfig* SimulationData::blueConfig( void ) const
