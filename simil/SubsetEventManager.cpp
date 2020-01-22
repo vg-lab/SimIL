@@ -234,8 +234,21 @@ namespace simil
   void SubsetEventManager::addSubset( const std::string& name,
                                       const GIDVec& subset )
   {
-    _subsets.insert( std::make_pair( name, subset ));
-    std::cout << "Adding subset " << name << " with " << subset.size() << std::endl;
+    if (_subsets.count(name) > 0)
+    {
+       GIDVec& gidVecs=_subsets[name];
+       gidVecs.insert(gidVecs.end(),subset.begin(),subset.end());
+
+       std::vector<uint32_t>::iterator ip;
+       ip = std::unique(gidVecs.begin(),gidVecs.end());
+       gidVecs.resize(std::distance(gidVecs.begin(),ip));
+
+    }
+    else
+    {
+        _subsets.insert( std::make_pair( name, subset ));
+        std::cout << "Adding subset " << name << " with " << subset.size() << std::endl;
+    }
   }
 
   void SubsetEventManager::removeSubset( const std::string& name )
