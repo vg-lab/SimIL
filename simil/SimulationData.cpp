@@ -310,6 +310,7 @@ namespace simil
   {
     _isDirty = true;
     _spikes.insert(_spikes.end(),spikes.begin(),spikes.end());
+    _spikes.rebuildIndex(_spikes.size());
   }
 
   SpikeData* SpikeData::get( void )
