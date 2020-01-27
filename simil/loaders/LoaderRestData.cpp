@@ -29,8 +29,8 @@ namespace simil
     , _host( "localhost" )
     , _port( 8080 )
     , _deltaTime( 0.1f )
-    , _dataOffset(500)
-    , _spikesRead(0)
+    , _dataOffset( 500 )
+    , _spikesRead( 0 )
   {
   }
 
@@ -93,52 +93,53 @@ namespace simil
     return _deltaTime;
   }
 
-  void LoaderRestData::dataOffset( unsigned int offset)
+  void LoaderRestData::dataOffset( unsigned int offset )
   {
-     _dataOffset = offset;
+    _dataOffset = offset;
   }
-  unsigned int LoaderRestData::dataOffeset()
+  unsigned int LoaderRestData::dataOffeset( )
   {
     return _dataOffset;
   }
 
   int LoaderRestData::callbackSpikes( std::istream& contentdata )
   {
+    SpikeData* _spikes = dynamic_cast< SpikeData* >( _simulationdata );
+    TSpikes vecSpikes;
+    float startTime;
+    float endTime;
+
     boost::property_tree::ptree propertytree;
     try
     {
       boost::property_tree::read_json( contentdata, propertytree );
+
+      startTime = _spikes->startTime( );
+      endTime = _spikes->endTime( );
+
+      auto it_gids = propertytree.get_child( "gids" ).begin( );
+      auto it_times = propertytree.get_child( "simulation_times" ).begin( );
+      auto gids_end = propertytree.get_child( "gids" ).end( );
+
+      vecSpikes.reserve( _dataOffset );
+
+      for ( ; it_gids != gids_end; ++it_gids, ++it_times )
+      {
+        float timestamp = it_times->second.get_value< float >( ) * _deltaTime;
+        if ( timestamp < startTime )
+          startTime = timestamp;
+        if ( timestamp >= endTime )
+        {
+          endTime = timestamp;
+          vecSpikes.push_back( std::make_pair(
+            timestamp, it_gids->second.get_value< unsigned int >( ) ) );
+        }
+      }
     }
     catch ( std::exception& e )
     {
       std::cerr << "Spikes Exception JSON PARSER:  " << e.what( ) << "\n";
       return EXCEPTION;
-    }
-
-    SpikeData* _spikes = dynamic_cast< SpikeData* >( _simulationdata );
-
-    float startTime = _spikes->startTime( );
-    float endTime = _spikes->endTime( );
-
-    auto it_gids = propertytree.get_child( "gids" ).begin( );
-    auto it_times = propertytree.get_child( "simulation_times" ).begin( );
-    auto gids_end = propertytree.get_child( "gids" ).end( );
-
-    TSpikes vecSpikes;
-    vecSpikes.reserve( 100 ); // Probably we can change it for N in order to ask
-                              // N in the http request
-
-    for ( ; it_gids != gids_end; ++it_gids, ++it_times )
-    {
-      float timestamp = it_times->second.get_value< float >( ) * _deltaTime;
-      if ( timestamp < startTime )
-        startTime = timestamp;
-      if ( timestamp >= endTime )
-      {
-        endTime = timestamp;
-        vecSpikes.push_back( std::make_pair(
-          timestamp, it_gids->second.get_value< unsigned int >( ) ) );
-      }
     }
 
     if ( vecSpikes.size( ) > 0 )
@@ -154,10 +155,20 @@ namespace simil
 
   int LoaderRestData::callbackGids( std::istream& contentdata )
   {
+    TGIDSet gidSet;
+
     boost::property_tree::ptree propertytree;
     try
     {
       boost::property_tree::read_json( contentdata, propertytree );
+      auto it_gids = propertytree.begin( );
+      auto gids_end = propertytree.end( );
+
+      for ( ; it_gids != gids_end; ++it_gids )
+      {
+        float number = it_gids->second.get_value< float >( );
+        gidSet.insert( static_cast< unsigned int >( number ) );
+      }
     }
     catch ( std::exception& e )
     {
@@ -165,16 +176,6 @@ namespace simil
       return EXCEPTION;
     }
 
-    auto it_gids = propertytree.begin( );
-    auto gids_end = propertytree.end( );
-
-    TGIDSet gidSet;
-
-    for ( ; it_gids != gids_end; ++it_gids )
-    {
-      float number = it_gids->second.get_value< float >( );
-      gidSet.insert( static_cast< unsigned int >( number ) );
-    }
     if ( gidSet.size( ) > 0 )
     {
       _network->setGids( gidSet, true );
@@ -201,10 +202,43 @@ namespace simil
 
   int LoaderRestData::callbackNProperties( std::istream& contentdata )
   {
+    SubsetMap populationMap;
+    TGIDVect gids;
+    TPosVect positions;
+
     boost::property_tree::ptree propertytree;
     try
     {
       boost::property_tree::read_json( contentdata, propertytree );
+
+      auto it_neuron = propertytree.begin( );
+      auto it_end = propertytree.end( );
+
+      float pos[ 3 ]{0, 0, 0};
+
+      for ( ; it_neuron != it_end; ++it_neuron )
+      {
+        unsigned int gid =
+          it_neuron->second.get_child( "gid" ).get_value< unsigned int >( );
+        gids.push_back( gid );
+
+        auto properties = it_neuron->second.get_child( "properties" );
+
+        std::string group =
+          properties.get_child( "population" ).get_value< std::string >( );
+        populationMap[ group ].push_back( gid );
+
+        auto position = properties.get_child( "position" );
+
+        int i = 0;
+        for ( auto it = position.begin( ); it != position.end( ); ++it )
+        {
+          pos[ i ] = it->second.get_value< float >( );
+          ++i;
+        }
+        vmml::Vector3f x( pos[ 0 ], pos[ 1 ], pos[ 2 ] );
+        positions.push_back( x );
+      }
     }
     catch ( std::exception& e )
     {
@@ -213,46 +247,21 @@ namespace simil
       return EXCEPTION;
     }
 
-    auto it_neuron = propertytree.begin( );
-    auto it_end = propertytree.end( );
-
-    SubsetMap populationMap;
-    TGIDVect gids;
-    TPosVect positions;
-    float pos[ 3 ]{0, 0, 0};
-
-    for ( ; it_neuron != it_end; ++it_neuron )
+    if ( gids.size( ) > 0 )
     {
-      unsigned int gid =
-        it_neuron->second.get_child( "gid" ).get_value< unsigned int >( );
-      gids.push_back( gid );
+      _network->setNeurons( gids, positions );
+    }
 
-      auto properties = it_neuron->second.get_child( "properties" );
-
-      std::string group =
-        properties.get_child( "population" ).get_value< std::string >( );
-      populationMap[ group ].push_back( gid );
-
-      auto position = properties.get_child( "position" );
-
-      int i = 0;
-      for ( auto it = position.begin( ); it != position.end( ); ++it )
+    if ( populationMap.size( ) > 0 )
+    {
+      for ( auto it = populationMap.begin( ); it != populationMap.end( ); ++it )
       {
-        pos[ i ] = it->second.get_value< float >( );
-        ++i;
+        _network->subsetsEvents( )->addSubset( it->first, it->second );
       }
-      vmml::Vector3f x( pos[ 0 ], pos[ 1 ], pos[ 2 ] );
-      positions.push_back( x );
+      return NEWDATA;
     }
 
-    _network->setNeurons( gids, positions );
-
-    for ( auto it = populationMap.begin( ); it != populationMap.end( ); ++it )
-    {
-      _network->subsetsEvents( )->addSubset( it->first, it->second );
-    }
-
-    return NEWDATA; // Check this
+    return ( gids.size( ) > 0 || populationMap.size( ) > 0 ) ? NEWDATA : NODATA;
   }
 
   int LoaderRestData::callbackTime( std::istream& contentdata )
@@ -270,58 +279,6 @@ namespace simil
     }
     return NODATA;
   }
-
-  /*void LoadRestApiData::handlerStatic( const HTTPRequest& request,
-                                       HTTPResponse& response,
-                                       boost::system::error_code error_code )
-  {
-    if ( error_code == 0 )
-    {
-      if ( response.get_status_code( ) == 200 )
-      {
-        std::cout << "Request #" << request.get_id( )
-                  << " has completed. Response: ";
-        //<< response.get_response().rdbuf();
-        LoadRestApiData* loader =
-          static_cast< LoadRestApiData* >( request.get_userpointer( ) );
-
-        switch ( request.get_handlerId( ) )
-        {
-          case GETRequest::Spikes:
-            loader->SpikeCB( response.get_response( ) );
-            break;
-          case GETRequest::Gids:
-            loader->GidsCB( response.get_response( ) );
-            break;
-          case GETRequest::NeuronPro:
-            loader->NPropertiesCB( response.get_response( ) );
-            break;
-          case GETRequest::TimeInfo:
-            loader->TimeCB( response.get_response( ) );
-            break;
-          case GETRequest::Populations:
-            loader->PopulationsCB( response.get_response( ) );
-            break;
-          default:
-            break;
-        }
-      }
-      else
-        std::cerr << "Status code:" << response.get_status_message( ) << ":"
-                  << response.get_status_code( ) << "\n";
-    }
-    else if ( error_code == boost::asio::error::operation_aborted )
-    {
-      std::cerr << "Request #" << request.get_id( )
-                << " has been cancelled by the user." << std::endl;
-    }
-    else
-    {
-      std::cerr << "Request #" << request.get_id( )
-                << " failed! Error code = " << error_code.value( )
-                << ". Error message = " << error_code.message( ) << std::endl;
-    }
-  }*/
 
   void LoaderRestData::loopSpikes( )
   {
@@ -352,7 +309,6 @@ namespace simil
     int result = NOTCONNECT;
     while ( _waitForData )
     {
-
       GETTimeInfo( );
       // GETGids( );
       result = GETNeuronProperties( );
@@ -456,10 +412,10 @@ namespace simil
   {
     HTTPSyncClient client;
 
-    std::string uri("/spikes?limit=");
-    uri.append(std::to_string(_dataOffset));
-    uri.append("&offset=");
-    uri.append(std::to_string(_spikesRead));
+    std::string uri( "/spikes?limit=" );
+    uri.append( std::to_string( _dataOffset ) );
+    uri.append( "&offset=" );
+    uri.append( std::to_string( _spikesRead ) );
 
     client.set_host( _host );
     client.set_uri( uri );
@@ -470,8 +426,8 @@ namespace simil
     if ( result == boost::system::errc::success ) // Success
     {
       result = callbackSpikes( client.get_response( ) );
-      if (result == NEWDATA)
-          _spikesRead += _dataOffset;
+      if ( result == NEWDATA )
+        _spikesRead += _dataOffset;
     }
     else
       result = NOTCONNECT;
