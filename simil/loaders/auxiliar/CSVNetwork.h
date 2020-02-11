@@ -10,7 +10,7 @@
 #ifndef __SIMIL_CSVNETWORK__
 #define __SIMIL_CSVNETWORK__
 
-#include "../simil/types.h"
+#include "../../types.h"
 
 namespace simil
 {

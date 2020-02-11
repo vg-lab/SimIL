@@ -11,8 +11,8 @@
 #define __SIMIL__LOADCSVDATA_H__
 
 #include "LoaderSimData.h"
-#include "../CSVActivity.h"
-#include "../CSVNetwork.h"
+#include "auxiliar/CSVActivity.h"
+#include "auxiliar/CSVNetwork.h"
 
 namespace simil
 {

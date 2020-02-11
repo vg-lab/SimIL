@@ -3,20 +3,24 @@ set( SIMIL_PUBLIC_HEADERS
      types.h
      log.h
      SimulationPlayer.h
+     SpikesPlayer.h
      DataSet.h
      SimulationData.h
+     SpikeData.h
      Network.h
-     H5Network.h
-     H5Activity.h
-     CSVNetwork.h
-     CSVActivity.h
      ZeroEqEventsManager.h
      SubsetEventManager.h
-     H5SubsetEvents.h
      Spikes.hpp
      loaders/LoaderSimData.h
+
      loaders/LoaderHDF5Data.h
+     loaders/auxiliar/H5Network.h
+     loaders/auxiliar/H5Activity.h
+     loaders/auxiliar/H5SubsetEvents.h
+
      loaders/LoaderCSVData.h
+     loaders/auxiliar/CSVNetwork.h
+     loaders/auxiliar/CSVActivity.h
 )
 
 set( SIMIL_HEADERS
@@ -24,18 +28,23 @@ set( SIMIL_HEADERS
 
 set( SIMIL_SOURCES
      SimulationPlayer.cpp
+     SpikesPlayer.cpp
      DataSet.cpp
      SimulationData.cpp
+     SpikeData.cpp
      Network.cpp
-     H5Network.cpp
-     H5Activity.cpp
-     CSVNetwork.cpp
-     CSVActivity.cpp
+
      ZeroEqEventsManager.cpp
      SubsetEventManager.cpp
-     H5SubsetEvents.cpp
+
      loaders/LoaderHDF5Data.cpp
-    loaders/LoaderCSVData.cpp
+     loaders/auxiliar/H5Network.cpp
+     loaders/auxiliar/H5Activity.cpp
+     loaders/auxiliar/H5SubsetEvents.cpp
+
+     loaders/LoaderCSVData.cpp
+     loaders/auxiliar/CSVNetwork.cpp
+     loaders/auxiliar/CSVActivity.cpp
 
 )
 

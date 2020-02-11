@@ -16,7 +16,7 @@
 #include <queue>
 #include <set>
 
-#include "H5SubsetEvents.h"
+#include "loaders/auxiliar/H5SubsetEvents.h"
 
 namespace simil
 {

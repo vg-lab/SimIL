@@ -9,7 +9,7 @@
 #ifndef __QSIMIL_CSVACTIVITY__
 #define __QSIMIL_CSVACTIVITY__
 
-#include "types.h"
+#include "../../types.h"
 #include "CSVNetwork.h"
 
 namespace simil

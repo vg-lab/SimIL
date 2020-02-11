@@ -14,15 +14,15 @@
 #include <brion/brion.h>
 #include <brain/brain.h>
 #endif
-
 #include <H5Cpp.h>
 
+
 #include "types.h"
-#include "H5Network.h"
 #include "SubsetEventManager.h"
-#include "Spikes.hpp"
-#include "CSVNetwork.h"
-#include "CSVActivity.h"
+#include "loaders/auxiliar/H5Network.h"
+#include "loaders/auxiliar/CSVNetwork.h"
+
+
 
 namespace simil
 {
@@ -98,23 +98,6 @@ namespace simil
     bool _isDirty;
   };
 
-  class SpikeData : public SimulationData
-  {
-  public:
-    SpikeData( );
-    SpikeData( const std::string& filePath, TDataType dataType,
-               const std::string& report = "" );
-
-    const Spikes& spikes( void ) const;
-    void setSpikes( Spikes spikes );
-    void addSpikes(TSpikes & spikes);
-    SpikeData* get( void );
-
-    void reduceDataToGIDS( void );
-
-  protected:
-    Spikes _spikes;
-  };
 
   class VoltageData : public SimulationData
   {

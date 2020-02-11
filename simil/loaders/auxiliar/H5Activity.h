@@ -10,7 +10,7 @@
 #ifndef __SIMIL__H5ACTIVITY_H__
 #define __SIMIL__H5ACTIVITY_H__
 
-#include "types.h"
+#include "../../types.h"
 #include "H5Network.h"
 
 namespace simil

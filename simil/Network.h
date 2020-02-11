@@ -12,14 +12,14 @@
 
 #include "types.h"
 #include "SubsetEventManager.h"
-#include "H5Network.h"
-#include "CSVNetwork.h"
+#include "loaders/auxiliar/H5Network.h"
+#include "loaders/auxiliar/CSVNetwork.h"
 
 #ifdef SIMIL_USE_BRION
 #include <brion/brion.h>
 #include <brain/brain.h>
 #endif
-#include <H5Cpp.h>
+
 
 namespace simil
 {

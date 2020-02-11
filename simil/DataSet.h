@@ -12,6 +12,7 @@
 
 #include "Network.h"
 #include "SimulationData.h"
+#include "SpikeData.h"
 
 namespace simil
 {
