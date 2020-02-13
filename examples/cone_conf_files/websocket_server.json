@@ -1,8 +1,0 @@
-{
-    "connection": {
-        "type": "websocket_server",
-        "options": {
-            "port": 8000
-        }
-    }
-}

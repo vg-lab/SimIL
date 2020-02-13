@@ -20,39 +20,44 @@
  *
  */
 
-#include "DataSet.h"
+#ifndef __SIMIL_CSVNETWORK__
+#define __SIMIL_CSVNETWORK__
+
+#include "../../types.h"
 
 namespace simil
 {
-  DataSet::DataSet( SimulationData* simData, Network* network )
-    : _simulationData( simData )
-    , _network( network )
+  class CSVNetwork
   {
-  }
-  DataSet::~DataSet( )
-  {
-    if ( _simulationData != nullptr )
-      delete _simulationData;
-    if ( _network != nullptr )
-      delete _network;
-  }
+  public:
 
-  SimulationData* DataSet::simulationData( )
-  {
-    return _simulationData;
-  }
-  void DataSet::simulationData( SimulationData* simData )
-  {
-    _simulationData = simData;
-  }
+    CSVNetwork( const std::string& filename,
+                char separator = ',',
+                bool headerLine = false );
 
-  Network* DataSet::network( )
-  {
-    return _network;
-  }
-  void DataSet::network( Network* network )
-  {
-    _network = network;
-  }
+    ~CSVNetwork( );
 
-} // namespace simil
+    void load( void );
+
+    void clear( void );
+
+    simil::TGIDSet getGIDs( void ) const;
+    simil::TPosVect getComposedPositions( void ) const;
+
+  protected:
+
+    std::string _fileName;
+    char _separator;
+    bool _headerLine;
+
+    simil::TGIDSet _gids;
+    simil::TPosVect _positions;
+
+  };
+
+
+}
+
+
+
+#endif /* __SIMIL_CSVNETWORK__ */

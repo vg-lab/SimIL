@@ -20,39 +20,55 @@
  *
  */
 
-#include "DataSet.h"
+#ifndef __SIMIL_H5SUBSETEVENTS__
+#define __SIMIL_H5SUBSETEVENTS__
+
+#include <H5Cpp.h>
+
+#include "../../types.h"
 
 namespace simil
 {
-  DataSet::DataSet( SimulationData* simData, Network* network )
-    : _simulationData( simData )
-    , _network( network )
+  struct TSubset
   {
-  }
-  DataSet::~DataSet( )
-  {
-    if ( _simulationData != nullptr )
-      delete _simulationData;
-    if ( _network != nullptr )
-      delete _network;
-  }
+  public:
+    std::string name;
+    GIDVec gids;
+  } ;
 
-  SimulationData* DataSet::simulationData( )
+  struct TTimeFrame
   {
-    return _simulationData;
-  }
-  void DataSet::simulationData( SimulationData* simData )
-  {
-    _simulationData = simData;
-  }
+  public:
+    std::string name;
+    EventVec timeFrames;
+  };
 
-  Network* DataSet::network( )
+  class H5SubsetEvents
   {
-    return _network;
-  }
-  void DataSet::network( Network* network )
-  {
-    _network = network;
-  }
+  public:
 
-} // namespace simil
+    H5SubsetEvents( void );
+
+    void Load( const std::string& fileName,
+               const std::string& binsName,
+               const std::string& matrixName );
+
+    const std::vector< TSubset >& subsets( void ) const;
+
+    const std::vector< TTimeFrame >& timeFrames( void ) const;
+
+    float totalTime( void ) const;
+
+  protected:
+
+    std::vector< TSubset > _subsets;
+
+    std::vector< TTimeFrame > _events;
+
+    float _totalTime;
+  };
+
+}
+
+
+#endif /* __SIMIL_H5SUBSETEVENTS__ */

@@ -1,24 +1,41 @@
-#include "SyncClient.h"
+/*
+ * Copyright (c) 2015-2020 GMRV/URJC.
+ *
+ * Authors: Aaron Sujar <aaron.sujar@urjc.es>
+ *
+ * This file is part of SimIL <https://github.com/gmrvvis/SimIL>
+ *
+ * This library is free software; you can redistribute it and/or modify it under
+ * the terms of the GNU Lesser General Public License version 3.0 as published
+ * by the Free Software Foundation.
+ *
+ * This library is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+ * FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public License for more
+ * details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with this library; if not, write to the Free Software Foundation, Inc.,
+ * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+ *
+ */
 
+#include "SyncClient.h"
 
 #include <iostream>
 #include <istream>
 #include <ostream>
 #include <string>
 
-
-
-
 HTTPSyncClient::HTTPSyncClient()
-    : _host("localhost")
-    , _uri("")
-    , _port( 80 )
-    , _was_cancelled( false )
-    , _status_code(0)
-    , _status_message("")
-    , _response_stream( &_response_buf )
-  {
-  }
+: _host("localhost")
+, _uri("")
+, _port( 80 )
+, _was_cancelled( false )
+, _status_code(0)
+, _status_message("")
+, _response_stream( &_response_buf )
+{ }
 
 unsigned int HTTPSyncClient::get_status_code( ) const
 {

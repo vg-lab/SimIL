@@ -7,8 +7,8 @@
 #
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 cmake_minimum_required( VERSION 3.1 FATAL_ERROR )
-project( SimIL VERSION 0.1.5 )
-set( SimIL_VERSION_ABI 1)
+project( SimIL VERSION 0.1.6 )
+set( SimIL_VERSION_ABI 2)
 
 
 # Disable in source building
@@ -44,10 +44,10 @@ else()
   set( SIMIL_OPTS_FIND_ARGS "" )
 endif()
 
+option( SIMIL_WITH_REST_API
+  "Enable REST API for data streaming input" OFF )
+
 include( Common )
-
-
-
 
 common_find_package( vmmlib REQUIRED SYSTEM )
 common_find_package( Brion ${SIMIL_OPTS_FIND_ARGS} )
@@ -57,14 +57,6 @@ common_find_package( ZeroEQ )
 common_find_package( Qt5Core SYSTEM )
 common_find_package( Qt5Widgets SYSTEM )
 
-
-common_find_package(cone COMPONENTS nlohmann_json producer consumer )
-common_find_package(contra COMPONENTS contra zmq shared_memory )
-common_find_package(nesci COMPONENTS producer consumer )
-common_find_package(nlohmann_json )
-
-
-
 list( APPEND SIMIL_DEPENDENT_LIBRARIES HDF5 vmmlib Boost )
 
 if( BRION_FOUND )
@@ -73,50 +65,32 @@ endif()
 
 if( ZEROEQ_FOUND )
 
-  list(APPEND SIMIL_DEPENDENT_LIBRARIES ZeroEQ)
+  list( APPEND SIMIL_DEPENDENT_LIBRARIES ZeroEQ )
 
-  common_find_package(Threads REQUIRED)
-  list(APPEND SIMIL_DEPENDENT_LIBRARIES Threads)
-  
-  common_find_package(Lexis)
-  if(LEXIS_FOUND)
-    list(APPEND SIMIL_DEPENDENT_LIBRARIES Lexis)
-  endif()
-      
+  common_find_package( Threads REQUIRED )
+  list( APPEND SIMIL_DEPENDENT_LIBRARIES Threads )
+
+  common_find_package( Lexis )
+  if( LEXIS_FOUND )
+    list( APPEND SIMIL_DEPENDENT_LIBRARIES Lexis )
+  endif( )
+
   common_find_package( gmrvlex )
-  if ( GMRVLEX_FOUND )
-    list(APPEND SIMIL_DEPENDENT_LIBRARIES gmrvlex )
-  endif( )  
-  
+  if( GMRVLEX_FOUND )
+    list( APPEND SIMIL_DEPENDENT_LIBRARIES gmrvlex )
+  endif( )
+
 endif( )
-
-if (cone_FOUND AND nlohmann_json_FOUND)
-    if (Boost_VERSION VERSION_LESS 1.66)
-        message("Boost ${Boost_VERSION} is lower than CONE required.")
-    endif()
-    set(SIMIL_USE_CONE TRUE)
-    list( APPEND SIMIL_DEPENDENT_LIBRARIES cone )
-else()
-    if (NOT cone_FOUND)
-        message("Cone not found. Consider add the directory CMAKE_PREFIX_PATH")
-    endif()
-    if (NOT nlohmann_json_FOUND)
-        message("nlohmann_json not found. Consider add the directory CMAKE_PREFIX_PATH ")
-    endif()
-endif()
-
-
-set(SIMIL_USE_REST_API TRUE)
-
 
 common_find_package_post( )
 
 add_subdirectory( simil )
-if( QT5CORE_FOUND)
+
+if( QT5CORE_FOUND )
   add_subdirectory( qsimil )
 endif()
+
 add_subdirectory( examples )
-# add_subdirectory( tests )
 
 include( CPackConfig )
 include( DoxygenRule )

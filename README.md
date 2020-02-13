@@ -1,19 +1,20 @@
 # SimiL - (Simulation Input/Output Library) provides and eases the access to different data formats
-(c) 2015-2019. GMRV / URJC
+(c) 2015-2020. GMRV / URJC
 
 www.gmrv.es
 gmrv@gmrv.es
 
 ## Introduction
 
-SimiL consists of a library which is used to read brain simulation datasets. It is ready to be used with BlueConfig, HDF5, CSV datasets and used with in-situ pipeline.
+SimiL consists of a library which is used to read brain simulation datasets. It is ready to be used with BlueConfig, specific HDF5 and CSV datasets. Latest version
+also loads remote streaming data using a REST API for an in-situ pipeline.
 
 ## Dependencies
 
 ### Strong dependences:
 
-* Qt5Core
-* Qt5Widgets
+* HDF5
+* Boost
 * vmmlib(*)
 * HDF5 1.10
 
@@ -21,18 +22,15 @@ SimiL consists of a library which is used to read brain simulation datasets. It 
 the project.
 
 ### Weak dependences
-* Brion: allow read BlueConfig files.
-* In-situ: contains cone(*), contra, nesci
 
-(*) Note: Requires nlohmann_json
-
-
+* Qt 5.X: including Qt5Core, Qt5Widgets
+* Brion: enables BlueConfig support.
+* ZeroEQ: enables ZeroEQ remote data exchange
 
 ## Building
 
-SimiL has been succesfully built and used on Ubuntu 16.04 / 18.04, Mac OSX
-Yosemite The following steps
-should be enough to build it:
+SimiL has been succesfully built with GCC 6 and used on Ubuntu 16.04 / 18.04, Mac OSX
+Yosemite. The following steps should be enough to build it:
 
 ```bash
 git clone --recursive https://gitlab.gmrv.es/nsviz/SimIL.git SimiL
