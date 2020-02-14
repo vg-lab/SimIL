@@ -1,11 +1,25 @@
 /*
- * @file  SimulationPlayer.cpp
- * @brief
- * @author Sergio E. Galindo <sergio.galindo@urjc.es>
- * @date
- * @remarks Copyright (c) GMRV/URJC. All rights reserved.
- *          Do not distribute without further notice.
+ * Copyright (c) 2015-2020 GMRV/URJC.
+ *
+ * Authors: Sergio E. Galindo <sergio.galindo@urjc.es>
+ *
+ * This file is part of SimIL <https://github.com/gmrvvis/SimIL>
+ *
+ * This library is free software; you can redistribute it and/or modify it under
+ * the terms of the GNU Lesser General Public License version 3.0 as published
+ * by the Free Software Foundation.
+ *
+ * This library is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+ * FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public License for more
+ * details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with this library; if not, write to the Free Software Foundation, Inc.,
+ * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+ *
  */
+
 #include "SimulationPlayer.h"
 #include "log.h"
 #include <exception>
@@ -28,6 +42,8 @@ namespace simil
 #ifdef SIMIL_USE_ZEROEQ
   , _zeqEvents( nullptr )
 #endif
+  , _dataset( nullptr )
+  , _network( nullptr )
   , _simData( nullptr )
   { }
 
@@ -50,6 +66,34 @@ namespace simil
     std::cout << "GID Set size: " << _gids.size( ) << std::endl;
 
     _invTimeRange = 1.0f / ( _simData->endTime( ) - _simData->startTime( ));
+  }
+
+  void SimulationPlayer::LoadData(DataSet * dataset_)
+  {
+
+      if( !dataset_ )
+        return;
+
+      Clear( );
+
+      _dataset = dataset_;
+      LoadData(dataset_->network(),dataset_->simulationData());
+  }
+
+  void SimulationPlayer::LoadData( Network* net_ ,SimulationData* data_ )
+  {
+    if( !net_ || !data_)
+      return;
+    _network = net_;
+    _simData = data_;
+
+    _gids = _network->gids( );
+
+    std::cout << "GID Set size: " << _gids.size( ) << std::endl;
+    if (( _simData->endTime( ) - _simData->startTime( ))>0)
+        _invTimeRange = 1.0f / ( _simData->endTime( ) - _simData->startTime( ));
+    else
+        _invTimeRange = 1.0f;
   }
 
   void SimulationPlayer::LoadData( TDataType dataType,
@@ -81,11 +125,24 @@ namespace simil
       _simData = nullptr;
     }
 
+    if (_network)
+    {
+        delete _network;
+        _network = nullptr;
+    }
+
+    if (_dataset)
+    {
+        delete _dataset;
+        _dataset = nullptr;
+    }
+
     _gids.clear( );
   }
 
   void SimulationPlayer::Frame( void )
   {
+    _checkSimData();
     if( _playing )
     {
       _previousTime = _currentTime;
@@ -99,6 +156,7 @@ namespace simil
 
   void SimulationPlayer::Reset( void )
   {
+    _checkSimData();
     Stop( );
     Play( );
   }
@@ -106,6 +164,7 @@ namespace simil
 
   void SimulationPlayer::Play( void )
   {
+    _checkSimData();
     _playing = true;
     _finished = false;
   }
@@ -152,6 +211,7 @@ namespace simil
 
   float SimulationPlayer::GetRelativeTime( void )
   {
+    _checkSimData();
     return _relativeTime;
   }
 
@@ -177,11 +237,13 @@ namespace simil
 
   float SimulationPlayer::startTime( void )
   {
+    _checkSimData();
     return _startTime;
   }
 
   float SimulationPlayer::endTime( void )
   {
+    _checkSimData();
     return _endTime;
   }
 
@@ -201,11 +263,23 @@ namespace simil
 
   const TGIDSet& SimulationPlayer::gids( void ) const
   {
-    return _gids;
+
+    if (_network)
+     return _network->gids();
+    else
+     return _simData->gids();
+  }
+
+  unsigned int SimulationPlayer::gidsSize() const
+  {
+      return _network->gids().size();
   }
 
   TPosVect SimulationPlayer::positions( void ) const
   {
+    if (_network)
+      return _network->positions( );
+
     return _simData->positions( );
   }
 
@@ -220,6 +294,7 @@ namespace simil
     std::cout << "Finished simulation." << std::endl;
     if( _loop )
     {
+      _checkSimData();
       Play( );
     }
   }
@@ -227,6 +302,23 @@ namespace simil
   SimulationData* SimulationPlayer::data( void ) const
   {
     return _simData;
+  }
+
+  void SimulationPlayer::_checkSimData( void )
+  {
+
+     if (_simData)
+     {
+         if (_simData->isDirty())
+         {
+             if (( _simData->endTime( ) - _simData->startTime( ))>0)
+                 _invTimeRange = 1.0f / ( _simData->endTime( ) - _simData->startTime( ));
+             else
+                 _invTimeRange = 1.0f;
+             _simData->cleanDirty();
+         }
+     }
+
   }
 
 #ifdef SIMIL_USE_ZEROEQ
@@ -259,169 +351,6 @@ namespace simil
 #endif
 
 
-  //*************************************************************************
-  //************************ SPIKES SIMULATION PLAYER ***********************
-  //*************************************************************************
 
-  SpikesPlayer::SpikesPlayer( void )
-  : SimulationPlayer( )
-  {
-    _simulationType = TSimSpikes;
-  }
 
-  void SpikesPlayer::LoadData( SimulationData* data_ )
-  {
-    if( !data_ || !dynamic_cast< SpikeData* >( data_ )  )
-      return;
-
-    assert( ( data_->endTime( ) - data_->startTime( )) > 0 );
-
-    Clear( );
-
-    _simData = data_;
-
-    _gids = _simData->gids( );
-
-    std::cout << "GID Set size: " << _gids.size( ) << std::endl;
-
-    SpikeData* spikeData = dynamic_cast< SpikeData* >( _simData );
-
-    std::cout << "Loaded " << spikeData->spikes( ).size( ) << " spikes." << std::endl;
-
-    _currentSpike = spikeData->spikes( ).begin( );
-    _previousSpike = _currentSpike;
-
-    _startTime = spikeData->startTime( );
-    _endTime = spikeData->endTime( );
-
-    _currentTime = _startTime;
-
-    _invTimeRange = 1.0f / ( _simData->endTime( ) - _simData->startTime( ));
-
-  }
-
-  void SpikesPlayer::LoadData( TDataType dataType,
-                               const std::string& networkPath,
-                               const std::string& activityPath )
-  {
-    auto simData = new SpikeData( networkPath, dataType, activityPath );
-
-    LoadData( simData );
-  }
-
-  void SpikesPlayer::Clear( void )
-  {
-    SimulationPlayer::Clear( );
-
-    if( _simData )
-    {
-      delete _simData;
-      _simData = nullptr;
-    }
-
-  }
-
-  void SpikesPlayer::Stop( void )
-  {
-    SimulationPlayer::Stop( );
-    _currentSpike = spikes( ).begin( );
-    _previousSpike = _currentSpike;
-  }
-
-  void SpikesPlayer::PlayAt( float percentage )
-  {
-    SimulationPlayer::PlayAt( percentage );
-
-    const Spikes& spikes_ = spikes( );
-
-    _currentSpike = spikes_.begin( );
-    _previousSpike = _currentSpike;
-
-    _currentTime = percentage * ( _endTime - _startTime ) + _startTime;
-
-    _currentSpike = spikes_.elementAt( _currentTime );
-
-  }
-
-  void SpikesPlayer::FrameProcess( void )
-  {
-    const TSpikes& spikes_ = spikes( );
-    _previousSpike = _currentSpike;
-    SpikesCIter last;
-
-    SpikesCIter spike = _currentSpike;
-    while( ( *spike ).first  < _currentTime )
-    {
-      if( spike == spikes_.end( ))
-      {
-        _finished = true;
-        Finished( );
-        return;
-      }
-      last = spike;
-      spike++;
-    }
-    _currentSpike = spike;
-  }
-
-  const Spikes& SpikesPlayer::spikes( void )
-  {
-    return dynamic_cast< SpikeData* >( _simData )->spikes( );
-  }
-
-  SpikeData* SpikesPlayer::spikeReport( void ) const
-  {
-    return dynamic_cast< SpikeData* >( _simData );
-  }
-
-  SpikesCRange
-  SpikesPlayer::spikesAtTime( float time )
-  {
-    return spikesBetween( time, time );
-  }
-
-  SpikesCRange SpikesPlayer::spikesBetween( float startTime_, float endTime_ )
-  {
-    assert( endTime_ > startTime_ );
-
-    const Spikes& spikes_ = spikes( );
-
-    SpikesCIter begin = spikes_.end( );
-    SpikesCIter end = spikes_.end( );
-
-    begin = spikes_.elementAt( startTime_ );
-    auto spike = begin;
-    unsigned int spikesSize =  spikes_.size( );
-    while( spike->first < endTime_ && spike - spikes_.begin( ) < spikesSize )
-      ++spike;
-
-    if( spike - spikes_.begin( ) >= spikesSize )
-      spike = begin = spikes_.end( );
-
-    end = spike;
-
-    return std::make_pair( begin, end );
-
-  }
-
-  SpikesCRange SpikesPlayer::spikesNow( void )
-  {
-    return std::make_pair( _previousSpike, _currentSpike );
-  }
-
-  void SpikesPlayer::spikesNowVect( std::vector< uint32_t >& gidsv )
-  {
-    auto spikes_ = this->spikesNow( );
-    gidsv.resize( std::distance( spikes_.first, spikes_.second ));
-    std::vector< uint32_t >::iterator resultIt = gidsv.begin( );
-    for( auto& it = spikes_.first; it != spikes_.second; ++it, ++resultIt )
-    {
-      *resultIt = it->second;
-    }
-  }
-
-  SpikeData* SpikesPlayer::data( void ) const
-  {
-    return dynamic_cast< SpikeData* >( _simData );
-  }
 }

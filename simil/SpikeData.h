@@ -20,19 +20,44 @@
  *
  */
 
-#include <simil/simil.h>
+#ifndef __SIMIL__SPIKEDATA_H__
+#define __SIMIL__SPIKEDATA_H__
 
-using namespace simil;
+#ifdef SIMIL_USE_BRION
+#include <brion/brion.h>
+#include <brain/brain.h>
+#endif
 
-int main( int argc, char** argv )
+#include "types.h"
+#include "SimulationData.h"
+
+#include "Spikes.hpp"
+#include "loaders/aux/CSVActivity.h"
+
+namespace simil
 {
 
-  if( argc < 2 )
-    exit( 0 );
 
-  std::string filePath = argv[ 1 ];
+  class SpikeData : public SimulationData
+  {
+  public:
+    SpikeData( );
+    SpikeData( const std::string& filePath, TDataType dataType,
+               const std::string& report = "" );
 
-  SubsetEventManager sm;
-  sm.loadJSON( filePath );
+    const Spikes& spikes( void ) const;
+    void setSpikes( Spikes spikes );
+    void addSpikes(TSpikes & spikes);
+    SpikeData* get( void );
 
-}
+    void reduceDataToGIDS( void );
+
+  protected:
+    Spikes _spikes;
+  };
+
+
+
+} // namespace simil
+
+#endif /* __SIMIL__SPIKEDATA_H__ */

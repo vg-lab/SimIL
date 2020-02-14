@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 2015-2020 GMRV/URJC.
  *
- * Authors: Sergio E. Galindo <sergio.galindo@urjc.es>
+ * Authors: Aaron Sujar <aaron.sujar@urjc.es>
  *
  * This file is part of SimIL <https://github.com/gmrvvis/SimIL>
  *
@@ -20,19 +20,33 @@
  *
  */
 
-#include <simil/simil.h>
+#ifndef __SIMIL__LOADSIMDATA_H__
+#define __SIMIL__LOADSIMDATA_H__
 
-using namespace simil;
+#include "../DataSet.h"
 
-int main( int argc, char** argv )
+namespace simil
 {
+  class LoaderSimData
+  {
+  public:
+    LoaderSimData( )
+    {
+    }
+    virtual ~LoaderSimData( ) = 0;
 
-  if( argc < 2 )
-    exit( 0 );
+    virtual SimulationData*
+      loadSimulationData( const std::string& filePath_,
+                          const std::string& aux ="" ) = 0;
+    virtual Network* loadNetwork( const std::string& filePath_,
+                                  const std::string& aux ="" ) = 0;
+  };
 
-  std::string filePath = argv[ 1 ];
+  inline LoaderSimData::~LoaderSimData( )
+  {
+    std::cout << "Pure virtual destructor is called";
+  }
 
-  SubsetEventManager sm;
-  sm.loadJSON( filePath );
+} // namespace simil
 
-}
+#endif /* __SIMIL__LOADSIMDATA_H__ */

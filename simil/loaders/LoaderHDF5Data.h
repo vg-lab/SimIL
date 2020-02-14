@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 2015-2020 GMRV/URJC.
  *
- * Authors: Sergio E. Galindo <sergio.galindo@urjc.es>
+ * Authors: Aaron Sujar <aaron.sujar@urjc.es>
  *
  * This file is part of SimIL <https://github.com/gmrvvis/SimIL>
  *
@@ -20,19 +20,31 @@
  *
  */
 
-#include <simil/simil.h>
+#ifndef __SIMIL__LOADHDF5DATA_H__
+#define __SIMIL__LOADHDF5DATA_H__
 
-using namespace simil;
+#include "LoaderSimData.h"
+#include "aux/H5Activity.h"
 
-int main( int argc, char** argv )
+namespace simil
 {
+  class LoaderHDF5Data : public LoaderSimData
+  {
+  public:
+    LoaderHDF5Data( );
+    ~LoaderHDF5Data( );
 
-  if( argc < 2 )
-    exit( 0 );
+    virtual SimulationData*
+      loadSimulationData( const std::string& networkFile,
+                          const std::string& activityFile="" ) override;
 
-  std::string filePath = argv[ 1 ];
+    virtual Network* loadNetwork( const std::string& networkFile,
+                                  const std::string& aux = "" ) override;
 
-  SubsetEventManager sm;
-  sm.loadJSON( filePath );
+  protected:
+    simil::H5Network* _h5Network;
+  };
 
-}
+} // namespace simil
+
+#endif /* __SIMIL__LOADHDF5DATA_H__ */

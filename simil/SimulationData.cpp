@@ -1,15 +1,28 @@
 /*
- * @file  SimulationData.cpp
- * @brief
- * @author Sergio E. Galindo <sergio.galindo@urjc.es>
- * @date
- * @remarks Copyright (c) GMRV/URJC. All rights reserved.
- *          Do not distribute without further notice.
+ * Copyright (c) 2015-2020 GMRV/URJC.
+ *
+ * Authors: Sergio E. Galindo <sergio.galindo@urjc.es>
+ *
+ * This file is part of SimIL <https://github.com/gmrvvis/SimIL>
+ *
+ * This library is free software; you can redistribute it and/or modify it under
+ * the terms of the GNU Lesser General Public License version 3.0 as published
+ * by the Free Software Foundation.
+ *
+ * This library is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+ * FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public License for more
+ * details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with this library; if not, write to the Free Software Foundation, Inc.,
+ * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+ *
  */
 
 #include "SimulationData.h"
 
-#include "H5Activity.h"
+
 
 namespace simil
 {
@@ -22,10 +35,11 @@ namespace simil
     , _blueConfig( nullptr )
   , _target( target )
 #endif
-    , _h5Network( nullptr )
+  , _h5Network( nullptr )
   , _csvNetwork( nullptr )
-    , _startTime( 0.0f )
-    , _endTime( 0.0f )
+  , _startTime( 0.0f )
+  , _endTime( 0.0f )
+  , _isDirty( false )
   {
     target.size( ); // TODO remove this workaround to unused variable error
     switch ( dataType )
@@ -112,9 +126,9 @@ namespace simil
   {
     _positions = positions;
   }
-  void SimulationData::setPosition( vmml::Vector3f positions )
+  void SimulationData::setPosition( vmml::Vector3f position )
   {
-    _positions.push_back(positions);
+    _positions.push_back(position);
   }
 
   void SimulationData::setSubset( SubsetEventManager subsets )
@@ -129,10 +143,12 @@ namespace simil
 
   void SimulationData::setStartTime( float startTime )
   {
+    _isDirty = true;
     _startTime = startTime;
   }
   void SimulationData::setEndTime( float endTime )
   {
+    _isDirty = true;
     _endTime = endTime;
   }
 
@@ -185,120 +201,14 @@ namespace simil
       return _endTime;
   }
 
-  SpikeData::SpikeData()
-  : SimulationData()
+  bool SimulationData::isDirty( void ) const
   {
+    return _isDirty;
   }
-#ifdef SIMIL_USE_BRION
-    const brion::BlueConfig* SimulationData::blueConfig( void ) const
-    {
-      return _blueConfig;
-    }
-
-    const std::string& SimulationData::target( void ) const
-    {
-      return _target;
-    }
-
-#endif
-
-
-
-
-  SpikeData::SpikeData( const std::string& filePath_, TDataType dataType,
-                        const std::string& report )
-    : SimulationData( filePath_, dataType, report )
+  void SimulationData::cleanDirty( void )
   {
-    _simulationType = simil::TSimSpikes;
-
-    switch ( dataType )
-    {
-      case TBlueConfig:
-      {
-#ifdef SIMIL_USE_BRION
-        if ( _blueConfig )
-        {
-          brain::SpikeReportReader spikeReport(
-            _blueConfig->getSpikeSource( ) );
-          _spikes = spikeReport.getSpikes( 0, spikeReport.getEndTime( ) );
-
-          _startTime = 0.0f;
-          _endTime = spikeReport.getEndTime( );
-        }
-#else
-        std::cerr << "Error: Brion support not available" << std::endl;
-        exit( -1 );
-#endif
-        break;
-      }
-      case THDF5:
-      {
-        if ( report.empty( ) )
-        {
-          std::cerr << "Error: Activity file path is empty." << std::endl;
-        }
-
-        H5Spikes spikeReport( *_h5Network, report );
-        spikeReport.Load( );
-
-        _spikes = spikeReport.spikes( );
-
-        _startTime = spikeReport.startTime( );
-        _endTime = spikeReport.endTime( );
-
-        break;
-      }
-      case TCSV:
-      {
-        CSVSpikes spikeReport( *_csvNetwork, report, ',', false );
-        spikeReport.load( );
-
-        _spikes = spikeReport.spikes( );
-
-        _startTime = spikeReport.startTime();
-        _endTime = spikeReport.endTime( );
-
-        break;
-      }
-      default:
-        break;
-    }
+    _isDirty = false;
   }
 
-  void SpikeData::setSpikes( Spikes spikes )
-  {
-    _spikes = spikes;
-  }
-
-  void SpikeData::reduceDataToGIDS( void )
-  {
-    std::cout << "Before: " << _spikes.size( ) << std::endl;
-    TSpikes aux;
-    aux.reserve( _spikes.size( ) );
-    for ( auto spike : _spikes )
-      if ( _gids.find( spike.second ) != _gids.end( ) )
-        aux.push_back( spike );
-
-    aux.shrink_to_fit( );
-
-    _spikes = Spikes( aux );
-
-    std::cout << "After: " << _spikes.size( ) << std::endl;
-  }
-
-  const Spikes& SpikeData::spikes( void ) const
-  {
-    return _spikes;
-  }
-
-  void SpikeData::addSpike(float timestamp, uint gid)
-  {
-    _spikes.push_back(std::make_pair(timestamp,gid));
-  }
-
-  SpikeData* SpikeData::get( void )
-  {
-    return this;
-  }
 
 } // namespace simil

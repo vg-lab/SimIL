@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 2015-2020 GMRV/URJC.
  *
- * Authors: Sergio E. Galindo <sergio.galindo@urjc.es>
+ * Authors: Aaron Sujar <aaron.sujar@urjc.es>
  *
  * This file is part of SimIL <https://github.com/gmrvvis/SimIL>
  *
@@ -20,19 +20,33 @@
  *
  */
 
-#include <simil/simil.h>
+#ifndef __SIMIL__LOADBLUECONFIGDATA_H__
+#define __SIMIL__LOADBLUECONFIGDATA_H__
 
-using namespace simil;
+#include "LoaderSimData.h"
 
-int main( int argc, char** argv )
+#include <brion/brion.h>
+#include <brain/brain.h>
+
+namespace simil
 {
+  class LoaderBlueConfigData : public LoaderSimData
+  {
+  public:
+    LoaderBlueConfigData( );
+    ~LoaderBlueConfigData( );
 
-  if( argc < 2 )
-    exit( 0 );
+    virtual SimulationData*
+      loadSimulationData( const std::string& filePath_,
+                          const std::string& aux = "" ) override;
 
-  std::string filePath = argv[ 1 ];
+    virtual Network* loadNetwork( const std::string& filePath_,
+                                  const std::string& targets = "" ) override;
 
-  SubsetEventManager sm;
-  sm.loadJSON( filePath );
+  protected:
+    brion::BlueConfig* _blueConfig;
+  };
 
-}
+} // namespace simil
+
+#endif /* __SIMIL__LOADBLUECONFIGDATA_H__ */

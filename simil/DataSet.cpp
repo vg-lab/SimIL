@@ -20,19 +20,39 @@
  *
  */
 
-#include <simil/simil.h>
+#include "DataSet.h"
 
-using namespace simil;
-
-int main( int argc, char** argv )
+namespace simil
 {
+  DataSet::DataSet( SimulationData* simData, Network* network )
+    : _simulationData( simData )
+    , _network( network )
+  {
+  }
+  DataSet::~DataSet( )
+  {
+    if ( _simulationData != nullptr )
+      delete _simulationData;
+    if ( _network != nullptr )
+      delete _network;
+  }
 
-  if( argc < 2 )
-    exit( 0 );
+  SimulationData* DataSet::simulationData( )
+  {
+    return _simulationData;
+  }
+  void DataSet::simulationData( SimulationData* simData )
+  {
+    _simulationData = simData;
+  }
 
-  std::string filePath = argv[ 1 ];
+  Network* DataSet::network( )
+  {
+    return _network;
+  }
+  void DataSet::network( Network* network )
+  {
+    _network = network;
+  }
 
-  SubsetEventManager sm;
-  sm.loadJSON( filePath );
-
-}
+} // namespace simil

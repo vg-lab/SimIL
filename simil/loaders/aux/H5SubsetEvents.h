@@ -20,19 +20,55 @@
  *
  */
 
-#include <simil/simil.h>
+#ifndef __SIMIL_H5SUBSETEVENTS__
+#define __SIMIL_H5SUBSETEVENTS__
 
-using namespace simil;
+#include <H5Cpp.h>
 
-int main( int argc, char** argv )
+#include "../../types.h"
+
+namespace simil
 {
+  struct TSubset
+  {
+  public:
+    std::string name;
+    GIDVec gids;
+  } ;
 
-  if( argc < 2 )
-    exit( 0 );
+  struct TTimeFrame
+  {
+  public:
+    std::string name;
+    EventVec timeFrames;
+  };
 
-  std::string filePath = argv[ 1 ];
+  class H5SubsetEvents
+  {
+  public:
 
-  SubsetEventManager sm;
-  sm.loadJSON( filePath );
+    H5SubsetEvents( void );
+
+    void Load( const std::string& fileName,
+               const std::string& binsName,
+               const std::string& matrixName );
+
+    const std::vector< TSubset >& subsets( void ) const;
+
+    const std::vector< TTimeFrame >& timeFrames( void ) const;
+
+    float totalTime( void ) const;
+
+  protected:
+
+    std::vector< TSubset > _subsets;
+
+    std::vector< TTimeFrame > _events;
+
+    float _totalTime;
+  };
 
 }
+
+
+#endif /* __SIMIL_H5SUBSETEVENTS__ */

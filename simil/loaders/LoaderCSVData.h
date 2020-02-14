@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 2015-2020 GMRV/URJC.
  *
- * Authors: Sergio E. Galindo <sergio.galindo@urjc.es>
+ * Authors: Aaron Sujar <aaron.sujar@urjc.es>
  *
  * This file is part of SimIL <https://github.com/gmrvvis/SimIL>
  *
@@ -20,19 +20,33 @@
  *
  */
 
-#include <simil/simil.h>
+#ifndef __SIMIL__LOADCSVDATA_H__
+#define __SIMIL__LOADCSVDATA_H__
 
-using namespace simil;
+#include "LoaderSimData.h"
+#include "aux/CSVActivity.h"
+#include "aux/CSVNetwork.h"
 
-int main( int argc, char** argv )
+namespace simil
 {
+  class LoaderCSVData : public LoaderSimData
+  {
+  public:
+    LoaderCSVData( );
+    ~LoaderCSVData( );
 
-  if( argc < 2 )
-    exit( 0 );
+    virtual SimulationData*
+      loadSimulationData( const std::string& activityFile,
+                          const std::string& aux = "" ) override;
 
-  std::string filePath = argv[ 1 ];
+    virtual Network* loadNetwork( const std::string& aux,
+                                  const std::string& activityFile="" ) override;
 
-  SubsetEventManager sm;
-  sm.loadJSON( filePath );
+  protected:
+    simil::CSVNetwork* _csvNetwork;
+    simil::CSVActivity* _csvActivity;
+  };
 
-}
+} // namespace simil
+
+#endif /* __SIMIL__LOADCSVDATA_H__ */

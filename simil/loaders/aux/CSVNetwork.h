@@ -20,19 +20,44 @@
  *
  */
 
-#include <simil/simil.h>
+#ifndef __SIMIL_CSVNETWORK__
+#define __SIMIL_CSVNETWORK__
 
-using namespace simil;
+#include "../../types.h"
 
-int main( int argc, char** argv )
+namespace simil
 {
+  class CSVNetwork
+  {
+  public:
 
-  if( argc < 2 )
-    exit( 0 );
+    CSVNetwork( const std::string& filename,
+                char separator = ',',
+                bool headerLine = false );
 
-  std::string filePath = argv[ 1 ];
+    ~CSVNetwork( );
 
-  SubsetEventManager sm;
-  sm.loadJSON( filePath );
+    void load( void );
+
+    void clear( void );
+
+    simil::TGIDSet getGIDs( void ) const;
+    simil::TPosVect getComposedPositions( void ) const;
+
+  protected:
+
+    std::string _fileName;
+    char _separator;
+    bool _headerLine;
+
+    simil::TGIDSet _gids;
+    simil::TPosVect _positions;
+
+  };
+
 
 }
+
+
+
+#endif /* __SIMIL_CSVNETWORK__ */

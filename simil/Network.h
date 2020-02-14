@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 2015-2020 GMRV/URJC.
  *
- * Authors: Sergio E. Galindo <sergio.galindo@urjc.es>
+ * Authors: Aaron Sujar <aaron.sujar@urjc.es>
  *
  * This file is part of SimIL <https://github.com/gmrvvis/SimIL>
  *
@@ -20,43 +20,47 @@
  *
  */
 
-#ifndef __SIMIL__SIMULATIONDATA_H__
-#define __SIMIL__SIMULATIONDATA_H__
-
-#ifdef SIMIL_USE_BRION
-#include <brion/brion.h>
-#include <brain/brain.h>
-#endif
-#include <H5Cpp.h>
-
+#ifndef __SIMIL__NETWORK_H__
+#define __SIMIL__NETWORK_H__
 
 #include "types.h"
 #include "SubsetEventManager.h"
 #include "loaders/aux/H5Network.h"
 #include "loaders/aux/CSVNetwork.h"
 
+#ifdef SIMIL_USE_BRION
+#include <brion/brion.h>
+#include <brain/brain.h>
+#endif
 
 
 namespace simil
 {
-  class SimulationData
+  class Network
   {
   public:
-    SimulationData( );
+    Network( );
 
-    SimulationData( const std::string& filePath, TDataType dataType,
-                    const std::string& target = "" );
-    virtual ~SimulationData( void );
+    Network( const std::string& filePath, TDataType dataType,
+             const std::string& target = "" );
+    virtual ~Network( void );
 
-    void setGids( const TGIDSet& gids );
-    void setGid( const uint32_t gid );
-    const TGIDSet& gids( void ) const;
+    bool isUpdated();
 
-    GIDVec gidsVec( void ) const;
+    void setGids( const TGIDSet& gids, bool generatePos = false );
+    const TGIDSet& gids( void );
+
+    unsigned int gidsSize( void );
+
+    void setDataType( TDataType dataType );
+    TDataType dataType( );
+
+    const GIDVec& gidsVec( void ) const;
 
     const TPosVect& positions( void ) const;
-    void setPositions( TPosVect positions );
-    void setPosition( vmml::Vector3f position );
+    void setPositions( TPosVect positions, bool append = false );
+
+    void setNeurons( const TGIDVect& gids, const TPosVect& positions);
 
     void setSubset( SubsetEventManager subsets );
     SubsetEventManager* subsetsEvents( void );
@@ -64,17 +68,6 @@ namespace simil
 
     void setSimulationType( TSimulationType s_type );
     TSimulationType simulationType( void ) const;
-
-    virtual SimulationData* get( void );
-
-    virtual float startTime( void ) const;
-    virtual float endTime( void ) const;
-    void setStartTime( float startTime );
-    void setEndTime( float endTime );
-
-    bool isDirty( void ) const;
-    void cleanDirty( void );
-
 
 #ifdef SIMIL_USE_BRION
     const brion::BlueConfig* blueConfig( void ) const;
@@ -86,8 +79,10 @@ namespace simil
     std::string filePath;
 
     TGIDSet _gids;
-
+    TGIDVect _gidsV;
     TPosVect _positions;
+
+    unsigned int _gidSize;
 
     simil::SubsetEventManager _subsetEventManager;
 
@@ -95,6 +90,8 @@ namespace simil
 
     TDataType _dataType;
     TSimulationType _simulationType;
+
+    bool _needUpdate;
 
 #ifdef SIMIL_USE_BRION
     brion::BlueConfig* _blueConfig;
@@ -104,20 +101,8 @@ namespace simil
     H5Network* _h5Network;
 
     CSVNetwork* _csvNetwork;
-
-    float _startTime;
-    float _endTime;
-
-    bool _isDirty;
-  };
-
-
-  class VoltageData : public SimulationData
-  {
-    VoltageData( const std::string& filePath, TDataType dataType,
-                 const std::string& report = "" );
   };
 
 } // namespace simil
 
-#endif /* __SIMIL__SIMULATIONDATA_H__ */
+#endif /* __SIMIL__NETWORK_H__ */

@@ -1,10 +1,23 @@
 /*
- * @file  SimulationPlayer.h
- * @brief
- * @author Sergio E. Galindo <sergio.galindo@urjc.es>
- * @date
- * @remarks Copyright (c) GMRV/URJC. All rights reserved.
- *          Do not distribute without further notice.
+ * Copyright (c) 2015-2020 GMRV/URJC.
+ *
+ * Authors: Sergio E. Galindo <sergio.galindo@urjc.es>
+ *
+ * This file is part of SimIL <https://github.com/gmrvvis/SimIL>
+ *
+ * This library is free software; you can redistribute it and/or modify it under
+ * the terms of the GNU Lesser General Public License version 3.0 as published
+ * by the Free Software Foundation.
+ *
+ * This library is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+ * FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public License for more
+ * details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with this library; if not, write to the Free Software Foundation, Inc.,
+ * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+ *
  */
 
 #ifndef __SIMIL__SIMULATIONPLAYER_H__
@@ -27,6 +40,7 @@
 
 #include "types.h"
 #include "SimulationData.h"
+#include "DataSet.h"
 
 namespace simil
 {
@@ -54,6 +68,10 @@ namespace simil
     virtual ~SimulationPlayer( );
 
     virtual void LoadData( SimulationData* data );
+
+    virtual void LoadData(DataSet*);
+
+    virtual void LoadData( Network* network,SimulationData* data);
 
     virtual void LoadData( TDataType dataType,
                            const std::string& networkPath,
@@ -94,6 +112,7 @@ namespace simil
     bool loop( void );
 
     const TGIDSet& gids( void ) const;
+    unsigned int gidsSize() const;
     TPosVect positions( void ) const;
 
     TSimulationType simulationType( void ) const ;
@@ -112,6 +131,8 @@ namespace simil
 #endif
 
   protected:
+
+    virtual void _checkSimData( void );
 
     virtual void FrameProcess( void ) = 0;
     virtual void Finished( void );
@@ -137,52 +158,10 @@ namespace simil
 #ifdef SIMIL_USE_ZEROEQ
     ZeroEqEventsManager* _zeqEvents;
 #endif
-
+    DataSet* _dataset;
+    Network* _network;
     SimulationData* _simData;
 
-  };
-
-  typedef TSpikes::iterator SpikesIter;
-  typedef TSpikes::const_iterator SpikesCIter;
-
-  typedef std::pair< SpikesIter, SpikesIter > SpikesRange;
-  typedef std::pair< SpikesCIter, SpikesCIter > SpikesCRange;
-
-  class SpikesPlayer : public SimulationPlayer
-  {
-  public:
-
-    SpikesPlayer( void );
-
-    virtual void LoadData( SimulationData* data );
-
-    virtual void LoadData( TDataType dataType,
-                           const std::string& networkPath,
-                           const std::string& activityPath = "" );
-
-    virtual void Clear( void );
-    virtual void PlayAt( float percentage );
-    virtual void Stop( void );
-
-    virtual const Spikes& spikes( void );
-    SpikeData* spikeReport( void ) const;
-
-    SpikesCRange spikesAtTime( float time );
-
-    SpikesCRange spikesBetween( float startTime, float endTime );
-
-    SpikesCRange spikesNow( void );
-
-    void spikesNowVect( std::vector< uint32_t >& );
-
-    SpikeData* data( void ) const;
-
-  protected:
-
-    virtual void FrameProcess( void );
-
-    SpikesCIter _previousSpike;
-    SpikesCIter _currentSpike;
 
   };
 

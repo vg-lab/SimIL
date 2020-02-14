@@ -16,6 +16,8 @@ set( QSIMIL_SOURCES
 
 set( QSIMIL_LINK_LIBRARIES
   SimIL
+  ${Boost_LIBRARIES}
+  ${Boost_SYSTEM_LIBRARY}
   Qt5::Core
   Qt5::Widgets
 )
