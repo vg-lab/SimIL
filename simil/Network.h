@@ -25,8 +25,8 @@
 
 #include "types.h"
 #include "SubsetEventManager.h"
-#include "loaders/aux/H5Network.h"
-#include "loaders/aux/CSVNetwork.h"
+#include "loaders/auxiliar/H5Network.h"
+#include "loaders/auxiliar/CSVNetwork.h"
 
 #ifdef SIMIL_USE_BRION
 #include <brion/brion.h>

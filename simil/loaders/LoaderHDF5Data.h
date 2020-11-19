@@ -24,7 +24,7 @@
 #define __SIMIL__LOADHDF5DATA_H__
 
 #include "LoaderSimData.h"
-#include "aux/H5Activity.h"
+#include "auxiliar/H5Activity.h"
 
 namespace simil
 {
