@@ -14,13 +14,13 @@ set( SIMIL_PUBLIC_HEADERS
      loaders/LoaderSimData.h
 
      loaders/LoaderHDF5Data.h
-     loaders/aux/H5Network.h
-     loaders/aux/H5Activity.h
-     loaders/aux/H5SubsetEvents.h
+     loaders/auxiliar/H5Network.h
+     loaders/auxiliar/H5Activity.h
+     loaders/auxiliar/H5SubsetEvents.h
 
      loaders/LoaderCSVData.h
-     loaders/aux/CSVNetwork.h
-     loaders/aux/CSVActivity.h
+     loaders/auxiliar/CSVNetwork.h
+     loaders/auxiliar/CSVActivity.h
 )
 
 set( SIMIL_HEADERS
@@ -38,13 +38,13 @@ set( SIMIL_SOURCES
      SubsetEventManager.cpp
 
      loaders/LoaderHDF5Data.cpp
-     loaders/aux/H5Network.cpp
-     loaders/aux/H5Activity.cpp
-     loaders/aux/H5SubsetEvents.cpp
+     loaders/auxiliar/H5Network.cpp
+     loaders/auxiliar/H5Activity.cpp
+     loaders/auxiliar/H5SubsetEvents.cpp
 
      loaders/LoaderCSVData.cpp
-     loaders/aux/CSVNetwork.cpp
-     loaders/aux/CSVActivity.cpp
+     loaders/auxiliar/CSVNetwork.cpp
+     loaders/auxiliar/CSVActivity.cpp
 
 )
 

@@ -21,7 +21,7 @@
  */
 #include "SpikeData.h"
 
-#include "loaders/aux/H5Activity.h"
+#include "loaders/auxiliar/H5Activity.h"
 
 namespace simil
 {

@@ -29,12 +29,10 @@
 #include <queue>
 #include <set>
 
-#include "loaders/aux/H5SubsetEvents.h"
+#include "loaders/auxiliar/H5SubsetEvents.h"
 
 namespace simil
 {
-
-
   void getLeafNodesPath( const boost::property_tree::ptree& tree,
                          std::string currentPath,
                          std::vector< std::string >& leafNodes )

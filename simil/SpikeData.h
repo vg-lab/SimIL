@@ -32,7 +32,7 @@
 #include "SimulationData.h"
 
 #include "Spikes.hpp"
-#include "loaders/aux/CSVActivity.h"
+#include "loaders/auxiliar/CSVActivity.h"
 
 namespace simil
 {
