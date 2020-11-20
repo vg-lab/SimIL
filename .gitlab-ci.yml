@@ -18,7 +18,7 @@ Ubuntu-master:
   - export CMAKE_EXTRA_ARGS="-DCLONE_SUBPROJECTS=ON"
   - export BUILD_GENERATOR="Ninja"
   - export GITHUB_MIRROR_URL="git@github.com:vg-lab/SimIL"
-  - bash .gitlab-ci.sh
+  - bash .gitlabci.sh
  only:
   - master
  tags:
