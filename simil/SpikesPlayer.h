@@ -43,19 +43,17 @@
 #include "SpikeData.h"
 #include "DataSet.h"
 #include "SimulationPlayer.h"
+#include <simil/api.h>
 
 namespace simil
 {
-
-
-
   typedef TSpikes::iterator SpikesIter;
   typedef TSpikes::const_iterator SpikesCIter;
 
   typedef std::pair< SpikesIter, SpikesIter > SpikesRange;
   typedef std::pair< SpikesCIter, SpikesCIter > SpikesCRange;
 
-  class SpikesPlayer : public SimulationPlayer
+  class SIMIL_API SpikesPlayer : public SimulationPlayer
   {
   public:
 

@@ -41,6 +41,7 @@
 #include "types.h"
 #include "SimulationData.h"
 #include "DataSet.h"
+#include <simil/api.h>
 
 namespace simil
 {
@@ -58,7 +59,7 @@ namespace simil
 
 
 
-  class SimulationPlayer
+  class SIMIL_API SimulationPlayer
   {
 
   public:

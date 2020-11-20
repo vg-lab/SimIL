@@ -34,10 +34,11 @@
 #include "SubsetEventManager.h"
 #include "loaders/auxiliar/H5Network.h"
 #include "loaders/auxiliar/CSVNetwork.h"
+#include <simil/api.h>
 
 namespace simil
 {
-  class SimulationData
+  class SIMIL_API SimulationData
   {
   public:
     SimulationData( );

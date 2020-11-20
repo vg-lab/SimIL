@@ -33,12 +33,11 @@
 
 #include "Spikes.hpp"
 #include "loaders/auxiliar/CSVActivity.h"
+#include <simil/api.h>
 
 namespace simil
 {
-
-
-  class SpikeData : public SimulationData
+  class SIMIL_API SpikeData : public SimulationData
   {
   public:
     SpikeData( );

@@ -26,6 +26,7 @@
 #include <H5Cpp.h>
 
 #include "../../types.h"
+#include <simil/api.h>
 
 namespace simil
 {
@@ -43,7 +44,7 @@ namespace simil
     EventVec timeFrames;
   };
 
-  class H5SubsetEvents
+  class SIMIL_API H5SubsetEvents
   {
   public:
 

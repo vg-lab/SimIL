@@ -24,10 +24,11 @@
 #define __SIMIL_CSVNETWORK__
 
 #include "../../types.h"
+#include <simil/api.h>
 
 namespace simil
 {
-  class CSVNetwork
+  class SIMIL_API CSVNetwork
   {
   public:
 

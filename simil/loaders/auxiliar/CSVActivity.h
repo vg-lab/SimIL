@@ -25,11 +25,12 @@
 
 #include "../../types.h"
 #include "CSVNetwork.h"
+#include <simil/api.h>
 
 namespace simil
 {
 
-  class CSVActivity
+  class SIMIL_API CSVActivity
   {
 
   public:
@@ -53,7 +54,7 @@ namespace simil
 
   };
 
-  class CSVSpikes : public CSVActivity
+  class SIMIL_API CSVSpikes : public CSVActivity
   {
   public:
 
