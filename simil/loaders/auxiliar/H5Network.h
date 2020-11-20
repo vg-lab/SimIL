@@ -30,6 +30,7 @@
 #include <H5Cpp.h>
 
 #include "../../types.h"
+#include <simil/api.h>
 
 namespace simil
 {
@@ -37,7 +38,7 @@ namespace simil
   class H5Activity;
   class H5Spikes;
 
-  class H5Network
+  class SIMIL_API H5Network
   {
     friend class H5Activity;
     friend class H5Spikes;

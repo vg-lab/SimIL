@@ -27,10 +27,11 @@
 
 #include <mutex>
 #include <thread>
+#include <simil/api.h>
 
 namespace simil
 {
-  class LoaderRestData : public LoaderSimData
+  class SIMIL_API LoaderRestData : public LoaderSimData
   {
   public:
     LoaderRestData( );

@@ -24,10 +24,11 @@
 #define __SIMIL__LOADSIMDATA_H__
 
 #include "../DataSet.h"
+#include <simil/api.h>
 
 namespace simil
 {
-  class LoaderSimData
+  class SIMIL_API LoaderSimData
   {
   public:
     LoaderSimData( )

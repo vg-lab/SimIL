@@ -32,39 +32,29 @@
 
 namespace simil
 {
-
-  class SubsetEventManager
+  class SIMIL_API SubsetEventManager
   {
 
   public:
 
     SubsetEventManager( );
 
-    SIMIL_API
     void loadJSON( const std::string& filePath );
 
-    SIMIL_API
     void loadH5( const std::string& filePath );
 
-    SIMIL_API
     void clear( void );
 
-    SIMIL_API
     void addSubset( const std::string& name, const GIDVec& subset );
 
-    SIMIL_API
     std::vector< uint32_t > getSubset( const std::string& name ) const;
 
-    SIMIL_API
     void removeSubset( const std::string& name );
 
-    SIMIL_API
     std::vector< Event > getEvent( const std::string& name ) const;
 
-    SIMIL_API
     SubsetMapRange subsets( void ) const;
 
-    SIMIL_API
     EventRange events( void ) const;
 
     unsigned int numSubsets( void ) const;
@@ -72,17 +62,13 @@ namespace simil
 
     float totalTime( void ) const;
 
-    SIMIL_API
     std::vector< std::string > subsetNames( void ) const;
 
-    SIMIL_API
     std::vector< std::string > eventNames( void ) const;
 
-    SIMIL_API
     std::vector< bool > eventActivity( const std::string& name,
                                        float deltaTime,
                                        float totalTime ) const;
-
   protected:
 
     std::map< std::string, std::vector< uint32_t >> _subsets;

@@ -22,6 +22,11 @@ set( QSIMIL_LINK_LIBRARIES
   Qt5::Widgets
 )
 
+if(WIN32)
+  configure_file("${PROJECT_SOURCE_DIR}/qsimil/QSimILWinProps.rc.in" "${PROJECT_BINARY_DIR}/QSimILWinProps.rc")
+  set( QSIMIL_SOURCES ${QSIMIL_SOURCES} "${PROJECT_BINARY_DIR}/QSimILWinProps.rc")
+endif(WIN32)
+
 if( ZEROEQ_FOUND )
   list( APPEND QSIMIL_LINK_LIBRARIES ZeroEQ ${CMAKE_THREAD_LIBS_INIT} )
 endif( )

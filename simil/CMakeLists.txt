@@ -45,7 +45,6 @@ set( SIMIL_SOURCES
      loaders/LoaderCSVData.cpp
      loaders/auxiliar/CSVNetwork.cpp
      loaders/auxiliar/CSVActivity.cpp
-
 )
 
 set( SIMIL_LINK_LIBRARIES
@@ -56,6 +55,11 @@ set( SIMIL_LINK_LIBRARIES
      Qt5::Core
      Qt5::Widgets
 )
+
+if(WIN32)
+  configure_file("${PROJECT_SOURCE_DIR}/simil/SimILWinProps.rc.in" "${PROJECT_BINARY_DIR}/SimILWinProps.rc")
+  set( SIMIL_SOURCES ${SIMIL_SOURCES} "${PROJECT_BINARY_DIR}/SimILWinProps.rc")
+endif(WIN32)
 
 if( BRION_FOUND )
   list( APPEND SIMIL_LINK_LIBRARIES Brion Brain )

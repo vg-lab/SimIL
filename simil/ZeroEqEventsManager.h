@@ -42,10 +42,11 @@
 #endif
 
 #include <thread>
-
 #endif
 
-class ZeroEqEventsManager
+#include <simil/api.h>
+
+class SIMIL_API ZeroEqEventsManager
 {
 public:
 
