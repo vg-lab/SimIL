@@ -98,14 +98,16 @@ namespace simil
   }
 
   SimulationData::SimulationData( )
-    : _simulationType( TSimNetwork )
+    : _dataType( TDataUndefined )
+    , _simulationType( TSimNetwork )
 #ifdef SIMIL_USE_BRION
     , _blueConfig( nullptr )
 #endif
     , _h5Network( nullptr )
+    , _csvNetwork( nullptr )
     , _startTime( 0.0f )
     , _endTime( 0.0f )
-
+    , _isDirty( false )
   {
   }
 

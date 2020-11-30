@@ -7,7 +7,7 @@
 #
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 cmake_minimum_required( VERSION 3.1 FATAL_ERROR )
-project( SimIL VERSION 0.1.6 )
+project( SimIL VERSION 0.2.0 )
 set( SimIL_VERSION_ABI 2)
 
 

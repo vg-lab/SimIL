@@ -72,6 +72,9 @@ if( SIMIL_WITH_REST_API )
                                       loaders/HTTP/SyncClient.h )
     list( APPEND SIMIL_SOURCES loaders/LoaderRestData.cpp
                                loaders/HTTP/SyncClient.cpp )
+  if(WIN32)
+    set( SIMIL_LINK_LIBRARIES pthread ws2_32 ${SIMIL_LINK_LIBRARIES})
+  endif(WIN32)
 endif()
 
 if( ZEROEQ_FOUND )
@@ -85,8 +88,6 @@ endif( )
 if( LEXIS_FOUND )
   list( APPEND SIMIL_LINK_LIBRARIES Lexis )
 endif( )
-
-
 
 add_definitions( -DSIMIL_SHARED )
 
