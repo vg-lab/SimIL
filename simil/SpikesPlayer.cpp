@@ -1,9 +1,9 @@
 /*
- * Copyright (c) 2015-2020 GMRV/URJC.
+ * Copyright (c) 2015-2020 VG-Lab/URJC.
  *
  * Authors: Sergio E. Galindo <sergio.galindo@urjc.es>
  *
- * This file is part of SimIL <https://github.com/gmrvvis/SimIL>
+ * This file is part of SimIL <https://github.com/vg-lab/SimIL>
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 3.0 as published
@@ -26,8 +26,6 @@
 #include <assert.h>
 namespace simil
 {
-
-
   SpikesPlayer::SpikesPlayer( void )
   : SimulationPlayer( )
   {
@@ -39,9 +37,14 @@ namespace simil
     if( !data_ || !dynamic_cast< SpikeData* >( data_ )  )
       return;
 
-    assert( ( data_->endTime( ) - data_->startTime( )) > 0 );
-
     Clear( );
+
+    if((data_->endTime( ) - data_->startTime( )) <= 0 )
+    {
+      const auto errorText = std::string("Empty spike data or incorrect time range: start-> ") + std::to_string(data_->startTime()) +
+                                         " end-> " + std::to_string(data_->endTime());
+      throw std::runtime_error(errorText);
+    }
 
     _simData = data_;
 

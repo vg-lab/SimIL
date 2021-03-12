@@ -1,9 +1,8 @@
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 #
 #   SimIL
-#   2016 (c) GMRV / Universidad Rey Juan Carlos
-#   gmrv@gmrv.es
-#   www.gmrv.es
+#   2016 (c) VG-Lab / Universidad Rey Juan Carlos
+#   www.vg-lab.es
 #
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 cmake_minimum_required( VERSION 3.1 FATAL_ERROR )

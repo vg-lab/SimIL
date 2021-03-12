@@ -1,9 +1,9 @@
 /*
- * Copyright (c) 2015-2020 GMRV/URJC.
+ * Copyright (c) 2015-2020 VG-Lab/URJC.
  *
  * Authors: Sergio E. Galindo <sergio.galindo@urjc.es>
  *
- * This file is part of SimIL <https://github.com/gmrvvis/SimIL>
+ * This file is part of SimIL <https://github.com/vg-lab/SimIL>
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 3.0 as published
@@ -48,14 +48,18 @@ namespace simil
       {
 #ifdef SIMIL_USE_BRION
         _blueConfig = new brion::BlueConfig( filePath_ );
-        brion::Targets targets = _blueConfig->getTargets( );
 
+        brion::Targets targets = _blueConfig->getTargets( );
         brain::Circuit* circuit = new brain::Circuit( *_blueConfig );
 
         if ( !target.empty( ) )
+        {
           _gids = brion::Target::parse( targets, target );
+        }
         else
+        {
           _gids = circuit->getGIDs( );
+        }
 
         _positions = circuit->getPositions( _gids );
 
@@ -76,8 +80,7 @@ namespace simil
         _positions = _h5Network->getComposedPositions( );
 
         auto subsetIts = _h5Network->getSubsets( );
-        for ( simil::SubsetMapCIt it = subsetIts.first; it != subsetIts.second;
-              ++it )
+        for ( simil::SubsetMapCIt it = subsetIts.first; it != subsetIts.second; ++it )
           _subsetEventManager.addSubset( it->first, it->second );
 
         break;
