@@ -1,9 +1,9 @@
 /*
- * Copyright (c) 2015-2020 GMRV/URJC.
+ * Copyright (c) 2015-2020 VG-Lab/URJC.
  *
  * Authors: Aaron Sujar <aaron.sujar@urjc.es>
  *
- * This file is part of SimIL <https://github.com/gmrvvis/SimIL>
+ * This file is part of SimIL <https://github.com/vg-lab/SimIL>
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 3.0 as published
@@ -29,6 +29,10 @@
 #include <thread>
 #include <simil/api.h>
 
+/** NOTES: updated to REST API 1.0 from https://github.com/VRGroupRWTH/insite/tree/develop/docs/api
+ * NEST API only for now, pending ARBOR API and testing.
+ *
+ */
 namespace simil
 {
   class SIMIL_API LoaderRestData : public LoaderSimData
@@ -37,10 +41,10 @@ namespace simil
     LoaderRestData( );
     ~LoaderRestData( );
     virtual SimulationData*
-      loadSimulationData( const std::string& hostURL,
-                          const std::string& port ="" ) override;
+      loadSimulationData( const std::string& url,
+                          const std::string& port = "" ) override;
 
-    virtual Network* loadNetwork( const std::string& hostURL,
+    virtual Network* loadNetwork( const std::string& url,
                                   const std::string& port ="" ) override;
 
     void network( Network* network );
@@ -51,38 +55,60 @@ namespace simil
     void dataOffset( unsigned int offset);
     unsigned int dataOffeset();
 
+    /** \brief Implemented rest APIs.
+     *
+     */
+    enum class Rest_API { NEST = 0, ARBOR };
+
+    /** \brief Sets the rest API to use for data retrieval from server.
+     *
+     */
+    inline void setRestAPI( const Rest_API value )
+    { _api = value; }
+
   protected:
-    enum GETRequest
+    static const std::string ARBOR_PREFIX;   /** uri prefix to get arbor data from server. */
+    static const std::string NEST_PREFIX;    /** uri prefix to get nest data from server.  */
+
+    enum class RESTResult
     {
-      TimeInfo = 0,
-      Gids,
-      NeuronPro,
-      Populations,
-      Spikes
+      NOTCONNECT = 0,
+      EXCEPTION,
+      NODATA,
+      NEWDATA
     };
 
-    enum RESTERROR
-    {
-      NOTCONNECT = -2,
-      EXCEPTION = -1,
-      NODATA = 0,
-      NEWDATA = 1
-    };
+    /** Callback methods for processing JSON contents.
+     *
+     */
+    RESTResult callbackSpikes( std::istream& contentdata );
+    RESTResult callbackNodeProperties( std::istream& contentdata );
 
-    int callbackSpikes( std::istream& contentdata );
-    int callbackGids( std::istream& contentdata );
-    int callbackPopulations( std::istream& contentdata );
-    int callbackTime( std::istream& contentdata );
-    int callbackNProperties( std::istream& contentdata );
+    /** Calling methods to request data from server.
+     *
+     */
+    void loopSpikes( const std::string &url, const std::string &prefix, const unsigned int port );
+    void loopNetwork( const std::string &url, const std::string &prefix, const unsigned int port );
 
-    void loopSpikes( );
-    void loopNetwork( );
+    /** \brief Get the properties information from the server.
+     * \param[in] url server address
+     * \param[in] prefix server uri prefix.
+     * \param[in] port server address port.
+     */
+    RESTResult GETNodeProperties( const std::string& url, const std::string &prefix, const unsigned int port );
 
-    int GETTimeInfo( );
-    int GETGids( );
-    int GETNeuronProperties(  );
-    int GETPopulations(  );
-    int GETSpikes();
+    /** \brief Get spikes information from then server.
+     * \param[in] url server address
+     * \param[in] prefix server uri prefix.
+     * \param[in] port server address port.
+     *
+     */
+    RESTResult GETSpikes( const std::string& url, const std::string &prefix, const unsigned int port );
+
+    /** \brief Helper method to get the uri prefix depending on the rest API used.
+     *
+     */
+    std::string restAPIPrefix() const;
 
     std::unique_ptr< LoaderRestData > _instance;
     std::thread _looperSpikes;
@@ -90,14 +116,10 @@ namespace simil
     SimulationData* _simulationdata;
     Network* _network;
     bool _waitForData;
-    std::string _host;
-    unsigned int _port;
     float _deltaTime;
     unsigned int _dataOffset;
-
     unsigned int _spikesRead;
-
-
+    Rest_API _api;
   };
 
 } // namespace simil

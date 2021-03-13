@@ -1,8 +1,7 @@
 # SimiL - (Simulation Input/Output Library) provides and eases the access to different data formats
-(c) 2015-2020. GMRV / URJC
+(c) 2015-2020. VG-Lab / URJC
 
-www.gmrv.es
-gmrv@gmrv.es
+www.vg-lab.es
 
 ## Introduction
 
@@ -33,7 +32,7 @@ SimiL has been succesfully built with GCC 6 and used on Ubuntu 16.04 / 18.04, Ma
 Yosemite. The following steps should be enough to build it:
 
 ```bash
-git clone --recursive https://gitlab.gmrv.es/nsviz/SimIL.git SimiL
+git clone --recursive https://github.com/vg-lab/SimIL.git SimiL
 mkdir SimiL/build && cd SimiL/build
 cmake .. -DCMAKE_BUILD_TYPE=Release -DCLONE_SUBPROJECTS=ON
 make

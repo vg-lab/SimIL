@@ -1,9 +1,9 @@
 /*
- * Copyright (c) 2015-2020 GMRV/URJC.
+ * Copyright (c) 2015-2020 VG-Lab/URJC.
  *
  * Authors: Sergio E. Galindo <sergio.galindo@urjc.es>
  *
- * This file is part of SimIL <https://github.com/gmrvvis/SimIL>
+ * This file is part of SimIL <https://github.com/vg-lab/SimIL>
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 3.0 as published
@@ -26,7 +26,6 @@
 #include <assert.h>
 namespace simil
 {
-
   SimulationPlayer::SimulationPlayer( void )
   : _currentTime( 0.0f )
   , _previousTime( 0.0f )
@@ -100,7 +99,6 @@ namespace simil
                                    const std::string& networkPath_,
                                    const std::string& )
   {
-
     switch( dataType )
     {
       case TDataType::TBlueConfig:
@@ -161,7 +159,6 @@ namespace simil
     Play( );
   }
 
-
   void SimulationPlayer::Play( void )
   {
     _checkSimData();
@@ -198,15 +195,12 @@ namespace simil
 
     float timeStamp = percentage * ( _endTime - _startTime ) + _startTime;
 
-//    int aux = timeStamp / _deltaTime;
-
     _currentTime = timeStamp;
     _previousTime = std::max( _currentTime - _deltaTime, _startTime );
 
     _relativeTime = percentage;
 
     Play( );
-
   }
 
   float SimulationPlayer::GetRelativeTime( void )
@@ -256,6 +250,7 @@ namespace simil
   {
     _loop = loop_;
   }
+
   bool SimulationPlayer::loop( void )
   {
     return _loop;
@@ -306,7 +301,6 @@ namespace simil
 
   void SimulationPlayer::_checkSimData( void )
   {
-
      if (_simData)
      {
          if (_simData->isDirty())
@@ -318,7 +312,6 @@ namespace simil
              _simData->cleanDirty();
          }
      }
-
   }
 
 #ifdef SIMIL_USE_ZEROEQ
@@ -327,7 +320,6 @@ namespace simil
   {
     return _zeqEvents;
   }
-
 
   void SimulationPlayer::connectZeq( const std::string& zeqUri )
   {
@@ -349,8 +341,4 @@ namespace simil
   }
 
 #endif
-
-
-
-
 }
