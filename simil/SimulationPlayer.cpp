@@ -20,10 +20,14 @@
  *
  */
 
+// SimIL
 #include "SimulationPlayer.h"
 #include "log.h"
+
+// C++
 #include <exception>
 #include <assert.h>
+
 namespace simil
 {
   SimulationPlayer::SimulationPlayer( void )
@@ -60,35 +64,34 @@ namespace simil
 
     Clear( );
 
-    _gids = _simData->gids( );
+    _simData = data_;
 
-    std::cout << "GID Set size: " << _gids.size( ) << std::endl;
+    std::cout << "GID Set size: " << gids().size( ) << std::endl;
 
     _invTimeRange = 1.0f / ( _simData->endTime( ) - _simData->startTime( ));
   }
 
   void SimulationPlayer::LoadData(DataSet * dataset_)
   {
+    if( !dataset_ )
+      return;
 
-      if( !dataset_ )
-        return;
+    Clear( );
 
-      Clear( );
-
-      _dataset = dataset_;
-      LoadData(dataset_->network(),dataset_->simulationData());
+    _dataset = dataset_;
+    LoadData(dataset_->network(),dataset_->simulationData());
   }
 
   void SimulationPlayer::LoadData( Network* net_ ,SimulationData* data_ )
   {
     if( !net_ || !data_)
       return;
+
     _network = net_;
     _simData = data_;
 
-    _gids = _network->gids( );
+    std::cout << "GID Set size: " << gids().size( ) << std::endl;
 
-    std::cout << "GID Set size: " << _gids.size( ) << std::endl;
     if (( _simData->endTime( ) - _simData->startTime( ))>0)
         _invTimeRange = 1.0f / ( _simData->endTime( ) - _simData->startTime( ));
     else
@@ -134,8 +137,6 @@ namespace simil
         delete _dataset;
         _dataset = nullptr;
     }
-
-    _gids.clear( );
   }
 
   void SimulationPlayer::Frame( void )
@@ -180,20 +181,19 @@ namespace simil
 
   void SimulationPlayer::GoTo( float timeStamp )
   {
-    int aux = timeStamp / _deltaTime;
+    const int aux = timeStamp / _deltaTime;
 
     _currentTime = aux * _deltaTime;
     _previousTime = std::max( _currentTime - _deltaTime, _startTime );
 
     _relativeTime = ( _currentTime - _startTime ) * _invTimeRange ;
-
   }
 
   void SimulationPlayer::PlayAt( float percentage )
   {
     assert( percentage >= 0.0f && percentage <= 1.0f );
 
-    float timeStamp = percentage * ( _endTime - _startTime ) + _startTime;
+    const float timeStamp = percentage * ( _endTime - _startTime ) + _startTime;
 
     _currentTime = timeStamp;
     _previousTime = std::max( _currentTime - _deltaTime, _startTime );
@@ -258,16 +258,15 @@ namespace simil
 
   const TGIDSet& SimulationPlayer::gids( void ) const
   {
+    if(_network)
+      return _network->gids();
 
-    if (_network)
-     return _network->gids();
-    else
-     return _simData->gids();
+    return _simData->gids();
   }
 
   unsigned int SimulationPlayer::gidsSize() const
   {
-      return _network->gids().size();
+    return gids().size();
   }
 
   TPosVect SimulationPlayer::positions( void ) const
@@ -286,7 +285,6 @@ namespace simil
   void SimulationPlayer::Finished( void )
   {
     Stop( );
-    std::cout << "Finished simulation." << std::endl;
     if( _loop )
     {
       _checkSimData();
@@ -301,17 +299,15 @@ namespace simil
 
   void SimulationPlayer::_checkSimData( void )
   {
-     if (_simData)
-     {
-         if (_simData->isDirty())
-         {
-             if (( _simData->endTime( ) - _simData->startTime( ))>0)
-                 _invTimeRange = 1.0f / ( _simData->endTime( ) - _simData->startTime( ));
-             else
-                 _invTimeRange = 1.0f;
-             _simData->cleanDirty();
-         }
-     }
+    if (_simData && _simData->isDirty())
+    {
+      if ((_simData->endTime() - _simData->startTime()) > 0)
+        _invTimeRange = 1.0f / (_simData->endTime() - _simData->startTime());
+      else
+        _invTimeRange = 1.0f;
+
+      _simData->cleanDirty();
+    }
   }
 
 #ifdef SIMIL_USE_ZEROEQ

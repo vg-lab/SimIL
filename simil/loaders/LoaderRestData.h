@@ -39,7 +39,7 @@ namespace simil
   {
   public:
     LoaderRestData( );
-    ~LoaderRestData( );
+    virtual ~LoaderRestData( );
     virtual SimulationData*
       loadSimulationData( const std::string& url,
                           const std::string& port = "" ) override;

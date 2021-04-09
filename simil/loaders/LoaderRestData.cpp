@@ -71,7 +71,7 @@ namespace simil
     if( !url.empty() )
       serverUrl = url;
 
-    if ( _simulationdata == nullptr )
+    if (!_simulationdata)
       _simulationdata = new SpikeData( );
 
     _waitForData = true;
@@ -93,7 +93,7 @@ namespace simil
     if( !url.empty() )
       serverUrl = url;
 
-    if ( _network == nullptr )
+    if (!_network)
       _network = new Network( );
 
     _waitForData = true;
@@ -129,49 +129,57 @@ namespace simil
 
   LoaderRestData::RESTResult LoaderRestData::callbackSpikes( std::istream& contentdata )
   {
+    if(contentdata.eof()) return RESTResult::NODATA;
+
     SpikeData* _spikes = dynamic_cast< SpikeData* >( _simulationdata );
     TSpikes vecSpikes;
     float startTime, endTime;
     unsigned long rangeErrors = 0;
 
-    boost::property_tree::ptree propertytree;
+    boost::property_tree::basic_ptree<std::string, std::string> propertytree;
     try
     {
-      boost::property_tree::read_json( contentdata, propertytree );
+      boost::property_tree::read_json(contentdata, propertytree);
 
-      startTime = _spikes->startTime( );
-      endTime = _spikes->endTime( );
+      startTime = _spikes->startTime();
+      endTime = _spikes->endTime();
 
-      const auto ids = propertytree.get_child( "nodeIds" );
-      auto timesIt = propertytree.get_child( "simulationTimes" ).begin( );
+      const auto ids = propertytree.get_child("nodeIds");
+      const auto times = propertytree.get_child("simulationTimes");
 
-      vecSpikes.reserve( _dataOffset );
-
-      for (auto gIt = ids.begin() ; gIt != ids.end(); ++gIt, ++timesIt )
+      if(!ids.empty() && !times.empty())
       {
-        const auto nodeId = (*gIt).second.get_value<uint64_t>();
+        auto timesIt = times.begin();
+        vecSpikes.reserve(_dataOffset);
 
-        if(nodeId > RANGE_LIMIT)
+        for (auto gIt = ids.begin(); gIt != ids.end(); ++gIt, ++timesIt)
         {
-          ++rangeErrors;
-          continue;
-        }
+          const auto nodeId = (*gIt).second.get_value<uint64_t>();
 
-        const auto timestamp = static_cast<float>((*timesIt).second.get_value< double >( )) * _deltaTime;
+          if (nodeId > RANGE_LIMIT)
+          {
+            ++rangeErrors;
+            continue;
+          }
 
-        startTime = std::min(timestamp, startTime);
-        endTime = std::max(timestamp, endTime);
+          const auto timestamp = static_cast<float>((*timesIt).second.get_value<double>());
 
-        if ( timestamp == endTime )
-        {
-          vecSpikes.push_back( std::make_pair( timestamp, static_cast<uint32_t>( nodeId ) ) );
+          startTime = std::min(timestamp, startTime);
+          endTime = std::max(timestamp, endTime);
+
+          if (timestamp == endTime)
+          {
+            vecSpikes.push_back(
+                std::make_pair(timestamp, static_cast<uint32_t>(nodeId)));
+          }
         }
       }
     }
-    catch ( const std::exception& e )
+    catch (const std::exception &e)
     {
-      std::cerr << "callbackSpikes Exception JSON PARSER:  " << e.what( ) << "\n";
-      std::cerr << "received:\n" << contentdata.rdbuf( );
+      // @felix boost parser is known to be unreliable, upgrade if possible
+      std::cerr << "callbackSpikes Exception JSON PARSER:  " << e.what() << std::endl;
+
       return RESTResult::EXCEPTION;
     }
 
@@ -192,61 +200,70 @@ namespace simil
 
   LoaderRestData::RESTResult LoaderRestData::callbackNodeProperties( std::istream& contentdata )
   {
+    if(contentdata.eof()) return RESTResult::NODATA;
+
     SubsetMap populationMap;
     TGIDVect gids;
     TPosVect positions;
     unsigned long rangeErrors = 0;
 
-    boost::property_tree::ptree propertytree;
+    boost::property_tree::basic_ptree<std::string, std::string> propertytree;
     try
     {
-      boost::property_tree::read_json( contentdata, propertytree );
+      boost::property_tree::read_json(contentdata, propertytree);
+
+      auto &oldgids = _network->gids();
 
       // each propertyItem is a pair of property name and value.
       using propertyItem = std::pair<std::string, boost::property_tree::ptree>;
 
       auto insertProperty = [&](const propertyItem &prop)
       {
-        const auto gid = prop.second.get_child( "nodeId" ).get_value< uint64_t >( );
-        if(gid > RANGE_LIMIT)
+        const auto gid = prop.second.get_child("nodeId").get_value<uint64_t>();
+        if (gid > RANGE_LIMIT)
         {
           ++rangeErrors;
           return;
         }
+
+        if(oldgids.find(gid) != oldgids.end()) return;
+
         const auto gid32 = static_cast<uint32_t>(gid);
 
-        gids.push_back( gid32 );
+        gids.push_back(gid32);
 
         // according to the model the collectionId is a number.
-        const auto groupId = prop.second.get_child( "nodeCollectionId" ).get_value< uint64_t >( );
-        if(groupId > RANGE_LIMIT)
+        const auto groupId = prop.second.get_child("nodeCollectionId").get_value<
+            uint64_t>();
+        if (groupId > RANGE_LIMIT)
         {
           ++rangeErrors;
           return;
         }
         const auto groupId32 = static_cast<uint32_t>(groupId);
 
-        populationMap[ std::to_string(groupId32) ].push_back( gid32 );
+        populationMap[std::to_string(groupId32)].push_back(gid32);
 
-        const auto position = prop.second.get_child( "position" );
+        const auto position = prop.second.get_child("position");
 
         int i = 0;
-        float pos[ 3 ]{0, 0, 0};
+        float pos[3] { 0, 0, 0 };
         auto addPosition = [&i, &pos](const propertyItem &posIt)
         {
-          if(i < 3)
-            pos[ i++ ] = static_cast<float>( posIt.second.get_value< double >( ) );
+          if (i < 3)
+            pos[i++] = static_cast<float>(posIt.second.get_value<double>());
         };
         std::for_each(position.begin(), position.end(), addPosition);
 
-        positions.emplace_back( pos[ 0 ], pos[ 1 ], pos[ 2 ] );
+        positions.emplace_back(pos[0], pos[1], pos[2]);
       };
       std::for_each(propertytree.begin(), propertytree.end(), insertProperty);
     }
-    catch ( const std::exception& e )
+    catch (const std::exception &e)
     {
-      std::cerr << "callbackProperties Exception JSON PARSER:  " << e.what( ) << "\n";
-      std::cerr << "received:\n" << contentdata.rdbuf( );
+      // @felix boost parser is known to be unreliable, upgrade if possible
+      std::cerr << "callbackNodes Exception JSON PARSER:  " << e.what() << std::endl;
+
       return RESTResult::EXCEPTION;
     }
 
@@ -281,16 +298,16 @@ namespace simil
       switch ( result )
       {
         case RESTResult::NOTCONNECT:
-          std::this_thread::sleep_for( std::chrono::milliseconds( 1000 ) );
+          std::this_thread::sleep_for( std::chrono::milliseconds( 5000 ) );
           break;
         case RESTResult::EXCEPTION:
-          std::this_thread::sleep_for( std::chrono::milliseconds( 100 ) );
-          break;
-        case RESTResult::NODATA:
           std::this_thread::sleep_for( std::chrono::milliseconds( 1000 ) );
           break;
+        case RESTResult::NODATA:
+          std::this_thread::sleep_for( std::chrono::milliseconds( 5000 ) );
+          break;
         case RESTResult::NEWDATA:
-          std::this_thread::sleep_for( std::chrono::milliseconds( 100 ) );
+          std::this_thread::sleep_for( std::chrono::milliseconds( 1000 ) );
           break;
       }
     }
@@ -305,13 +322,13 @@ namespace simil
       switch ( result )
       {
         case RESTResult::NOTCONNECT:
-          std::this_thread::sleep_for( std::chrono::milliseconds( 1000 ) );
+          std::this_thread::sleep_for( std::chrono::milliseconds( 5000 ) );
           break;
         case RESTResult::EXCEPTION:
-          std::this_thread::sleep_for( std::chrono::milliseconds( 100 ) );
+          std::this_thread::sleep_for( std::chrono::milliseconds( 1000 ) );
           break;
         case RESTResult::NODATA:
-          std::this_thread::sleep_for( std::chrono::milliseconds( 30000 ) );
+          std::this_thread::sleep_for( std::chrono::milliseconds( 5000 ) );
           break;
         case RESTResult::NEWDATA:
           std::this_thread::sleep_for( std::chrono::milliseconds( 1000 ) );

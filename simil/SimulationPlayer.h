@@ -151,8 +151,6 @@ namespace simil
 
     TSimulationType _simulationType;
 
-    TGIDSet _gids;
-
 #ifdef SIMIL_USE_ZEROEQ
     ZeroEqEventsManager* _zeqEvents;
 #endif

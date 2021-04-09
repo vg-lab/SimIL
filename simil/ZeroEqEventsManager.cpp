@@ -94,13 +94,10 @@ void ZeroEqEventsManager::_onFrameEvent( /*lexis::render::ConstFramePtr event_*/
 
   assert( percentage >= 0.0f && percentage <= 1.0f );
   frameReceived( percentage );
-
-
 }
 
 void ZeroEqEventsManager::_setZeqSession( const std::string& session_ )
 {
-
   _session = session_.empty( ) ? zeroeq::DEFAULT_SESSION : session_;
 
   _zeroeqConnection = true;
@@ -120,7 +117,6 @@ void ZeroEqEventsManager::_setZeqSession( const std::string& session_ )
                           } );
 
   _thread = new std::thread( [&]() { while( true ) _subscriber->receive( 10000 );});
-
 }
 
 #endif

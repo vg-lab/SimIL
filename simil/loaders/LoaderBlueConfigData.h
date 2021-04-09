@@ -35,7 +35,7 @@ namespace simil
   {
   public:
     LoaderBlueConfigData( );
-    ~LoaderBlueConfigData( );
+    virtual ~LoaderBlueConfigData( );
 
     virtual SimulationData*
       loadSimulationData( const std::string& filePath_,

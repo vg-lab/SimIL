@@ -67,13 +67,11 @@ namespace simil
 
       if( wordList.size( ) < 3 || wordList.size( ) > 4 )
       {
-        std::cerr << std::endl
-                  << "CSV error in line: " << counter
-                  << ". Please check file format and make sure all lines match the following structure for each line:"
-                  << " '[GID,]X,Y,Z'"
-                  << " where the GID is an optional field, and  X,Y,Z are the 3D coordinates."
-                  << std::endl;
-        exit( -1 );
+      	const std::string errorText = std::string("CSV error in line: ") + std::to_string(counter) +
+      			                          std::string(". Please check file format and make sure all lines match the following structure for each line:") +
+																			std::string(" '[GID,]X,Y,Z' where the GID is an optional field, and  X,Y,Z are the 3D coordinates.");
+        std::cerr << errorText << std::endl;
+        throw std::runtime_error(errorText);
       }
 
       for( auto word : wordList )

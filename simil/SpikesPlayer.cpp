@@ -48,9 +48,7 @@ namespace simil
 
     _simData = data_;
 
-    _gids = _simData->gids( );
-
-    std::cout << "GID Set size: " << _gids.size( ) << std::endl;
+    std::cout << "GID Set size: " << gids().size( ) << std::endl;
 
     SpikeData* spikeData = dynamic_cast< SpikeData* >( _simData );
 
@@ -80,9 +78,7 @@ namespace simil
       _simData = data_;
       _network = net_;
 
-      _gids = _network->gids( );
-
-      std::cout << "GID Set size: " << _gids.size( ) << std::endl;
+      std::cout << "GID Set size: " << gids().size( ) << std::endl;
 
       SpikeData* spikeData = dynamic_cast< SpikeData* >( _simData );
 
