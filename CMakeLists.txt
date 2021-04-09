@@ -6,9 +6,8 @@
 #
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 cmake_minimum_required( VERSION 3.1 FATAL_ERROR )
-project( SimIL VERSION 0.2.0 )
+project( SimIL VERSION 0.2.1 )
 set( SimIL_VERSION_ABI 2)
-
 
 # Disable in source building
 if( "${PROJECT_SOURCE_DIR}" STREQUAL "${PROJECT_BINARY_DIR}" )
@@ -45,7 +44,7 @@ endif()
 
 option( SIMIL_WITH_REST_API
   "Enable REST API for data streaming input" OFF )
-
+  
 include( Common )
 
 common_find_package( vmmlib REQUIRED SYSTEM )

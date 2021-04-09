@@ -33,7 +33,7 @@ namespace simil
   {
   public:
     LoaderHDF5Data( );
-    ~LoaderHDF5Data( );
+    virtual ~LoaderHDF5Data( );
 
     virtual SimulationData*
       loadSimulationData( const std::string& networkFile,

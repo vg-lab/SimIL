@@ -32,8 +32,8 @@ namespace simil
   {
   public:
     LoaderSimData( )
-    {
-    }
+    {}
+
     virtual ~LoaderSimData( ) = 0;
 
     virtual SimulationData*

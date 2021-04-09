@@ -34,7 +34,7 @@ namespace simil
   {
   public:
     LoaderCSVData( );
-    ~LoaderCSVData( );
+    virtual ~LoaderCSVData( );
 
     virtual SimulationData*
       loadSimulationData( const std::string& activityFile,

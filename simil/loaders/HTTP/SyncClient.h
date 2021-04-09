@@ -30,67 +30,57 @@
 
 class HTTPSyncClient
 {
+  public:
+    HTTPSyncClient();
 
-public:
-  HTTPSyncClient( );
+    unsigned int get_status_code() const;
 
-  unsigned int get_status_code( ) const;
+    const std::string& get_status_message() const;
 
-  const std::string& get_status_message( ) const;
+    const std::map<std::string, std::string>& get_headers() const;
 
-  const std::map< std::string, std::string >& get_headers( );
+    std::istream& get_response();
 
-  std::istream& get_response( );
+    void set_host(const std::string &host);
 
-  void set_host( const std::string& host );
+    void set_port(unsigned int port);
 
-  void set_port( unsigned int port );
+    void set_uri(const std::string &uri);
 
-  void set_uri( const std::string& uri );
+    std::string get_host() const;
 
-  void set_userpointer( void* userpointer );
+    unsigned int get_port() const;
 
-  std::string get_host( ) const;
+    const std::string& get_uri() const;
 
-  unsigned int get_port( ) const;
+    int execute();
 
-  const std::string& get_uri( ) const;
+  private:
 
-  void* get_userpointer( ) const;
+    void set_status_code(unsigned int status_code);
 
-  int execute( );
+    void set_status_message(const std::string &status_message);
 
-private:
-  //boost::asio::streambuf& get_response_buf( );
+    void add_header(const std::string &name, const std::string &value);
 
-  void set_status_code( unsigned int status_code );
+  private:
+    // Request parameters.
+    std::string _host;
 
-  void set_status_message( const std::string& status_message );
+    std::string _uri;
 
-  void add_header( const std::string& name, const std::string& value );
+    unsigned int _port;
 
+    bool _was_cancelled;
 
-private:
+    unsigned int _status_code; // HTTP status code.
+    std::string _status_message; // HTTP status message.
 
-  // Request paramters.
-  std::string _host;
+    boost::asio::streambuf _response_buf;
+    std::istream _response_stream;
 
-
-  std::string _uri;
-
-  unsigned int _port;
-
-  bool _was_cancelled;
-
-  unsigned int _status_code; // HTTP status code.
-  std::string _status_message; // HTTP status message.
-
-  boost::asio::streambuf _response_buf;
-  std::istream _response_stream;
-  // Response headers.
-  std::map< std::string, std::string > _headers;
-
-
-  };
+    // Response headers.
+    std::map<std::string, std::string> _headers;
+};
 
 #endif // HTTPSYNCCLIENT_H
