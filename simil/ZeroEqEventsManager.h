@@ -77,14 +77,9 @@ protected:
   void _onFrameEvent( /*lexis::render::ConstFramePtr event_*/ );
   void _setZeqSession( const std::string& );
 
-
-  bool _zeroeqConnection;
-
   std::string _session;
   zeroeq::Subscriber* _subscriber;
   zeroeq::Publisher* _publisher;
-
-  pthread_t _subscriberThread;
 
   lexis::render::Frame _lastFrame;
   lexis::render::Frame _currentFrame;

@@ -21,6 +21,7 @@
  */
 
 #include "ZeroEqEventsManager.h"
+#include <cassert>
 
 ZeroEqEventsManager::ZeroEqEventsManager( const std::string&
 #ifdef SIMIL_USE_ZEROEQ
@@ -69,7 +70,7 @@ void ZeroEqEventsManager::sendFrame( const float& start, const float& end,
 void ZeroEqEventsManager::sendPlaybackOp( zeroeq::gmrv::PlaybackOperation operation ) const
 {
   zeroeq::gmrv::PlaybackOp op;
-  op.setOp(( uint32_t ) operation );
+  op.setOp( static_cast<uint32_t>(operation) );
   _publisher->publish( op );
 }
 
@@ -81,14 +82,11 @@ void ZeroEqEventsManager::_onPlaybackOpEvent( zeroeq::gmrv::ConstPlaybackOpPtr e
 
 void ZeroEqEventsManager::_onFrameEvent( /*lexis::render::ConstFramePtr event_*/ )
 {
-  float invDelta = 1.0f / float( _currentFrame.getDelta( ) );
+  const float invDelta = 1.0f / float( _currentFrame.getDelta( ) );
+  const float start = _currentFrame.getStart( ) * invDelta;
 
-  float start = _currentFrame.getStart( ) * invDelta;
-
-  float percentage;
-
-  percentage = ( float( _currentFrame.getCurrent( ) ) * invDelta - start )
-      / ( float( _currentFrame.getEnd( ) ) * invDelta - start );
+  const float percentage = ( static_cast<float>( _currentFrame.getCurrent( ) ) * invDelta - start )
+                         / ( static_cast<float>( _currentFrame.getEnd( ) ) * invDelta - start );
 
   _lastFrame = _currentFrame;
 
@@ -98,25 +96,33 @@ void ZeroEqEventsManager::_onFrameEvent( /*lexis::render::ConstFramePtr event_*/
 
 void ZeroEqEventsManager::_setZeqSession( const std::string& session_ )
 {
-  _session = session_.empty( ) ? zeroeq::DEFAULT_SESSION : session_;
+  try
+  {
+    _session = session_.empty( ) ? zeroeq::DEFAULT_SESSION : session_;
 
-  _zeroeqConnection = true;
+    _subscriber = new zeroeq::Subscriber( _session );
+    _publisher = new zeroeq::Publisher( _session );
 
-  _subscriber = new zeroeq::Subscriber( _session );
-  _publisher = new zeroeq::Publisher( _session );
+    _currentFrame.registerDeserializedCallback(
+        [&]( ){ _lastFrame = _currentFrame; _onFrameEvent( ); } );
 
-  _currentFrame.registerDeserializedCallback(
-      [&]( ){ _lastFrame = _currentFrame; _onFrameEvent( ); } );
+    _subscriber->subscribe( _currentFrame );
 
-  _subscriber->subscribe( _currentFrame );
+    _subscriber->subscribe( zeroeq::gmrv::PlaybackOp::ZEROBUF_TYPE_IDENTIFIER(),
+                            [&]( const void* data, const size_t size )
+                            {
+                              _onPlaybackOpEvent( zeroeq::gmrv::PlaybackOp::create( data, size ));
+                            } );
 
-  _subscriber->subscribe( zeroeq::gmrv::PlaybackOp::ZEROBUF_TYPE_IDENTIFIER(),
-                          [&]( const void* data, const size_t size )
-                          {
-                            _onPlaybackOpEvent( zeroeq::gmrv::PlaybackOp::create( data, size ));
-                          } );
-
-  _thread = new std::thread( [&]() { while( true ) _subscriber->receive( 10000 );});
+    _thread = new std::thread( [&]() { while( true ) _subscriber->receive( 10000 );});
+  }
+  catch(const std::exception &e)
+  {
+    std::cerr << "SimIL exception -> " << e.what() << " " << __FILE__ << ":" << __LINE__ << std::endl;
+    // No need to clean up as we're throwing from the constructor
+    // (if *new* fails memory is freed, no leak and no object).
+    throw;
+  }
 }
 
 #endif

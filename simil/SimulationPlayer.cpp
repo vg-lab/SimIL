@@ -319,10 +319,18 @@ namespace simil
 
   void SimulationPlayer::connectZeq( const std::string& zeqUri )
   {
-    _zeqEvents = new ZeroEqEventsManager( zeqUri );
+    try
+    {
+      _zeqEvents = new ZeroEqEventsManager( zeqUri );
 
-    _zeqEvents->frameReceived.connect( boost::bind( &SimulationPlayer::requestPlaybackAt,
-                                       this, _1 ));
+      _zeqEvents->frameReceived.connect( boost::bind( &SimulationPlayer::requestPlaybackAt,
+                                         this, _1 ));
+    }
+    catch(const std::exception &e)
+    {
+      _zeqEvents = nullptr;
+      throw;
+    }
   }
 
   void SimulationPlayer::requestPlaybackAt( float percentage )
@@ -332,7 +340,7 @@ namespace simil
 
   void SimulationPlayer::sendCurrentTimestamp( void )
   {
-    if( _playing )
+    if( _playing && _zeqEvents)
       _zeqEvents->sendFrame( _startTime, _endTime, _currentTime );
   }
 
