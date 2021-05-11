@@ -25,10 +25,8 @@
 #include <QFile>
 #include <QStringList>
 
-
 namespace simil
 {
-
   CSVNetwork::CSVNetwork( const std::string& filename,
                           char separator,
                           bool headerLine )
@@ -42,7 +40,6 @@ namespace simil
 
   void CSVNetwork::load( void )
   {
-
     QFile file( QString::fromStdString( _fileName));
     if( !file.open( QIODevice::ReadOnly | QFile::Text))
     {
@@ -74,7 +71,7 @@ namespace simil
         throw std::runtime_error(errorText);
       }
 
-      for( auto word : wordList )
+      for( const auto &word : wordList )
         stringLine.append( word.constData( ));
 
       vmml::Vector3f coordinates;
@@ -114,7 +111,6 @@ namespace simil
 
   void CSVNetwork::clear( void )
   {
-
   }
 
   simil::TGIDSet CSVNetwork::getGIDs( void ) const
@@ -126,6 +122,4 @@ namespace simil
   {
     return _positions;
   }
-
-
 }
