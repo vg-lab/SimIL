@@ -31,16 +31,10 @@ endif( )
 include(GitExternal)
 
 set( CMAKECOMMONTEMPLATE_DESCRIPTION "SimIL - Simulation Input/Output Library" )
-set( COMMON_PROJECT_DOMAIN gmrv.es )
+set( COMMON_PROJECT_DOMAIN es.vg-lab )
 
-option( SIMIL_OPTIONALS_AS_REQUIRED
-  "Force optional dependencies as required" OFF )
-
-if( SIMIL_OPTIONALS_AS_REQUIRED )
-  set( SIMIL_OPTS_FIND_ARGS "REQUIRED" )
-else()
-  set( SIMIL_OPTS_FIND_ARGS "" )
-endif()
+option( SIMIL_BRION_ENABLED
+  "Use Brion library to read BlueBrain data structures" OFF )
 
 option( SIMIL_WITH_REST_API
   "Enable REST API for data streaming input" OFF )
@@ -48,7 +42,9 @@ option( SIMIL_WITH_REST_API
 include( Common )
 
 common_find_package( vmmlib REQUIRED SYSTEM )
-common_find_package( Brion ${SIMIL_OPTS_FIND_ARGS} )
+if( SIMIL_BRION_ENABLED )
+  common_find_package( Brion REQUIRED )
+endif()
 common_find_package( HDF5 REQUIRED COMPONENTS C CXX SYSTEM )
 common_find_package( Boost REQUIRED COMPONENTS system )
 common_find_package( ZeroEQ )

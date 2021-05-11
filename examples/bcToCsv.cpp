@@ -2,6 +2,7 @@
  * Copyright (c) 2015-2020 VG-Lab/URJC.
  *
  * Authors: Sergio E. Galindo <sergio.galindo@urjc.es>
+ * Authors: Pablo Toharia <pablo.toharia@upm.es>
  *
  * This file is part of SimIL <https://github.com/vg-lab/SimIL>
  *
@@ -22,80 +23,97 @@
 
 #include <simil/simil.h>
 #include <iostream>
+#include <fstream>
+#include <locale>
+
+struct dotSeparator: std::numpunct<char>
+{
+    char do_decimal_point() const { return '.'; }
+};
 
 int main( int argc, char** argv )
 {
 
-  if( argc < 2 )
+  if( argc < 4 )
   {
-     std::cerr << "Error: a type and a file must be provided as input parameters."
-               << std::endl << std::endl;
-     std::cerr << "Usage: " << argv[0] << "sim_type input_file/s" << std::endl;
-     std::cerr << "       sim_type: -bc -h5" << std::endl;
+    std::cerr << "Usage: " << argv[0] << "in_blueconfig out_structure out_spikes"
+              << std::endl << std::endl;
     return  1 ;
   }
-  std::string simtype = argv[ 1 ];
-  std::string path = argv[ 2 ];
-  std::string secondaryPath;
-
-
-  simil::TDataType dataType( simil::TDataType::THDF5 );
-
-  if( simtype == "-bc")
-    dataType = simil::TDataType::TBlueConfig;
-  else if ( simtype == "-h5" )
-  {
-    if( argc < 4)
-    {
-      std::cerr << "Error: an activity file must be provided after network file" << std::endl;
-      return 1;
-    }
-
-    secondaryPath = argv[ 3 ];
-  }
+  std::string path = argv[ 1 ];
+  const auto dataType = simil::TDataType::TBlueConfig;
 
   std::cout << "--------------------------------------" << std::endl;
   std::cout << "Network" << std::endl;
   std::cout << "--------------------------------------" << std::endl;
-
-
-
   {
     simil::SimulationData simData( path, dataType );
-
-    simil::TGIDSet gids = simData.gids( );
-
+    const auto gids = simData.gidsVec( );
     std::cout << "Loaded GIDS: " << gids.size( ) << std::endl;
-
     simil::TPosVect positions = simData.positions( );
-
     std::cout << "Loaded positions: " << positions.size( ) << std::endl;
-  }
+    
+    std::ofstream structure;
+    structure.open(argv[2]);
 
+    if(structure.fail())
+    {
+      std::cerr << "Unable to create/open structure file: " << argv[2] << std::endl;
+      exit(-1);
+    }
+
+    auto loc = std::locale(structure.getloc(), new dotSeparator());
+    structure.imbue(loc);
+
+    for ( unsigned int i = 0; i < positions.size( ); ++i )
+    {
+      structure << gids.at(i) << ","
+                << positions[i].x( ) << ","
+                << positions[i].y( ) << ","
+                << positions[i].z( ) << std::endl;
+    }
+
+    structure.close();
+  }
+ 
   std::cout << "--------------------------------------" << std::endl;
   std::cout << "Spikes" << std::endl;
   std::cout << "--------------------------------------" << std::endl;
 
-  if(  dataType == simil::TDataType::TBlueConfig || !secondaryPath.empty( ))
   {
-    simil::SpikeData simData( path, dataType, secondaryPath );
-
+    simil::SpikeData simData( path, dataType );
     simil::TGIDSet gids = simData.gids( );
-
     std::cout << "Loaded GIDS: " << gids.size( ) << std::endl;
-
     simil::TPosVect positions = simData.positions( );
-
     std::cout << "Loaded positions: " << positions.size( ) << std::endl;
-
     simil::TSpikes spikes = simData.spikes( );
 
-    float startTime = simData.startTime( );
-    float endTime = simData.endTime( );
+    const float startTime = simData.startTime( );
+    const float endTime = simData.endTime( );
 
     std::cout << "Loaded spikes: " << spikes.size( ) << std::endl;
     std::cout << "Starting from " << startTime
               << " to " << endTime << std::endl;
+
+    std::ofstream spikesFile;
+    spikesFile.open(argv[3]);
+
+    if(spikesFile.fail())
+    {
+      std::cerr << "Unable to create/open spikes file: " << argv[3] << std::endl;
+      exit(-1);
+    }
+
+    auto loc = std::locale(spikesFile.getloc(), new dotSeparator());
+    spikesFile.imbue(loc);
+
+    auto writeSpike = [&spikesFile](const simil::Spike &spike)
+    {
+      spikesFile << spike.second << "," << spike.first << std::endl;
+    };
+    std::for_each(spikes.cbegin(), spikes.cend(), writeSpike);
+
+    spikesFile.close( );
   }
 
   std::cout << "--------------------------------------" << std::endl;
