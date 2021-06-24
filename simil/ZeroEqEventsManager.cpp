@@ -23,29 +23,29 @@
 #include "ZeroEqEventsManager.h"
 #include <cassert>
 
-ZeroEqEventsManager::ZeroEqEventsManager( const std::string&
-#ifdef SIMIL_USE_ZEROEQ
-                                    zeqSession_
-#endif
-                                  )
-{
+template<class T> void ignore( const T& ) { }
 
+ZeroEqEventsManager::ZeroEqEventsManager( const std::string& session )
+{
 #ifdef SIMIL_USE_ZEROEQ
-  _setZeqSession( zeqSession_ );
+  _setZeqSession( session );
+#else
+  ignore(session);
 #endif
 }
+
+#ifdef SIMIL_USE_ZEROEQ
+ZeroEqEventsManager::ZeroEqEventsManager( std::shared_ptr<zeroeq::Subscriber> subscriber, std::shared_ptr<zeroeq::Publisher> publisher )
+: _thread{nullptr}
+{
+  _setZeqSession(subscriber, publisher);
+}
+#endif
 
 ZeroEqEventsManager::~ZeroEqEventsManager( )
 {
 #ifdef SIMIL_USE_ZEROEQ
-  if( _thread )
-    delete _thread;
-
-  if( _publisher )
-    delete _publisher;
-
-  if( _subscriber )
-    delete _subscriber;
+  deinitializeZeroEQ();
 #endif
 }
 
@@ -54,7 +54,9 @@ ZeroEqEventsManager::~ZeroEqEventsManager( )
 void ZeroEqEventsManager::sendFrame( const float& start, const float& end,
                   const float& current ) const
 {
-  unsigned int factor = 10000;
+  if(!_publisher) return;
+
+  const unsigned int factor = 10000;
 
   lexis::render::Frame frame;
 
@@ -69,6 +71,8 @@ void ZeroEqEventsManager::sendFrame( const float& start, const float& end,
 #ifdef SIMIL_USE_GMRVLEX
 void ZeroEqEventsManager::sendPlaybackOp( zeroeq::gmrv::PlaybackOperation operation ) const
 {
+  if(!_publisher) return;
+
   zeroeq::gmrv::PlaybackOp op;
   op.setOp( static_cast<uint32_t>(operation) );
   _publisher->publish( op );
@@ -94,34 +98,84 @@ void ZeroEqEventsManager::_onFrameEvent( /*lexis::render::ConstFramePtr event_*/
   frameReceived( percentage );
 }
 
-void ZeroEqEventsManager::_setZeqSession( const std::string& session_ )
+void ZeroEqEventsManager::_setZeqSession( const std::string& session )
 {
+  deinitializeZeroEQ();
+
+  const auto zeqSession = session.empty() ? zeroeq::DEFAULT_SESSION : session;
+
   try
   {
-    _session = session_.empty( ) ? zeroeq::DEFAULT_SESSION : session_;
+    _subscriber = std::make_shared<zeroeq::Subscriber>( zeqSession );
+    _publisher = std::make_shared<zeroeq::Publisher>( zeqSession );
+  }
+  catch(const std::exception &e)
+  {
+    std::cerr << "ZeroEqEventsManager::_setZeqSession(string) -> " << e.what() << ". "
+              << __FILE__ << ":" << __LINE__ << std::endl;
+    // No need to clean up as we're throwing from the constructor
+    // (if *new* fails memory is freed, no leak and no object).
+    throw;
+  }
 
-    _subscriber = new zeroeq::Subscriber( _session );
-    _publisher = new zeroeq::Publisher( _session );
+  subscribeToEvents();
 
-    _currentFrame.registerDeserializedCallback(
-        [&]( ){ _lastFrame = _currentFrame; _onFrameEvent( ); } );
+  if(_subscriber)
+  {
+    _thread = new std::thread( [&](){ while( true ) { _subscriber->receive( 10000 ); } });
+  }
+}
 
+void ZeroEqEventsManager::_setZeqSession( std::shared_ptr<zeroeq::Subscriber> subscriber,
+                                          std::shared_ptr<zeroeq::Publisher> publisher)
+{
+  if(!subscriber && !publisher)
+  {
+    _setZeqSession(zeroeq::DEFAULT_SESSION);
+  }
+  else
+  {
+    deinitializeZeroEQ();
+
+    _subscriber = subscriber;
+    _publisher  = publisher;
+
+    subscribeToEvents();
+  }
+}
+
+void ZeroEqEventsManager::subscribeToEvents()
+{
+  _currentFrame.registerDeserializedCallback(
+      [&]( ){ _lastFrame = _currentFrame; _onFrameEvent( ); } );
+
+  if(_subscriber)
+  {
     _subscriber->subscribe( _currentFrame );
 
     _subscriber->subscribe( zeroeq::gmrv::PlaybackOp::ZEROBUF_TYPE_IDENTIFIER(),
                             [&]( const void* data, const size_t size )
-                            {
-                              _onPlaybackOpEvent( zeroeq::gmrv::PlaybackOp::create( data, size ));
-                            } );
-
-    _thread = new std::thread( [&]() { while( true ) _subscriber->receive( 10000 );});
+                            { _onPlaybackOpEvent( zeroeq::gmrv::PlaybackOp::create( data, size )); });
   }
-  catch(const std::exception &e)
+}
+
+void ZeroEqEventsManager::deinitializeZeroEQ()
+{
+  if( _thread )
   {
-    std::cerr << "SimIL exception -> " << e.what() << " " << __FILE__ << ":" << __LINE__ << std::endl;
-    // No need to clean up as we're throwing from the constructor
-    // (if *new* fails memory is freed, no leak and no object).
-    throw;
+    _thread->~thread();
+    delete _thread;
+  }
+
+  if( _publisher )
+  {
+    _publisher = nullptr;
+  }
+
+  if( _subscriber )
+  {
+    _subscriber->unsubscribe(zeroeq::gmrv::PlaybackOp::ZEROBUF_TYPE_IDENTIFIER());
+    _subscriber = nullptr;
   }
 }
 

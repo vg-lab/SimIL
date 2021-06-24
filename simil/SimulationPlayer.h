@@ -32,7 +32,6 @@
 #include <unordered_map>
 
 #ifdef SIMIL_USE_ZEROEQ
-
 #include <boost/signals2/signal.hpp>
 #include <boost/bind.hpp>
 #include "ZeroEqEventsManager.h"
@@ -119,9 +118,10 @@ namespace simil
 
 #ifdef SIMIL_USE_ZEROEQ
 
-    ZeroEqEventsManager* zeqEvents( void );
+    ZeroEqEventsManager* zeqEvents() const;
 
-    void connectZeq( const std::string& zeqUri );
+    void connectZeq( const std::string& session );
+    void connectZeq( std::shared_ptr<zeroeq::Subscriber> subscriber, std::shared_ptr<zeroeq::Publisher> publisher );
 
     void requestPlaybackAt( float percentage );
     void sendCurrentTimestamp( void );

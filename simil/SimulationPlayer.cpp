@@ -312,16 +312,33 @@ namespace simil
 
 #ifdef SIMIL_USE_ZEROEQ
 
-  ZeroEqEventsManager* SimulationPlayer::zeqEvents( void )
+  ZeroEqEventsManager* SimulationPlayer::zeqEvents() const
   {
     return _zeqEvents;
   }
 
-  void SimulationPlayer::connectZeq( const std::string& zeqUri )
+  void SimulationPlayer::connectZeq( const std::string& session )
   {
     try
     {
-      _zeqEvents = new ZeroEqEventsManager( zeqUri );
+      _zeqEvents = new ZeroEqEventsManager( session );
+
+      _zeqEvents->frameReceived.connect( boost::bind( &SimulationPlayer::requestPlaybackAt,
+                                         this, _1 ));
+    }
+    catch(const std::exception &e)
+    {
+      _zeqEvents = nullptr;
+      throw;
+    }
+  }
+
+  void SimulationPlayer::connectZeq( std::shared_ptr<zeroeq::Subscriber> subscriber,
+                                     std::shared_ptr<zeroeq::Publisher> publisher)
+  {
+    try
+    {
+      _zeqEvents = new ZeroEqEventsManager( subscriber, publisher );
 
       _zeqEvents->frameReceived.connect( boost::bind( &SimulationPlayer::requestPlaybackAt,
                                          this, _1 ));
@@ -345,4 +362,5 @@ namespace simil
   }
 
 #endif
+
 }

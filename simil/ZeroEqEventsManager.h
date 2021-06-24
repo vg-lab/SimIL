@@ -50,10 +50,11 @@ class SIMIL_API ZeroEqEventsManager
 {
 public:
 
-  ZeroEqEventsManager( const std::string& zeroeqUri_ );
+  ZeroEqEventsManager( const std::string &session );
   ~ZeroEqEventsManager( );
 
 #ifdef SIMIL_USE_ZEROEQ
+  ZeroEqEventsManager( std::shared_ptr<zeroeq::Subscriber> subscriber, std::shared_ptr<zeroeq::Publisher> publisher );
 
   boost::signals2::signal< void ( float ) > frameReceived;
   boost::signals2::signal< void ( unsigned int ) > playbackOpReceived;
@@ -73,18 +74,21 @@ protected:
 #endif
 
 protected:
-
   void _onFrameEvent( /*lexis::render::ConstFramePtr event_*/ );
-  void _setZeqSession( const std::string& );
+  void _setZeqSession( const std::string &session );
+  void _setZeqSession( std::shared_ptr<zeroeq::Subscriber> subscriber, std::shared_ptr<zeroeq::Publisher> publisher);
+  void deinitializeZeroEQ();
 
-  std::string _session;
-  zeroeq::Subscriber* _subscriber;
-  zeroeq::Publisher* _publisher;
+  std::shared_ptr<zeroeq::Subscriber> _subscriber;
+  std::shared_ptr<zeroeq::Publisher>  _publisher;
 
   lexis::render::Frame _lastFrame;
   lexis::render::Frame _currentFrame;
 
   std::thread* _thread;
+
+private:
+  void subscribeToEvents();
 
 #endif
 
