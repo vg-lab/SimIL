@@ -26,6 +26,9 @@
 template<class T> void ignore( const T& ) { }
 
 ZeroEqEventsManager::ZeroEqEventsManager( const std::string& session )
+#ifdef SIMIL_USE_ZEROEQ
+: _thread{nullptr}
+#endif
 {
 #ifdef SIMIL_USE_ZEROEQ
   _setZeqSession( session );
