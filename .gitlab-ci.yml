@@ -24,7 +24,6 @@ Ubuntu-master:
  tags:
   - ubuntu
 
-
 OSX:
  stage: build
  script:
@@ -39,7 +38,7 @@ OSX:
 Ubuntu-Optional-Deps:
  stage: build
  script:
-  - export CMAKE_EXTRA_ARGS="-DSIMIL_BRION_ENALED=ON -DCLONE_SUBPROJECTS=ON"
+  - export CMAKE_EXTRA_ARGS="-DSIMIL_BRION_ENALED=ON -DCLONE_SUBPROJECTS=ON -DSIMIL_WITH_REST_API=ON"
   - export BUILD_OPTIONALS_SUBPROJECTS=1
   - export BUILD_GENERATOR="Ninja"
   - bash .gitlabci.sh
@@ -50,7 +49,7 @@ OSX-Optional-Deps:
  stage: build
  script:
   - module load Qt-5.9.1
-  - export CMAKE_EXTRA_ARGS="-DSIMIL_BRION_ENABLED=ON -DCLONE_SUBPROJECTS=ON"
+  - export CMAKE_EXTRA_ARGS="-DSIMIL_BRION_ENABLED=ON -DCLONE_SUBPROJECTS=ON -DSIMIL_WITH_REST_API=ON"
   - export BUILD_OPTIONALS_SUBPROJECTS=1
   - export BUILD_GENERATOR="Ninja"
   - export CMAKE_OSX_ARCHITECTURES=x86_64
