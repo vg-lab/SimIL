@@ -71,8 +71,6 @@ class HTTPSyncClient
 
     unsigned int _port;
 
-    bool _was_cancelled;
-
     unsigned int _status_code; // HTTP status code.
     std::string _status_message; // HTTP status message.
 
