@@ -41,7 +41,7 @@ namespace qsimil
     Q_OBJECT
   public:
     QSimulationPlayer( QWidget *parent = 0 );
-    ~QSimulationPlayer( void );
+    virtual ~QSimulationPlayer( );
 
     void updateSlider( float percentage );
 
@@ -55,6 +55,7 @@ namespace qsimil
     void reset( void );
     void update( bool sendGIDS = false );
     void updateSimulationSlider( float percentage );
+    void updateSimulationSlider();
 
   protected:
     std::vector< uint32_t > _gidsSimulation;
@@ -81,8 +82,9 @@ namespace qsimil
     void _stop( bool notify = true );
     void _repeat( bool notify = true );
     void _playAt( bool notify = true );
-    void _playAt( float, bool notify = true );
-    void _playAt( int, bool notify = true );
+    void _playAtPercentage( float, bool notify = true );
+    void _playAtTime( float, bool notify = true);
+    void _playAtPosition( int, bool notify = true );
     void _restart( bool notify = true );
     void _goToEnd( bool notify = true );
   

@@ -54,15 +54,15 @@ namespace simil
 
       TSpikes::const_iterator result = begin( );
 
-      float perc =
+      const float perc =
           std::max( 0.0f, std::min( 1.0f, ( time - _startTime ) * _invTime ));
 
-      unsigned int index = std::floor( perc * _indexSize );
+      unsigned int index = perc * (_indexSize-1);
 
-      TSpikes::const_iterator ref = *( _references.begin( ) + index );
+      TSpikes::const_iterator ref = *( _references.cbegin( ) + index );
 
       TSpikes::const_iterator it = ref;
-      while( it->first < time )
+      while( it->first < time && it != end())
       {
         result = it;
         ++it;
@@ -114,10 +114,8 @@ namespace simil
       {
         while( spikeIt->first <= *limitIt && spikeIt != end( ))
         {
-
           last = spikeIt;
           ++spikeIt;
-
         }
 
         ref = last;

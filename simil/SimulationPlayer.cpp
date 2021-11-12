@@ -106,11 +106,10 @@ namespace simil
     {
       case TDataType::TBlueConfig:
       case TDataType::THDF5:
-      {
-        _simData = new SimulationData( networkPath_, dataType );
-      }
-      break;
-
+        {
+          _simData = new SimulationData( networkPath_, dataType );
+        }
+        break;
       default:
         break;
     }
@@ -128,14 +127,14 @@ namespace simil
 
     if (_network)
     {
-        delete _network;
-        _network = nullptr;
+      delete _network;
+      _network = nullptr;
     }
 
     if (_dataset)
     {
-        delete _dataset;
-        _dataset = nullptr;
+      delete _dataset;
+      _dataset = nullptr;
     }
   }
 
@@ -181,24 +180,31 @@ namespace simil
 
   void SimulationPlayer::GoTo( float timeStamp )
   {
-    const int aux = timeStamp / _deltaTime;
+    timeStamp = std::max(_startTime, std::min(timeStamp, _endTime));
 
-    _currentTime = aux * _deltaTime;
+    _currentTime = timeStamp;
     _previousTime = std::max( _currentTime - _deltaTime, _startTime );
 
-    _relativeTime = ( _currentTime - _startTime ) * _invTimeRange ;
+    _relativeTime = ( _currentTime - _startTime ) * _invTimeRange;
   }
 
-  void SimulationPlayer::PlayAt( float percentage )
+  void SimulationPlayer::PlayAtPercentage( float percentage )
   {
     assert( percentage >= 0.0f && percentage <= 1.0f );
 
     const float timeStamp = percentage * ( _endTime - _startTime ) + _startTime;
 
-    _currentTime = timeStamp;
+    PlayAtTime(timeStamp);
+  }
+
+  void SimulationPlayer::PlayAtTime(float time)
+  {
+    time = std::max(_startTime, std::min(time, _endTime));
+
+    _currentTime = time;
     _previousTime = std::max( _currentTime - _deltaTime, _startTime );
 
-    _relativeTime = percentage;
+    _relativeTime = ( _currentTime - _startTime ) * _invTimeRange;
 
     Play( );
   }
@@ -241,7 +247,7 @@ namespace simil
     return _endTime;
   }
 
-  float SimulationPlayer::currentTime( void )
+  float SimulationPlayer::currentTime( void ) const
   {
     return _currentTime;
   }
@@ -306,6 +312,11 @@ namespace simil
       else
         _invTimeRange = 1.0f;
 
+      _startTime = _simData->startTime();
+      _endTime = _simData->endTime();
+
+      _relativeTime = (_currentTime - _startTime) * _invTimeRange;
+
       _simData->cleanDirty();
     }
   }
@@ -350,9 +361,9 @@ namespace simil
     }
   }
 
-  void SimulationPlayer::requestPlaybackAt( float percentage )
+  void SimulationPlayer::requestPlaybackAt( float position )
   {
-    PlayAt( percentage );
+    PlayAtTime( position );
   }
 
   void SimulationPlayer::sendCurrentTimestamp( void )
@@ -360,7 +371,6 @@ namespace simil
     if( _playing && _zeqEvents)
       _zeqEvents->sendFrame( _startTime, _endTime, _currentTime );
   }
-
 #endif
 
 }
