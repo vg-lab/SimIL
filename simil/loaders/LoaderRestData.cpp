@@ -46,7 +46,7 @@ namespace simil
   , _network{ nullptr }
   , _waitForData{ false }
   , _deltaTime{ 0.1f }
-  , _dataOffset{ 500 }
+  , _dataOffset{ 1000 }
   , _spikesRead{ 0 }
   , _api{ Rest_API::NEST }
   { }
@@ -129,7 +129,7 @@ namespace simil
 
   LoaderRestData::RESTResult LoaderRestData::callbackSpikes( std::istream& contentdata )
   {
-    if(contentdata.eof()) return RESTResult::NODATA;
+    if(contentdata.eof() || contentdata.fail() || !_waitForData) return RESTResult::NODATA;
 
     SpikeData* _spikes = dynamic_cast< SpikeData* >( _simulationdata );
     TSpikes vecSpikes;
@@ -140,6 +140,8 @@ namespace simil
     try
     {
       boost::property_tree::read_json(contentdata, propertytree);
+
+      if(!_waitForData) return RESTResult::NODATA;
 
       startTime = _spikes->startTime();
       endTime = _spikes->endTime();
@@ -179,9 +181,10 @@ namespace simil
     {
       // @felix boost parser is known to be unreliable, upgrade if possible
       std::cerr << "callbackSpikes Exception JSON PARSER:  " << e.what() << std::endl;
-
       return RESTResult::EXCEPTION;
     }
+
+    if(!_waitForData) return RESTResult::NODATA;
 
     if ( !vecSpikes.empty() )
     {
@@ -200,7 +203,7 @@ namespace simil
 
   LoaderRestData::RESTResult LoaderRestData::callbackNodeProperties( std::istream& contentdata )
   {
-    if(contentdata.eof()) return RESTResult::NODATA;
+    if(contentdata.eof() || contentdata.fail() || !_waitForData) return RESTResult::NODATA;
 
     SubsetMap populationMap;
     TGIDVect gids;
@@ -211,6 +214,8 @@ namespace simil
     try
     {
       boost::property_tree::read_json(contentdata, propertytree);
+
+      if(!_waitForData) return RESTResult::NODATA;
 
       auto &oldgids = _network->gids();
 
@@ -225,6 +230,8 @@ namespace simil
           ++rangeErrors;
           return;
         }
+
+        if(!_waitForData) return;
 
         if(oldgids.find(gid) != oldgids.end()) return;
 
@@ -263,13 +270,19 @@ namespace simil
     {
       // @felix boost parser is known to be unreliable, upgrade if possible
       std::cerr << "callbackNodes Exception JSON PARSER:  " << e.what() << std::endl;
-
       return RESTResult::EXCEPTION;
     }
+
+    if(!_waitForData) return RESTResult::NODATA;
 
     if ( !gids.empty() )
     {
       _network->setNeurons( gids, positions );
+    }
+
+    if(gids.size() != positions.size())
+    {
+      std::cerr << "callbackNodeProperties: gids and positions mismatch (" << gids.size() << " != " << positions.size() << ")" << std::endl;
     }
 
     if ( !populationMap.empty() )

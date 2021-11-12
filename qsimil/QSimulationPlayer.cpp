@@ -184,9 +184,10 @@ namespace qsimil
     {
       _simPlayer->Stop( );
       _playButton->setIcon( _playIcon );
-      _startTimeLabel->setText( QString::number( 
-        (double)_simPlayer->startTime( ) ) );
       _playing = false;
+
+      const auto number = QString::number(_simPlayer->startTime(), 'g',3);
+      _startTimeLabel->setText( number);
 
       if( notify )
       {
@@ -221,35 +222,49 @@ namespace qsimil
   {
     if( _simPlayer )
     {
-      _playAt( _simSlider->sliderPosition( ), notify );
+      _playAtPosition( _simSlider->sliderPosition( ), notify );
     }
   }
 
-  void QSimulationPlayer::_playAt( float percentage, bool notify )
+  void QSimulationPlayer::_playAtPercentage( float percentage, bool notify )
   {
     if( _simPlayer )
     {
-      int sliderPos = percentage *
-        ( _simSlider->maximum( ) - _simSlider->minimum( )) +
-      _simSlider->minimum( );
+      const auto tBegin = _simPlayer->startTime();
+      const auto tEnd   = _simPlayer->endTime();
+      const auto timeStamp = percentage * (tEnd-tBegin) + tBegin;
 
-      _playAt( sliderPos, notify );
+      _playAtTime(timeStamp, notify);
     }
   }
 
-  void QSimulationPlayer::_playAt( int sliderPosition, bool notify )
+  void QSimulationPlayer::_playAtPosition( int sliderPosition, bool notify )
   {
     if( _simPlayer )
     {
-      int value = _simSlider->value( );
-      this->_percentage = float( value - _simSlider->minimum( ) ) /
-                 float( _simSlider->maximum( ) - 
-                _simSlider->minimum( ) );
-      _simSlider->setSliderPosition( sliderPosition );
+      const auto sMin = _simSlider->minimum();
+      const auto sMax = _simSlider->maximum();
+      sliderPosition = std::min(sMax, std::min(sMin, sliderPosition));
+      const auto percentage = static_cast<float>(sliderPosition - sMin) / (sMax-sMin);
+
+      _playAtPercentage(percentage, notify);
+    }
+  }
+
+  void QSimulationPlayer::_playAtTime(float timeStamp, bool notify)
+  {
+    if(_simPlayer)
+    {
+      const float tBegin = _simPlayer->startTime();
+      const float tEnd   = _simPlayer->endTime();
+      timeStamp = std::min(tEnd, std::max(tBegin, timeStamp));
+
+      const auto percentage = (timeStamp - tBegin) / (tEnd - tBegin);
+      updateSlider( percentage );
 
       _playButton->setIcon( _pauseIcon );
 
-      _simPlayer->PlayAt( this->_percentage );
+      _simPlayer->PlayAtTime(timeStamp);
       _playing = true;
       
       if( notify )
@@ -258,9 +273,9 @@ namespace qsimil
         if ( _simPlayer->zeqEvents( ))
         {
           // Send event
-          _simPlayer->zeqEvents( )->sendFrame( _simSlider->minimum( ),
-                                 _simSlider->maximum( ),
-                                 sliderPosition );
+          _simPlayer ->zeqEvents( )->sendFrame( _simPlayer->startTime(),
+                                                _simPlayer->endTime(),
+                                                _simPlayer->currentTime() );
 
           _simPlayer->zeqEvents( )->sendPlaybackOp( zeroeq::gmrv::PLAY );
         }
@@ -284,15 +299,8 @@ namespace qsimil
         _simPlayer->Play( );
         _playing = true;
       }
-      if( _playing )
-      {
-        _playButton->setIcon( _pauseIcon );
-      }
-      else
-      {
-        _playButton->setIcon( _playIcon );
 
-      }
+      _playButton->setIcon((_playing ? _pauseIcon : _playIcon));
 
       if( notify )
       {
@@ -325,12 +333,17 @@ namespace qsimil
   void QSimulationPlayer::updateSlider( float percentage )
   {
     this->_percentage = percentage;
-    int sliderPosition = percentage *
-        ( _simSlider->maximum( ) - _simSlider->minimum( )) +
-        _simSlider->minimum( );
+
+    const int sMax = _simSlider->maximum();
+    const int sMin = _simSlider->minimum();
+    const int sliderPosition = percentage * ( sMax - sMin) + sMin;
     _simSlider->setSliderPosition( sliderPosition );
-    _startTimeLabel->setText( QString::number( std::floor(
-      percentage * 100.0f * 100.f) / 100.f ) + QString( "%") );
+
+    const auto tBegin = _simPlayer->startTime();
+    const auto tEnd = _simPlayer->endTime();
+    const auto current = percentage * (tEnd-tBegin) + tBegin;
+    const auto number = QString::number(current, 'g',3);
+    _startTimeLabel->setText( number );
   }
 
 #ifdef SIMIL_USE_ZEROEQ
@@ -400,7 +413,7 @@ namespace qsimil
 
     updateSlider( 0.0f );
 
-    _startTimeLabel->setText( QString( "0.0%" ) );
+    _startTimeLabel->setText( QString( "0.0" ) );
 
     if ( autoStart ) 
     {
@@ -431,13 +444,11 @@ namespace qsimil
 
   void QSimulationPlayer::updateSimulationSlider( float percentage )
   {
-    _startTimeLabel->setText(
-      QString::number( (double)this->_simPlayer->currentTime( )) 
-      + QString("%"));
+    const auto number = QString::number( _simPlayer->currentTime( ), 'g',3);
+    _startTimeLabel->setText(number);
 
-    int total = _simSlider->maximum( ) - _simSlider->minimum( );
-
-    int position = percentage * total;
+    const int total = _simSlider->maximum( ) - _simSlider->minimum( );
+    const int position = percentage * total;
 
     _simSlider->setSliderPosition( position );
   }
@@ -446,10 +457,12 @@ namespace qsimil
   {
     return this->_playing;
   }
+
   float QSimulationPlayer::getPercentage( void ) const
   {
     return this->_percentage;
   }
+
   simil::SimulationPlayer* QSimulationPlayer::getSimulationPlayer( void ) const
   {
     return this->_simPlayer;

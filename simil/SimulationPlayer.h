@@ -88,7 +88,9 @@ namespace simil
 
     virtual void GoTo( float timeStamp );
 
-    virtual void PlayAt( float percentage );
+    virtual void PlayAtPercentage( float percentage );
+
+    virtual void PlayAtTime( float time );
 
     virtual float GetRelativeTime( void );
 
@@ -103,7 +105,7 @@ namespace simil
 
     float endTime( void );
 
-    float currentTime( void );
+    float currentTime( void ) const;
 
     void loop( bool loop );
     bool loop( void );

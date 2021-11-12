@@ -68,7 +68,8 @@ namespace simil
                            const std::string& activityPath = "" );
 
     virtual void Clear( void );
-    virtual void PlayAt( float percentage );
+    virtual void PlayAtTime(float timePos);
+    virtual void PlayAtPercentage( float percentage );
     virtual void Stop( void );
 
     virtual const Spikes& spikes( void );

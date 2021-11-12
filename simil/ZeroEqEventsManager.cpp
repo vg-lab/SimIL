@@ -59,7 +59,7 @@ void ZeroEqEventsManager::sendFrame( const float& start, const float& end,
 {
   if(!_publisher) return;
 
-  const unsigned int factor = 10000;
+  constexpr unsigned int factor = 10000;
 
   lexis::render::Frame frame;
 
@@ -78,6 +78,7 @@ void ZeroEqEventsManager::sendPlaybackOp( zeroeq::gmrv::PlaybackOperation operat
 
   zeroeq::gmrv::PlaybackOp op;
   op.setOp( static_cast<uint32_t>(operation) );
+
   _publisher->publish( op );
 }
 
@@ -89,16 +90,11 @@ void ZeroEqEventsManager::_onPlaybackOpEvent( zeroeq::gmrv::ConstPlaybackOpPtr e
 
 void ZeroEqEventsManager::_onFrameEvent( /*lexis::render::ConstFramePtr event_*/ )
 {
-  const float invDelta = 1.0f / float( _currentFrame.getDelta( ) );
-  const float start = _currentFrame.getStart( ) * invDelta;
-
-  const float percentage = ( static_cast<float>( _currentFrame.getCurrent( ) ) * invDelta - start )
-                         / ( static_cast<float>( _currentFrame.getEnd( ) ) * invDelta - start );
-
   _lastFrame = _currentFrame;
 
-  assert( percentage >= 0.0f && percentage <= 1.0f );
-  frameReceived( percentage );
+  const float value = static_cast<float>(_currentFrame.getCurrent()) / _currentFrame.getDelta();
+
+  frameReceived( value );
 }
 
 void ZeroEqEventsManager::_setZeqSession( const std::string& session )
@@ -125,7 +121,19 @@ void ZeroEqEventsManager::_setZeqSession( const std::string& session )
 
   if(_subscriber)
   {
-    _thread = new std::thread( [&](){ while( true ) { _subscriber->receive( 10000 ); } });
+    _thread = new std::thread( [&](){
+      while( true )
+      {
+        try
+        {
+          _subscriber->receive( 10000 );
+        }
+        catch(...)
+        {
+          return;
+        }
+      }
+    });
   }
 }
 
