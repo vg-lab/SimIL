@@ -48,9 +48,6 @@ namespace simil
       return;
     }
 
-//    if( _headerLine )
-//      file.readLine( );
-
     bool ok = false;
     bool includesGID = false;
     unsigned int counter = 0;
@@ -83,19 +80,18 @@ namespace simil
       unsigned int i = 0;
       for( auto word : stringLine )
       {
-
         if( includesGID && i == 0 )
         {
           ++i;
           continue;
         }
 
-        float value = word.toFloat( &ok );
+        const float value = word.toFloat( &ok );
 
         if( !ok )
           std::cout << "Warning: Value " << word.toStdString( ) << " not converted to float." << std::endl;
 
-        coordinates[ i - includesGID ] = value;
+        coordinates[ i - (includesGID ? 1:0) ] = value;
 
         i++;
       }
