@@ -92,8 +92,8 @@ namespace simil
       bool okGID;
       bool okTime;
 
-      unsigned int gidValue = gidString.toInt( &okGID );
-      float timeValue = timeString.toFloat( &okTime );
+      const unsigned int gidValue = gidString.toInt( &okGID );
+      const float timeValue = timeString.toFloat( &okTime );
 
       if( timeValue > endTime )
         endTime = timeValue;
@@ -106,7 +106,6 @@ namespace simil
         continue;
       }
 
-
       _spikes.insert( std::make_pair( timeValue, gidValue ));
 
       counter++;
@@ -118,7 +117,6 @@ namespace simil
     std::cout << "Read " << _spikes.size( ) << " values." << std::endl;
 
     file.close( );
-
   }
 
   TSpikes CSVSpikes::spikes( void )
@@ -141,6 +139,4 @@ namespace simil
   {
     return _endTime;
   }
-
-
 }

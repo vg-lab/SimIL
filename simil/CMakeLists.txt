@@ -69,9 +69,12 @@ endif( )
 
 if( SIMIL_WITH_REST_API )
     list( APPEND SIMIL_PUBLIC_HEADERS loaders/LoaderRestData.h
-                                      loaders/HTTP/SyncClient.h )
+                                      loaders/HTTP/SyncClient.h
+                                      loaders/jsoncpp/json/json.h 
+                                      loaders/jsoncpp/json/json-forwards.h )
     list( APPEND SIMIL_SOURCES loaders/LoaderRestData.cpp
-                               loaders/HTTP/SyncClient.cpp )
+                               loaders/HTTP/SyncClient.cpp
+                               loaders/jsoncpp/jsoncpp.cpp  )
   if(WIN32)
     set( SIMIL_LINK_LIBRARIES pthread ws2_32 ${SIMIL_LINK_LIBRARIES})
   endif(WIN32)

@@ -23,11 +23,12 @@
 #ifndef __SIMIL__LOADRESTAPIDATA_H__
 #define __SIMIL__LOADRESTAPIDATA_H__
 
+// Project
 #include "LoaderSimData.h"
-
-#include <mutex>
-#include <thread>
 #include <simil/api.h>
+
+// C++
+#include <thread>
 
 /** NOTES: updated to REST API 1.0 from https://github.com/VRGroupRWTH/insite/tree/develop/docs/api
  * NEST API only for now, pending ARBOR API and testing.
@@ -47,24 +48,42 @@ namespace simil
     virtual Network* loadNetwork( const std::string& url,
                                   const std::string& port ="" ) override;
 
-    void network( Network* network );
-
     void deltaTime( float deltaTime);
     float deltaTime();
-
-    void dataOffset( unsigned int offset);
-    unsigned int dataOffeset();
 
     /** \brief Implemented rest APIs.
      *
      */
     enum class Rest_API { NEST = 0, ARBOR };
 
-    /** \brief Sets the rest API to use for data retrieval from server.
+    /** \struct Configuration
+     * \brief Implements the REST API configuration.
      *
      */
-    inline void setRestAPI( const Rest_API value )
-    { _api = value; }
+    struct Configuration
+    {
+        Rest_API     api;        /** REST API, NEST or ARBOR.           */
+        std::string  url;        /** server url.                        */
+        unsigned int port;       /** server port.                       */
+        unsigned int waitTime;   /** wait time after a successful call. */
+        unsigned int failTime;   /** wait time after a failed call.     */
+        unsigned int spikesSize; /** amount of spikes to ask in a call. */
+
+        Configuration(): api(Rest_API::NEST), url("localhost"), port(28080),
+                         waitTime(5000), failTime(1000), spikesSize(1000)
+        {};
+    };
+
+    /** \brief Sets the REST connection options.
+     * \param[in] o Options struct reference.
+     *
+     */
+    void setConfiguration(const Configuration &o);
+
+    /** \brief Returns the REST connection options.
+     *
+     */
+    Configuration getConfiguration() const;
 
   protected:
     static const std::string ARBOR_PREFIX;   /** uri prefix to get arbor data from server. */
@@ -72,7 +91,7 @@ namespace simil
 
     enum class RESTResult
     {
-      NOTCONNECT = 0,
+      NOTCONNECTED = 0,
       EXCEPTION,
       NODATA,
       NEWDATA
@@ -95,7 +114,7 @@ namespace simil
      * \param[in] prefix server uri prefix.
      * \param[in] port server address port.
      */
-    RESTResult GETNodeProperties( const std::string& url, const std::string &prefix, const unsigned int port );
+    RESTResult getNodeProperties( const std::string& url, const std::string &prefix, const unsigned int port );
 
     /** \brief Get spikes information from then server.
      * \param[in] url server address
@@ -103,23 +122,21 @@ namespace simil
      * \param[in] port server address port.
      *
      */
-    RESTResult GETSpikes( const std::string& url, const std::string &prefix, const unsigned int port );
+    RESTResult getSpikes( const std::string& url, const std::string &prefix, const unsigned int port );
 
     /** \brief Helper method to get the uri prefix depending on the rest API used.
      *
      */
     std::string restAPIPrefix() const;
 
-    std::unique_ptr< LoaderRestData > _instance;
     std::thread _looperSpikes;
     std::thread _looperNetwork;
     SimulationData* _simulationdata;
     Network* _network;
     bool _waitForData;
     float _deltaTime;
-    unsigned int _dataOffset;
     unsigned int _spikesRead;
-    Rest_API _api;
+    Configuration m_config;
   };
 
 } // namespace simil

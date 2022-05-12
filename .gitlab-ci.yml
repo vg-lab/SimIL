@@ -24,16 +24,16 @@ Ubuntu-master:
  tags:
   - ubuntu
 
-OSX:
- stage: build
- script:
-  - module load Qt-5.9.1
-  - export CMAKE_EXTRA_ARGS=-DCLONE_SUBPROJECTS=ON
-  - export BUILD_GENERATOR="Ninja"
-  - export CMAKE_OSX_ARCHITECTURES=x86_64
-  - bash .gitlabci.sh
- tags:
-  - osx-sierra
+    #OSX:
+    # stage: build
+    # script:
+    #  - module load Qt-5.9.1
+    #  - export CMAKE_EXTRA_ARGS=-DCLONE_SUBPROJECTS=ON
+    #  - export BUILD_GENERATOR="Ninja"
+    #  - export CMAKE_OSX_ARCHITECTURES=x86_64
+    #  - bash .gitlabci.sh
+    # tags:
+    #  - osx-sierra
 
 Ubuntu-Optional-Deps:
  stage: build
@@ -45,14 +45,14 @@ Ubuntu-Optional-Deps:
  tags:
   - ubuntu
 
-OSX-Optional-Deps:
- stage: build
- script:
-  - module load Qt-5.9.1
-  - export CMAKE_EXTRA_ARGS="-DSIMIL_BRION_ENABLED=ON -DCLONE_SUBPROJECTS=ON -DSIMIL_WITH_REST_API=ON"
-  - export BUILD_OPTIONALS_SUBPROJECTS=1
-  - export BUILD_GENERATOR="Ninja"
-  - export CMAKE_OSX_ARCHITECTURES=x86_64
-  - bash .gitlabci.sh
- tags:
-  - osx-sierra
+    #OSX-Optional-Deps:
+    # stage: build
+    # script:
+    #  - module load Qt-5.9.1
+    #  - export CMAKE_EXTRA_ARGS="-DSIMIL_BRION_ENABLED=ON -DCLONE_SUBPROJECTS=ON -DSIMIL_WITH_REST_API=ON"
+    #  - export BUILD_OPTIONALS_SUBPROJECTS=1
+    #  - export BUILD_GENERATOR="Ninja"
+    #  - export CMAKE_OSX_ARCHITECTURES=x86_64
+    #  - bash .gitlabci.sh
+    # tags:
+    #  - osx-sierra

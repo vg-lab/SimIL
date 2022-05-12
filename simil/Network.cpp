@@ -180,20 +180,19 @@ namespace simil
 
   void Network::setNeurons( const TGIDVect& gids, const TPosVect& positions)
   {
-
-      for (unsigned int i = 0; i < gids.size();++i)
+    for (unsigned int i = 0; i < gids.size(); ++i)
+    {
+      unsigned int number = gids[i];
+      if (_gids.count(number) < 1)
       {
-          unsigned int number = gids[i];
-          if ( _gids.count( number ) < 1 )
-          {
-            _gids.insert( ( number ) );
-            _gidsV.push_back( number );
-            _positions.push_back(positions[i]);
+        _gids.insert((number));
+        _gidsV.push_back(number);
+        _positions.push_back(positions[i]);
 
-          }
       }
-      _gidSize = _positions.size();
+    }
 
+    _gidSize = _positions.size();
   }
 
   void Network::setSubset( SubsetEventManager subsets )

@@ -63,7 +63,6 @@ namespace simil
     _currentTime = _startTime;
 
     _invTimeRange = 1.0f / ( _endTime - _startTime);
-
   }
 
   void SpikesPlayer::LoadData( Network* net_ ,SimulationData* data_ )
@@ -121,7 +120,7 @@ namespace simil
 
   void SpikesPlayer::Stop( void )
   {
-   _checkSimData();
+    _checkSimData();
     SimulationPlayer::Stop( );
     _currentSpike = spikes( ).begin( );
     _previousSpike = _currentSpike;
