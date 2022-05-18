@@ -8,4 +8,5 @@
        spikes concurrently. 
   how: Forced to use C++11 by CMakeCommon cant use C++17 mutexes, use
        boost::shared_mutex with boost::shared_lock and boost::unique_lock.
+       Use std::distance to store iterators.
 
