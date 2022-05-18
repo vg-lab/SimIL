@@ -22,7 +22,7 @@
 
 #include "SimulationData.h"
 
-
+template<class T> void ignore_variable( const T& ) { }
 
 namespace simil
 {
@@ -41,7 +41,8 @@ namespace simil
   , _endTime( 0.0f )
   , _isDirty( false )
   {
-    target.size( ); // TODO remove this workaround to unused variable error
+    ignore_variable(target);
+
     switch ( dataType )
     {
       case TBlueConfig:

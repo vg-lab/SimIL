@@ -1,0 +1,11 @@
+@felix 18-05-2022
+
+1 what: TSpikes class needs safe concurrent read/write access.
+  why: LoaderRESTData adds spikes to TSpikes class while other classes like
+       SimulationPlayer uses (and keeps) iterators to access it. Iterators
+       will be invalidated when the data is reallocated and that will surely
+       happen as TSpikes only grows. ViSimpl histograms widgets also reads
+       spikes concurrently. 
+  how: Forced to use C++11 by CMakeCommon cant use C++17 mutexes, use
+       boost::shared_mutex with boost::shared_lock and boost::unique_lock.
+
