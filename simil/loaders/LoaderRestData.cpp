@@ -41,6 +41,8 @@ namespace simil
 
   LoaderRestData::LoaderRestData( )
   : LoaderSimData( )
+  , _looperSpikes([](){})
+  , _looperNetwork([](){})
   , _simulationdata{ nullptr }
   , _network{ nullptr }
   , _waitForData{ false }
@@ -74,6 +76,7 @@ namespace simil
     _simulationdata = new SpikeData( );
 
     _waitForData = true;
+    _looperSpikes.join();
     _looperSpikes = std::thread( &LoaderRestData::loopSpikes, this,
                                  serverUrl, restAPIPrefix(), serverPort );
 
@@ -98,6 +101,7 @@ namespace simil
     _network = new Network( );
 
     _waitForData = true;
+    _looperNetwork.join();
     _looperNetwork = std::thread( &LoaderRestData::loopNetwork, this,
                                   serverUrl, restAPIPrefix(), serverPort );
 
@@ -384,6 +388,36 @@ namespace simil
     std::cerr << "REST - SPIKES ERROR: " << client.get_status_message() << std::endl;
 
     return RESTResult::NOTCONNECTED;
+  }
+
+  struct LoaderRestData::Version LoaderRestData::getVersion(const std::string url, const unsigned int port)
+  {
+    struct Version result;
+    HTTPSyncClient client;
+
+    client.set_host( url );
+    client.set_uri( "/version" );
+    client.set_port( port );
+    const auto answer = client.execute();
+
+    if ( answer == boost::system::errc::success ) // Success
+    {
+      Json::Value root;
+
+      std::cout << "root " << root <<std::endl;
+
+      try
+      {
+        client.get_response() >> root;
+        result.api = root["api"].asString();
+        result.insite = root["insite"].asString();
+      }
+      catch(...)
+      {
+      }
+    }
+
+    return result;
   }
 
   std::string LoaderRestData::restAPIPrefix() const

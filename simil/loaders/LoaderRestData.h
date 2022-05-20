@@ -85,6 +85,17 @@ namespace simil
      */
     Configuration getConfiguration() const;
 
+    struct Version
+    {
+        std::string api;    /** the available endpoint versions for the REST API. */
+        std::string insite; /** specifies the version of the insite pipeline. */
+    };
+
+    /** \brief Returns the api version of the connection.
+     *
+     */
+    struct Version getVersion(const std::string url, const unsigned int port);
+
   protected:
     static const std::string ARBOR_PREFIX;   /** uri prefix to get arbor data from server. */
     static const std::string NEST_PREFIX;    /** uri prefix to get nest data from server.  */

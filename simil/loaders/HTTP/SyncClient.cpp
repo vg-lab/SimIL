@@ -21,6 +21,7 @@
  */
 
 #include "SyncClient.h"
+#include <boost/asio/buffer.hpp>
 
 #include <iostream>
 #include <istream>
@@ -150,6 +151,7 @@ const std::map< std::string, std::string >& HTTPSyncClient::get_headers( ) const
        // invalid response
        return boost::system::errc::bad_message;
      }
+
      if (_status_code != 200)
      {
        // failure
@@ -163,13 +165,17 @@ const std::map< std::string, std::string >& HTTPSyncClient::get_headers( ) const
      std::string header;
      while (std::getline(response_stream, header) && header != "\r")
      {
-       //std::cout << "header: " << header << "\n";
+       //std::cout << "header: " << header;
      }
-     //std::cout << "\n";
 
      // Write whatever content we already have to output.
-     //if (response.size() > 0)
-     //  std::cout << &response;
+     if (response.size() > 0)
+     {
+       while(std::getline(response_stream, header))
+       {
+         _response_buf.sputn(header.c_str(), header.size());
+       }
+     }
 
      // Read until EOF, writing data to output as we go.
      boost::system::error_code error;
