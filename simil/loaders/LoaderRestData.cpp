@@ -241,11 +241,12 @@ namespace simil
         populationMap[std::to_string(groupId32)].push_back(gid32);
 
         const auto position = props["position"];
-        if(props.isNull()) continue;
 
-        positions.emplace_back(position[0].asFloat(),
-                               position[1].asFloat(),
-                               position[2].asFloat());
+        vmml::Vector3f positionVec{0.,0.,0.};
+        for(unsigned int i = 0; i < position.size(); ++i)
+          positionVec[i] = position[i].asFloat();
+
+        positions.push_back(positionVec);
       }
     }
     catch (const std::exception &e)
@@ -273,7 +274,7 @@ namespace simil
     {
       auto addSubset = [this](const std::pair<std::string, GIDVec> &item)
       {
-        _network->subsetsEvents( )->addSubset( item.first, item.second );
+        _network->subsetsEvents( )->addSubset( std::string("Subset ") + item.first, item.second );
       };
       std::for_each(populationMap.cbegin(), populationMap.cend(), addSubset);
     }
@@ -340,7 +341,7 @@ namespace simil
     HTTPSyncClient client;
 
     client.set_host( url );
-    client.set_uri( prefix + "/nodes" );
+    client.set_uri( prefix + "/nodes/" );
     client.set_port( port );
     const auto answer = client.execute();
 
@@ -358,7 +359,7 @@ namespace simil
   {
     HTTPSyncClient client;
 
-    std::string uri( prefix + "/spikes?" );
+    std::string uri( prefix + "/spikes/?" );
     if( _spikesRead > 0 )
     {
       uri.append("skip=" );
@@ -396,15 +397,13 @@ namespace simil
     HTTPSyncClient client;
 
     client.set_host( url );
-    client.set_uri( "/version" );
+    client.set_uri( "/version/" );
     client.set_port( port );
     const auto answer = client.execute();
 
     if ( answer == boost::system::errc::success ) // Success
     {
       Json::Value root;
-
-      std::cout << "root " << root <<std::endl;
 
       try
       {
