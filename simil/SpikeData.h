@@ -41,12 +41,13 @@ namespace simil
   {
   public:
     SpikeData( );
-    SpikeData( const std::string& filePath, TDataType dataType,
+    SpikeData( const std::string& fPath, TDataType dataType,
                const std::string& report = "" );
 
     const Spikes& spikes( void ) const;
     void setSpikes( Spikes spikes );
     void addSpikes(TSpikes & spikes);
+    void clear();
     SpikeData* get( void );
 
     void reduceDataToGIDS( void );

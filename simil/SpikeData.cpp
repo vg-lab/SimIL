@@ -40,7 +40,6 @@ SpikeData::SpikeData()
   {
     return _target;
   }
-
 #endif
 
     SpikeData::SpikeData( const std::string& filePath_, TDataType dataType,
@@ -107,6 +106,13 @@ SpikeData::SpikeData()
   {
     _isDirty=true;
     _spikes = spikes;
+  }
+
+  void SpikeData::clear()
+  {
+    _isDirty = true;
+    _spikes.clear();
+    _startTime = _endTime = 0;
   }
 
   void SpikeData::reduceDataToGIDS( void )

@@ -46,15 +46,12 @@ namespace simil
   , _simulationdata{ nullptr }
   , _network{ nullptr }
   , _waitForData{ false }
-  , _deltaTime{ 0.1f }
   , _spikesRead{ 0 }
   { }
 
   LoaderRestData::~LoaderRestData( )
   {
-    _waitForData = false;
-    _looperSpikes.join( );
-    _looperNetwork.join( );
+    stopThreads();
   }
 
   SimulationData*
@@ -75,8 +72,9 @@ namespace simil
 
     _simulationdata = new SpikeData( );
 
+    if(_looperSpikes.joinable()) _looperSpikes.join();
+
     _waitForData = true;
-    _looperSpikes.join();
     _looperSpikes = std::thread( &LoaderRestData::loopSpikes, this,
                                  serverUrl, restAPIPrefix(), serverPort );
 
@@ -100,22 +98,13 @@ namespace simil
 
     _network = new Network( );
 
+    if(_looperNetwork.joinable()) _looperNetwork.join();
+
     _waitForData = true;
-    _looperNetwork.join();
     _looperNetwork = std::thread( &LoaderRestData::loopNetwork, this,
                                   serverUrl, restAPIPrefix(), serverPort );
 
     return _network;
-  }
-
-  void LoaderRestData::deltaTime( float deltaTime )
-  {
-    _deltaTime = deltaTime;
-  }
-
-  float LoaderRestData::deltaTime( )
-  {
-    return _deltaTime;
   }
 
   LoaderRestData::RESTResult LoaderRestData::callbackSpikes( std::istream& contentdata )
@@ -124,7 +113,8 @@ namespace simil
 
     TSpikes vecSpikes;
     auto _spikes = dynamic_cast< SpikeData* >( _simulationdata );
-    float startTime = 0, endTime = 0;
+    float startTime = 0;
+    float endTime = 0;
     unsigned long rangeErrors = 0;
     Json::Value root;
 
@@ -158,7 +148,7 @@ namespace simil
         startTime = std::min(timestamp, startTime);
         endTime = std::max(timestamp, endTime);
 
-        if (timestamp == endTime)
+        if (std::abs(timestamp - endTime) < std::numeric_limits<float>::epsilon())
         {
           vecSpikes.push_back(
               std::make_pair(timestamp, static_cast<uint32_t>(nodeId)));
@@ -343,6 +333,7 @@ namespace simil
     client.set_host( url );
     client.set_uri( prefix + "/nodes/" );
     client.set_port( port );
+
     const auto answer = client.execute();
 
     if ( answer == boost::system::errc::success ) // Success
@@ -374,6 +365,7 @@ namespace simil
     client.set_port( port );
 
     const auto answer = client.execute();
+
     if ( answer == boost::system::errc::success )
     {
       const auto result = callbackSpikes( client.get_response( ) );
@@ -426,20 +418,56 @@ namespace simil
 
   void LoaderRestData::setConfiguration(const Configuration &config)
   {
-    const bool differentURL = (m_config.url != config.url);
+    const bool isRunning = _waitForData;
+
+    stopThreads();
+
     m_config = config;
 
-    // NOTE: if running maybe the loop thread is stopped, so restart it.
-    if(_waitForData && differentURL)
+    if(isRunning)
     {
-      _spikesRead = 0;
-      loadNetwork(m_config.url, std::to_string(m_config.port));
+      _waitForData = true;
+
+      if(!_network || _network->gidsSize() == 0)
+      {
+        _looperSpikes = std::thread( &LoaderRestData::loopSpikes, this,
+                                     m_config.url, restAPIPrefix(), m_config.port );
+      }
+
+      _looperSpikes = std::thread( &LoaderRestData::loopSpikes, this,
+                                   m_config.url, restAPIPrefix(), m_config.port );
     }
   }
 
   LoaderRestData::Configuration LoaderRestData::getConfiguration() const
   {
     return m_config;
+  }
+
+  void LoaderRestData::resetSpikes()
+  {
+    if(_spikesRead == 0) return;
+
+    // reset spikes, maintain pointers.
+    stopThreads();
+
+    _spikesRead = 0;
+
+    auto spikes = dynamic_cast< SpikeData* >( _simulationdata );
+    spikes->clear();
+
+    _waitForData = true;
+
+    _looperSpikes = std::thread( &LoaderRestData::loopSpikes, this,
+                                 m_config.url, restAPIPrefix(), m_config.port );
+  }
+
+  void LoaderRestData::stopThreads()
+  {
+    _waitForData = false;
+
+    if(_looperSpikes.joinable())  _looperSpikes.join();
+    if(_looperNetwork.joinable()) _looperNetwork.join();
   }
 
 } // namespace simil

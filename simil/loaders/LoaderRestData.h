@@ -29,6 +29,7 @@
 
 // C++
 #include <thread>
+#include <atomic>
 
 /** NOTES: updated to REST API 1.0 from https://github.com/VRGroupRWTH/insite/tree/develop/docs/api
  * NEST API only for now, pending ARBOR API and testing.
@@ -47,9 +48,6 @@ namespace simil
 
     virtual Network* loadNetwork( const std::string& url,
                                   const std::string& port ="" ) override;
-
-    void deltaTime( float deltaTime);
-    float deltaTime();
 
     /** \brief Implemented rest APIs.
      *
@@ -96,6 +94,11 @@ namespace simil
      */
     struct Version getVersion(const std::string url, const unsigned int port);
 
+    /** \brief Empties the SpikesData class and restarts.
+     *
+     */
+    void resetSpikes();
+
   protected:
     static const std::string ARBOR_PREFIX;   /** uri prefix to get arbor data from server. */
     static const std::string NEST_PREFIX;    /** uri prefix to get nest data from server.  */
@@ -107,6 +110,11 @@ namespace simil
       NODATA,
       NEWDATA
     };
+
+    /** \brief Stops and joins network and spikes threads.
+     *
+     */
+    void stopThreads();
 
     /** Callback methods for processing JSON contents.
      *
@@ -144,9 +152,8 @@ namespace simil
     std::thread _looperNetwork;
     SimulationData* _simulationdata;
     Network* _network;
-    bool _waitForData;
-    float _deltaTime;
-    unsigned int _spikesRead;
+    std::atomic<bool> _waitForData;
+    std::atomic<unsigned int> _spikesRead;
     Configuration m_config;
   };
 
