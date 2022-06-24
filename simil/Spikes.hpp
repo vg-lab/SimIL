@@ -43,6 +43,10 @@ namespace simil
     Spikes( const TSpikes& other )
     : TSpikes( other )
     , _indexSize( 100 )
+    , _invTime( 0.0f )
+    , _delta( 1.0f )
+    , _startTime( 0.0f )
+    , _endTime( 0.0f )
     {
       buildIndex( );
     }
