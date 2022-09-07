@@ -155,13 +155,13 @@ namespace simil
   void SpikesPlayer::FrameProcess( void )
   {
     _checkSimData();
-    if (_endTime == _startTime)
+    _previousSpike = _currentSpike;
+
+    if (_endTime - _startTime < std::numeric_limits<float>::epsilon())
         return;
 
     const TSpikes& spikes_ = spikes( );
-    _previousSpike = _currentSpike;
     SpikesCIter last;
-
     SpikesCIter spike = _currentSpike;
     while( ( *spike ).first  < _currentTime )
     {
@@ -221,7 +221,6 @@ namespace simil
     end = spike;
 
     return std::make_pair( begin, end );
-
   }
 
   SpikesCRange SpikesPlayer::spikesNow( void )

@@ -92,8 +92,9 @@ namespace simil
 
     std::cout << "GID Set size: " << gids().size( ) << std::endl;
 
-    if (( _simData->endTime( ) - _simData->startTime( ))>0)
-        _invTimeRange = 1.0f / ( _simData->endTime( ) - _simData->startTime( ));
+    const auto timeDiff =  _simData->endTime( ) - _simData->startTime( );
+    if (timeDiff > 0)
+        _invTimeRange = 1.0f / timeDiff;
     else
         _invTimeRange = 1.0f;
   }
@@ -307,8 +308,9 @@ namespace simil
   {
     if (_simData && _simData->isDirty())
     {
-      if ((_simData->endTime() - _simData->startTime()) > 0)
-        _invTimeRange = 1.0f / (_simData->endTime() - _simData->startTime());
+      const auto timeDiff = _simData->endTime() - _simData->startTime();
+      if (timeDiff > 0)
+        _invTimeRange = 1.0f / timeDiff;
       else
         _invTimeRange = 1.0f;
 

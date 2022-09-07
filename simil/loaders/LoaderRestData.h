@@ -41,18 +41,23 @@ namespace simil
   {
   public:
     LoaderRestData( );
-    virtual ~LoaderRestData( );
-    virtual SimulationData*
-      loadSimulationData( const std::string& url,
-                          const std::string& port = "" ) override;
 
-    virtual Network* loadNetwork( const std::string& url,
-                                  const std::string& port ="" ) override;
+    virtual ~LoaderRestData( );
+
+    virtual SimulationData*
+    loadSimulationData( const std::string& url ,
+                        const std::string& port = "" ) override;
+
+    virtual Network* loadNetwork( const std::string& url ,
+                                  const std::string& port = "" ) override;
 
     /** \brief Implemented rest APIs.
      *
      */
-    enum class Rest_API { NEST = 0, ARBOR };
+    enum class Rest_API
+    {
+      NEST = 0 , ARBOR
+    };
 
     /** \struct Configuration
      * \brief Implements the REST API configuration.
@@ -60,80 +65,104 @@ namespace simil
      */
     struct Configuration
     {
-        Rest_API     api;        /** REST API, NEST or ARBOR.           */
-        std::string  url;        /** server url.                        */
-        unsigned int port;       /** server port.                       */
-        unsigned int waitTime;   /** wait time after a successful call. */
-        unsigned int failTime;   /** wait time after a failed call.     */
-        unsigned int spikesSize; /** amount of spikes to ask in a call. */
+      Rest_API api;        /** REST API, NEST or ARBOR.           */
+      std::string url;        /** server url.                        */
+      unsigned int port;       /** server port.                       */
+      unsigned int waitTime;   /** wait time after a successful call. */
+      unsigned int failTime;   /** wait time after a failed call.     */
+      unsigned int spikesSize; /** amount of spikes to ask in a call. */
 
-        Configuration(): api(Rest_API::NEST), url("localhost"), port(28080),
-                         waitTime(5000), failTime(1000), spikesSize(1000)
-        {};
+      Configuration( )
+        : api( Rest_API::NEST )
+        , url( "localhost" )
+        , port( 28080 )
+        , waitTime( 5000 )
+        , failTime( 1000 )
+        , spikesSize( 1000 )
+      { };
     };
 
     /** \brief Sets the REST connection options.
      * \param[in] o Options struct reference.
      *
      */
-    void setConfiguration(const Configuration &o);
+    void setConfiguration( const Configuration& o );
 
     /** \brief Returns the REST connection options.
      *
      */
-    Configuration getConfiguration() const;
+    Configuration getConfiguration( ) const;
 
     struct Version
     {
-        std::string api;    /** the available endpoint versions for the REST API. */
-        std::string insite; /** specifies the version of the insite pipeline. */
+      std::string api;    /** the available endpoint versions for the REST API. */
+      std::string insite; /** specifies the version of the insite pipeline. */
     };
 
     /** \brief Returns the api version of the connection.
      *
      */
-    struct Version getVersion(const std::string url, const unsigned int port);
+    struct Version
+    getVersion( const std::string url , const unsigned int port );
 
     /** \brief Empties the SpikesData class and restarts.
      *
      */
-    void resetSpikes();
+    void resetSpikes( );
 
   protected:
     static const std::string ARBOR_PREFIX;   /** uri prefix to get arbor data from server. */
     static const std::string NEST_PREFIX;    /** uri prefix to get nest data from server.  */
 
-    enum class RESTResult
+    enum class RESTResultType
     {
-      NOTCONNECTED = 0,
-      EXCEPTION,
-      NODATA,
+      NOTCONNECTED = 0 ,
+      EXCEPTION ,
+      NODATA ,
       NEWDATA
+    };
+
+    struct RESTResult
+    {
+      RESTResultType type;
+      bool stopThread;
+
+      RESTResult( RESTResultType type_ , bool stopThread_ )
+        : type( type_ )
+        , stopThread( stopThread_ )
+      {
+      }
     };
 
     /** \brief Stops and joins network and spikes threads.
      *
      */
-    void stopThreads();
+    void stopThreads( );
 
     /** Callback methods for processing JSON contents.
      *
      */
     RESTResult callbackSpikes( std::istream& contentdata );
+
     RESTResult callbackNodeProperties( std::istream& contentdata );
 
     /** Calling methods to request data from server.
      *
      */
-    void loopSpikes( const std::string &url, const std::string &prefix, const unsigned int port );
-    void loopNetwork( const std::string &url, const std::string &prefix, const unsigned int port );
+    void loopSpikes( const std::string& url , const std::string& prefix ,
+                     const unsigned int port );
+
+    void loopNetwork( const std::string& url , const std::string& prefix ,
+                      const unsigned int port );
 
     /** \brief Get the properties information from the server.
      * \param[in] url server address
      * \param[in] prefix server uri prefix.
      * \param[in] port server address port.
      */
-    RESTResult getNodeProperties( const std::string& url, const std::string &prefix, const unsigned int port );
+    RESTResult
+    getNodeProperties( const std::string& url , const std::string& prefix ,
+                       const unsigned int port );
 
     /** \brief Get spikes information from then server.
      * \param[in] url server address
@@ -141,19 +170,20 @@ namespace simil
      * \param[in] port server address port.
      *
      */
-    RESTResult getSpikes( const std::string& url, const std::string &prefix, const unsigned int port );
+    RESTResult getSpikes( const std::string& url , const std::string& prefix ,
+                          const unsigned int port );
 
     /** \brief Helper method to get the uri prefix depending on the rest API used.
      *
      */
-    std::string restAPIPrefix() const;
+    std::string restAPIPrefix( ) const;
 
     std::thread _looperSpikes;
     std::thread _looperNetwork;
     SimulationData* _simulationdata;
     Network* _network;
-    std::atomic<bool> _waitForData;
-    std::atomic<unsigned int> _spikesRead;
+    std::atomic< bool > _forceStop;
+    std::atomic< unsigned int > _spikesRead;
     Configuration m_config;
   };
 
