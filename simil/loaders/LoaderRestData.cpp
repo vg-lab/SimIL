@@ -32,84 +32,86 @@
 // JsonCpp
 #include "jsoncpp/json/json.h"
 
-constexpr uint64_t RANGE_LIMIT = std::numeric_limits<uint32_t>::max();
+constexpr uint64_t RANGE_LIMIT = std::numeric_limits< uint32_t >::max( );
 
 namespace simil
 {
-  const std::string LoaderRestData::ARBOR_PREFIX   = "/arbor";
-  const std::string LoaderRestData::NEST_PREFIX    = "/nest";
+  const std::string LoaderRestData::ARBOR_PREFIX = "/arbor";
+  const std::string LoaderRestData::NEST_PREFIX = "/nest";
 
   LoaderRestData::LoaderRestData( )
-  : LoaderSimData( )
-  , _looperSpikes([](){})
-  , _looperNetwork([](){})
-  , _simulationdata{ nullptr }
-  , _network{ nullptr }
-  , _waitForData{ false }
-  , _spikesRead{ 0 }
+    : LoaderSimData( )
+    , _looperSpikes( [ ]( )
+                     { } )
+    , _looperNetwork( [ ]( )
+                      { } )
+    , _simulationdata{ nullptr }
+    , _network{ nullptr }
+    , _forceStop{ false }
+    , _spikesRead{ 0 }
   { }
 
   LoaderRestData::~LoaderRestData( )
   {
-    stopThreads();
+    stopThreads( );
   }
 
   SimulationData*
-    LoaderRestData::loadSimulationData( const std::string& url,
-                                        const std::string& port )
+  LoaderRestData::loadSimulationData( const std::string& url ,
+                                      const std::string& port )
   {
-    auto serverUrl  = m_config.url;
+    auto serverUrl = m_config.url;
     unsigned int serverPort = m_config.port;
 
-    if ( !url.empty() )
+    if ( !url.empty( ))
       serverUrl = url;
 
-    if(!port.empty())
-      serverPort = stoi(port);
+    if ( !port.empty( ))
+      serverPort = stoi( port );
 
     m_config.url = serverUrl;
     m_config.port = serverPort;
 
     _simulationdata = new SpikeData( );
 
-    if(_looperSpikes.joinable()) _looperSpikes.join();
+    if ( _looperSpikes.joinable( )) _looperSpikes.join( );
 
-    _waitForData = true;
-    _looperSpikes = std::thread( &LoaderRestData::loopSpikes, this,
-                                 serverUrl, restAPIPrefix(), serverPort );
+    _looperSpikes = std::thread( &LoaderRestData::loopSpikes , this ,
+                                 serverUrl , restAPIPrefix( ) , serverPort );
 
     return _simulationdata;
   }
 
-  Network* LoaderRestData::loadNetwork( const std::string& url,
+  Network* LoaderRestData::loadNetwork( const std::string& url ,
                                         const std::string& port )
   {
-    auto serverUrl  = m_config.url;
+    auto serverUrl = m_config.url;
     unsigned int serverPort = m_config.port;
 
-    if ( !url.empty() )
+    if ( !url.empty( ))
       serverUrl = url;
 
-    if(!port.empty())
-      serverPort = stoi(port);
+    if ( !port.empty( ))
+      serverPort = stoi( port );
 
     m_config.url = serverUrl;
     m_config.port = serverPort;
 
     _network = new Network( );
 
-    if(_looperNetwork.joinable()) _looperNetwork.join();
+    if ( _looperNetwork.joinable( )) _looperNetwork.join( );
 
-    _waitForData = true;
-    _looperNetwork = std::thread( &LoaderRestData::loopNetwork, this,
-                                  serverUrl, restAPIPrefix(), serverPort );
+    _looperNetwork = std::thread( &LoaderRestData::loopNetwork , this ,
+                                  serverUrl , restAPIPrefix( ) , serverPort );
 
     return _network;
   }
 
-  LoaderRestData::RESTResult LoaderRestData::callbackSpikes( std::istream& contentdata )
+  LoaderRestData::RESTResult
+  LoaderRestData::callbackSpikes( std::istream& contentdata )
   {
-    if(contentdata.eof() || contentdata.fail() || !_waitForData) return RESTResult::NODATA;
+    if ( contentdata.eof( ) || contentdata.fail( ))
+      return { RESTResultType::NODATA , false };
 
     TSpikes vecSpikes;
     auto _spikes = dynamic_cast< SpikeData* >( _simulationdata );
@@ -121,69 +123,83 @@ namespace simil
     try
     {
       contentdata >> root;
-      if(!_waitForData || root.empty()) return RESTResult::NODATA;
 
-      const Json::Value nodeIds = root["nodeIds"];
-      const Json::Value times = root["simulationTimes"];
+      std::cout << root << std::endl;
+      if ( root.empty( ))
+        return { RESTResultType::NODATA , false };
 
-      if(!_waitForData || nodeIds.empty() || times.empty()) return RESTResult::NODATA;
+      const Json::Value nodeIds = root[ "nodeIds" ];
+      const Json::Value times = root[ "simulationTimes" ];
+      const Json::Value lastFrame = root[ "lastFrame" ];
 
-      startTime = _spikes->startTime();
-      endTime = _spikes->endTime();
-
-      vecSpikes.reserve(m_config.spikesSize);
-
-      for (unsigned int idx = 0; idx < nodeIds.size(); ++idx)
+      if ( nodeIds.empty( ) || times.empty( ))
       {
-        const auto nodeId = nodeIds[idx].asUInt64();
 
-        if (nodeId > RANGE_LIMIT)
+        return { RESTResultType::NODATA ,
+                 lastFrame.isBool( ) && lastFrame.asBool( ) };
+      }
+
+      startTime = _spikes->startTime( );
+      endTime = _spikes->endTime( );
+
+      vecSpikes.reserve( m_config.spikesSize );
+
+      for ( unsigned int idx = 0; idx < nodeIds.size( ); ++idx )
+      {
+        const auto nodeId = nodeIds[ idx ].asUInt64( );
+
+        if ( nodeId > RANGE_LIMIT )
         {
           ++rangeErrors;
           continue;
         }
 
-        const auto timestamp = static_cast<float>(times[idx].asDouble());
+        const auto timestamp = static_cast<float>(times[ idx ].asDouble( ));
 
-        startTime = std::min(timestamp, startTime);
-        endTime = std::max(timestamp, endTime);
+        startTime = std::min( timestamp , startTime );
+        endTime = std::max( timestamp , endTime );
 
-        if (std::abs(timestamp - endTime) < std::numeric_limits<float>::epsilon())
+        if ( std::abs( timestamp - endTime ) <
+             std::numeric_limits< float >::epsilon( ))
         {
           vecSpikes.push_back(
-              std::make_pair(timestamp, static_cast<uint32_t>(nodeId)));
+            std::make_pair( timestamp , static_cast<uint32_t>(nodeId)));
         }
       }
     }
-    catch (const std::exception &e)
+    catch ( const std::exception& e )
     {
-      auto message = std::string(e.what());
-      std::replace(message.begin(), message.end(), '\n', ' ');
-      std::cerr << "REST - NODES ERROR: callbackSpikes Exception JSON PARSER (" << message << ")" << std::endl;
+      auto message = std::string( e.what( ));
+      std::replace( message.begin( ) , message.end( ) , '\n' , ' ' );
+      std::cerr << "REST - NODES ERROR: callbackSpikes Exception JSON PARSER ("
+                << message << ")" << std::endl;
       std::cerr << "JSON ROOT is: " << root << std::endl;
-      return RESTResult::EXCEPTION;
+      return { RESTResultType::EXCEPTION , false };
     }
 
-    if(!_waitForData) return RESTResult::NODATA;
-
-    if ( !vecSpikes.empty() )
+    if ( !vecSpikes.empty( ))
     {
       _spikes->addSpikes( vecSpikes );
       _spikes->setStartTime( startTime );
       _spikes->setEndTime( endTime );
     }
 
-    if(rangeErrors > 0)
+    if ( rangeErrors > 0 )
     {
-      std::cerr << "REST - NODES ERROR: Node ids outside of uin32_t range: " << rangeErrors << std::endl;
+      std::cerr << "REST - NODES ERROR: Node ids outside of uin32_t range: "
+                << rangeErrors << std::endl;
     }
 
-    return vecSpikes.empty() ? RESTResult::NODATA : RESTResult::NEWDATA;
+    return {
+      vecSpikes.empty( ) ? RESTResultType::NODATA : RESTResultType::NEWDATA ,
+      false };
   }
 
-  LoaderRestData::RESTResult LoaderRestData::callbackNodeProperties( std::istream& contentdata )
+  LoaderRestData::RESTResult
+  LoaderRestData::callbackNodeProperties( std::istream& contentdata )
   {
-    if(contentdata.eof() || contentdata.fail() || !_waitForData) return RESTResult::NODATA;
+    if ( contentdata.eof( ) || contentdata.fail( ))
+      return { RESTResultType::NODATA , false };
 
     SubsetMap populationMap;
     TGIDVect gids;
@@ -195,138 +211,168 @@ namespace simil
     {
       contentdata >> root;
 
-      if(!_waitForData || root.empty() || root.isNull() || !root.isArray()) return RESTResult::NODATA;
+      if ( root.empty( ) || root.isNull( ) ||
+           !root.isArray( ))
+        return { RESTResultType::NODATA , false };
 
-      auto &oldgids = _network->gids();
+      auto& oldgids = _network->gids( );
 
-      for(unsigned int idx = 0; idx < root.size(); ++idx)
+      for ( unsigned int idx = 0; idx < root.size( ); ++idx )
       {
-        auto props = root[idx];
-        if(props.isNull()) continue;
+        auto props = root[ idx ];
+        if ( props.isNull( )) continue;
 
-        const auto gid = props["nodeId"].asUInt64();
-        if (gid > RANGE_LIMIT)
+        const auto gid = props[ "nodeId" ].asUInt64( );
+        if ( gid > RANGE_LIMIT )
         {
           ++rangeErrors;
           continue;
         }
 
-        if(!_waitForData) continue;
-
-        if(oldgids.find(gid) != oldgids.end()) continue;
+        if ( oldgids.find( gid ) != oldgids.end( )) continue;
 
         const auto gid32 = static_cast<uint32_t>(gid);
 
-        gids.push_back(gid32);
+        gids.push_back( gid32 );
 
         // according to the model the collectionId is a number.
-        const auto groupId = props["nodeCollectionId"].asUInt64();
-        if (groupId > RANGE_LIMIT)
+        const auto groupId = props[ "nodeCollectionId" ].asUInt64( );
+        if ( groupId > RANGE_LIMIT )
         {
           ++rangeErrors;
           continue;
         }
         const auto groupId32 = static_cast<uint32_t>(groupId);
 
-        populationMap[std::to_string(groupId32)].push_back(gid32);
+        populationMap[ std::to_string( groupId32 ) ].push_back( gid32 );
 
-        const auto position = props["position"];
+        const auto position = props[ "position" ];
 
-        vmml::Vector3f positionVec{0.,0.,0.};
-        for(unsigned int i = 0; i < position.size(); ++i)
-          positionVec[i] = position[i].asFloat();
+        vmml::Vector3f positionVec{ 0. , 0. , 0. };
+        for ( unsigned int i = 0; i < position.size( ); ++i )
+          positionVec[ i ] = position[ i ].asFloat( );
 
-        positions.push_back(positionVec);
+        positions.push_back( positionVec );
       }
     }
-    catch (const std::exception &e)
+    catch ( const std::exception& e )
     {
-      auto message = std::string(e.what());
-      std::replace(message.begin(), message.end(), '\n', ' ');
-      std::cerr << "REST - NODES ERROR: callbackNodes Exception JSON PARSER (" << message << ")" << std::endl;
+      auto message = std::string( e.what( ));
+      std::replace( message.begin( ) , message.end( ) , '\n' , ' ' );
+      std::cerr << "REST - NODES ERROR: callbackNodes Exception JSON PARSER ("
+                << message << ")" << std::endl;
       std::cerr << "JSON ROOT is: " << root << std::endl;
-      return RESTResult::EXCEPTION;
+      return { RESTResultType::EXCEPTION , false };
     }
 
-    if(!_waitForData) return RESTResult::NODATA;
-
-    if ( !gids.empty() )
+    if ( !gids.empty( ))
     {
-      _network->setNeurons( gids, positions );
+      _network->setNeurons( gids , positions );
     }
 
-    if(gids.size() != positions.size())
+    if ( gids.size( ) != positions.size( ))
     {
-      std::cerr << "REST - NODES ERROR: callbackNodeProperties gids and positions mismatch (" << gids.size() << " != " << positions.size() << ")" << std::endl;
+      std::cerr
+        << "REST - NODES ERROR: callbackNodeProperties gids and positions mismatch ("
+        << gids.size( ) << " != " << positions.size( ) << ")" << std::endl;
     }
 
-    if ( !populationMap.empty() )
+    if ( !populationMap.empty( ))
     {
-      auto addSubset = [this](const std::pair<std::string, GIDVec> &item)
+      auto addSubset = [ this ]( const std::pair< std::string , GIDVec >& item )
       {
-        _network->subsetsEvents( )->addSubset( std::string("Subset ") + item.first, item.second );
+        _network->subsetsEvents( )->addSubset(
+          std::string( "Subset " ) + item.first , item.second );
       };
-      std::for_each(populationMap.cbegin(), populationMap.cend(), addSubset);
+      std::for_each( populationMap.cbegin( ) , populationMap.cend( ) ,
+                     addSubset );
     }
 
-    if(rangeErrors > 0)
+    if ( rangeErrors > 0 )
     {
-      std::cerr << "REST - NODES ERROR: Node or group ids outside of uin32_t range (" << rangeErrors << ")" << std::endl;
+      std::cerr
+        << "REST - NODES ERROR: Node or group ids outside of uin32_t range ("
+        << rangeErrors << ")" << std::endl;
     }
 
-    return ( !gids.empty() || !populationMap.empty() ) ? RESTResult::NEWDATA : RESTResult::NODATA;
+    auto type = ( !gids.empty( ) || !populationMap.empty( ))
+                ? RESTResultType::NEWDATA
+                : RESTResultType::NODATA;
+    return { type , false };
   }
 
-  void LoaderRestData::loopSpikes( const std::string &url, const std::string &prefix, const unsigned int port )
+  void LoaderRestData::loopSpikes( const std::string& url ,
+                                   const std::string& prefix ,
+                                   const unsigned int port )
   {
-    while ( _waitForData )
-    {
-      const auto result = getSpikes( url, prefix, port );
 
-      switch ( result )
+    bool running = true;
+
+    while ( !_forceStop && running )
+    {
+      const auto result = getSpikes( url , prefix , port );
+      running = !result.stopThread;
+      std::cout << (int)result.type << ", " << result.stopThread << std::endl;
+      std::cout << m_config.waitTime << std::endl;
+      switch ( result.type )
       {
-        case RESTResult::NOTCONNECTED:
-          std::this_thread::sleep_for( std::chrono::milliseconds( m_config.failTime ) );
+        case RESTResultType::NOTCONNECTED:
+          std::this_thread::sleep_for(
+            std::chrono::milliseconds( m_config.failTime ));
           break;
-        case RESTResult::EXCEPTION:
-          std::this_thread::sleep_for( std::chrono::milliseconds( m_config.failTime ) );
+        case RESTResultType::EXCEPTION:
+          std::this_thread::sleep_for(
+            std::chrono::milliseconds( m_config.failTime ));
           break;
-        case RESTResult::NODATA:
-          std::this_thread::sleep_for( std::chrono::milliseconds( m_config.waitTime ) );
+        case RESTResultType::NODATA:
+          std::this_thread::sleep_for(
+            std::chrono::milliseconds( m_config.waitTime ));
           break;
-        case RESTResult::NEWDATA:
-          std::this_thread::sleep_for( std::chrono::milliseconds( m_config.waitTime ) );
+        case RESTResultType::NEWDATA:
+          std::this_thread::sleep_for(
+            std::chrono::milliseconds( m_config.waitTime ));
           break;
       }
     }
   }
 
-  void LoaderRestData::loopNetwork( const std::string &url, const std::string &prefix, const unsigned int port )
+  void LoaderRestData::loopNetwork( const std::string& url ,
+                                    const std::string& prefix ,
+                                    const unsigned int port )
   {
+    bool running = true;
+
     // NOTE: aborts after getting node positions, as NEST doesn't add new nodes later.
-    while ( _waitForData && _network->gidsSize() < 2)
+    while ( !_forceStop && running && _network->gidsSize( ) < 2 )
     {
-      const auto result = getNodeProperties( url, prefix, port );
-
-      switch ( result )
+      const auto result = getNodeProperties( url , prefix , port );
+      running = !result.stopThread;
+      switch ( result.type )
       {
-        case RESTResult::NOTCONNECTED:
-          std::this_thread::sleep_for( std::chrono::milliseconds( m_config.failTime ) );
+        case RESTResultType::NOTCONNECTED:
+          std::this_thread::sleep_for(
+            std::chrono::milliseconds( m_config.failTime ));
           break;
-        case RESTResult::EXCEPTION:
-          std::this_thread::sleep_for( std::chrono::milliseconds( m_config.failTime ) );
+        case RESTResultType::EXCEPTION:
+          std::this_thread::sleep_for(
+            std::chrono::milliseconds( m_config.failTime ));
           break;
-        case RESTResult::NODATA:
-          std::this_thread::sleep_for( std::chrono::milliseconds( m_config.waitTime ) );
+        case RESTResultType::NODATA:
+          std::this_thread::sleep_for(
+            std::chrono::milliseconds( m_config.waitTime ));
           break;
-        case RESTResult::NEWDATA:
-          std::this_thread::sleep_for( std::chrono::milliseconds( m_config.waitTime ) );
+        case RESTResultType::NEWDATA:
+          std::this_thread::sleep_for(
+            std::chrono::milliseconds( m_config.waitTime ));
           break;
       }
     }
   }
 
-  LoaderRestData::RESTResult LoaderRestData::getNodeProperties( const std::string &url, const std::string &prefix, const unsigned int port )
+  LoaderRestData::RESTResult
+  LoaderRestData::getNodeProperties( const std::string& url ,
+                                     const std::string& prefix ,
+                                     const unsigned int port )
   {
     HTTPSyncClient client;
 
@@ -334,56 +380,61 @@ namespace simil
     client.set_uri( prefix + "/nodes/" );
     client.set_port( port );
 
-    const auto answer = client.execute();
+    const auto answer = client.execute( );
 
     if ( answer == boost::system::errc::success ) // Success
     {
-      return callbackNodeProperties( client.get_response( ) );
+      return callbackNodeProperties( client.get_response( ));
     }
 
-    std::cerr << "REST - NODES ERROR: " << client.get_status_message() << std::endl;
+    std::cerr << "REST - NODES ERROR: " << client.get_status_message( )
+              << std::endl;
 
-    return RESTResult::NOTCONNECTED;
+    return { RESTResultType::NOTCONNECTED , false };
   }
 
-  LoaderRestData::RESTResult LoaderRestData::getSpikes( const std::string &url, const std::string &prefix, const unsigned int port )
+  LoaderRestData::RESTResult LoaderRestData::getSpikes( const std::string& url ,
+                                                        const std::string& prefix ,
+                                                        const unsigned int port )
   {
     HTTPSyncClient client;
 
     std::string uri( prefix + "/spikes/?" );
-    if( _spikesRead > 0 )
+    if ( _spikesRead > 0 )
     {
-      uri.append("skip=" );
-      uri.append( std::to_string( _spikesRead ) );
-      uri.append("&");
+      uri.append( "skip=" );
+      uri.append( std::to_string( _spikesRead ));
+      uri.append( "&" );
     }
     uri.append( "top=" );
-    uri.append( std::to_string( m_config.spikesSize ) );
+    uri.append( std::to_string( m_config.spikesSize ));
 
     client.set_host( url );
     client.set_uri( uri );
     client.set_port( port );
 
-    const auto answer = client.execute();
+    const auto answer = client.execute( );
 
     if ( answer == boost::system::errc::success )
     {
-      const auto result = callbackSpikes( client.get_response( ) );
-      if ( result == RESTResult::NEWDATA )
+      const auto result = callbackSpikes( client.get_response( ));
+      if ( result.type == RESTResultType::NEWDATA )
       {
         const auto spikes = dynamic_cast< SpikeData* >( _simulationdata );
-        if(spikes) _spikesRead = spikes->spikes().size();
+        if ( spikes ) _spikesRead = spikes->spikes( ).size( );
       }
 
       return result;
     }
 
-    std::cerr << "REST - SPIKES ERROR: " << client.get_status_message() << std::endl;
+    std::cerr << "REST - SPIKES ERROR: " << client.get_status_message( )
+              << std::endl;
 
-    return RESTResult::NOTCONNECTED;
+    return { RESTResultType::NOTCONNECTED , false };
   }
 
-  struct LoaderRestData::Version LoaderRestData::getVersion(const std::string url, const unsigned int port)
+  struct LoaderRestData::Version
+  LoaderRestData::getVersion( const std::string url , const unsigned int port )
   {
     struct Version result;
     HTTPSyncClient client;
@@ -391,7 +442,7 @@ namespace simil
     client.set_host( url );
     client.set_uri( "/version/" );
     client.set_port( port );
-    const auto answer = client.execute();
+    const auto answer = client.execute( );
 
     if ( answer == boost::system::errc::success ) // Success
     {
@@ -399,11 +450,11 @@ namespace simil
 
       try
       {
-        client.get_response() >> root;
-        result.api = root["api"].asString();
-        result.insite = root["insite"].asString();
+        client.get_response( ) >> root;
+        result.api = root[ "api" ].asString( );
+        result.insite = root[ "insite" ].asString( );
       }
-      catch(...)
+      catch ( ... )
       {
       }
     }
@@ -411,63 +462,57 @@ namespace simil
     return result;
   }
 
-  std::string LoaderRestData::restAPIPrefix() const
+  std::string LoaderRestData::restAPIPrefix( ) const
   {
     return m_config.api == Rest_API::NEST ? NEST_PREFIX : ARBOR_PREFIX;
   }
 
-  void LoaderRestData::setConfiguration(const Configuration &config)
+  void LoaderRestData::setConfiguration( const Configuration& config )
   {
-    const bool isRunning = _waitForData;
-
-    stopThreads();
+    stopThreads( );
 
     m_config = config;
 
-    if(isRunning)
+    if ( !_network || _network->gidsSize( ) == 0 )
     {
-      _waitForData = true;
-
-      if(!_network || _network->gidsSize() == 0)
-      {
-        _looperSpikes = std::thread( &LoaderRestData::loopSpikes, this,
-                                     m_config.url, restAPIPrefix(), m_config.port );
-      }
-
-      _looperSpikes = std::thread( &LoaderRestData::loopSpikes, this,
-                                   m_config.url, restAPIPrefix(), m_config.port );
+      _looperSpikes = std::thread( &LoaderRestData::loopSpikes , this ,
+                                   m_config.url , restAPIPrefix( ) ,
+                                   m_config.port );
     }
+
+    //_looperSpikes = std::thread( &LoaderRestData::loopSpikes , this ,
+    //                             m_config.url , restAPIPrefix( ) ,
+    //                             m_config.port );
   }
 
-  LoaderRestData::Configuration LoaderRestData::getConfiguration() const
+  LoaderRestData::Configuration LoaderRestData::getConfiguration( ) const
   {
     return m_config;
   }
 
-  void LoaderRestData::resetSpikes()
+  void LoaderRestData::resetSpikes( )
   {
-    if(_spikesRead == 0) return;
+    if ( _spikesRead == 0 ) return;
 
     // reset spikes, maintain pointers.
-    stopThreads();
+    stopThreads( );
 
     _spikesRead = 0;
 
     auto spikes = dynamic_cast< SpikeData* >( _simulationdata );
-    spikes->clear();
+    spikes->clear( );
 
-    _waitForData = true;
-
-    _looperSpikes = std::thread( &LoaderRestData::loopSpikes, this,
-                                 m_config.url, restAPIPrefix(), m_config.port );
+    _looperSpikes = std::thread( &LoaderRestData::loopSpikes , this ,
+                                 m_config.url , restAPIPrefix( ) ,
+                                 m_config.port );
   }
 
-  void LoaderRestData::stopThreads()
+  void LoaderRestData::stopThreads( )
   {
-    _waitForData = false;
-
-    if(_looperSpikes.joinable())  _looperSpikes.join();
-    if(_looperNetwork.joinable()) _looperNetwork.join();
+    _forceStop = true;
+    if ( _looperSpikes.joinable( )) _looperSpikes.join( );
+    if ( _looperNetwork.joinable( )) _looperNetwork.join( );
+    _forceStop = false;
   }
 
 } // namespace simil

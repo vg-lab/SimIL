@@ -6,7 +6,7 @@
 #
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 cmake_minimum_required( VERSION 3.1 FATAL_ERROR )
-project( SimIL VERSION 0.3.3 )
+project( SimIL VERSION 0.3.4 )
 set( SimIL_VERSION_ABI 2)
 
 # Disable in source building
