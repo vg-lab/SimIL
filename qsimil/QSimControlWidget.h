@@ -31,8 +31,10 @@
 #include <QLineEdit>
 #include <QLabel>
 #include <QElapsedTimer>
-#include <iostream>
 #include <QDoubleSpinBox>
+#include <QTimer>
+
+#include <iostream>
 
 #include <simil/simil.h>
 #include <boost/signals2.hpp>
@@ -43,34 +45,38 @@ namespace qsimil
 {
   class QSimControlWidget: public QWidget
   {
-    Q_OBJECT
+      Q_OBJECT
   public:
     QSimControlWidget( QWidget *parent = 0 );
 
     void init( const char* blueConfig, simil::TSimulationType type, 
       bool autoStart = false );
 
-    float getStepsPerSecond( void ) const;
-    float getStepDeltaTime( void ) const;
-    bool isPlaying( void ) const;
+    void init(simil::SimulationPlayer* player, bool autoStart = false);
+
+    float getStepsPerSecond() const;
+    float getStepDeltaTime() const;
+    bool isPlaying() const;
 
     void setStepsPerSecond(const float& d);
     void setStepDeltaTime(const float& dt);
-    void update( void );
-    void reset( void );
-    simil::SimulationPlayer * getSimulationPlayer( void );
+    void reset();
+    simil::SimulationPlayer * getSimulationPlayer();
+
+  signals:
+    void frame();
 
   public slots:
-    void onStepsPerSecondChanged( const QString& s_ );
-    void handleStepDeltaTimeUpdate( );
+    void onStepsPerSecondChanged(double);
+    void onDeltaTimeChanged(double);
+    void update();
 
   protected:
+    void updateValues( );
+
     float _stepsPerSecond;
     float _stepDeltaTime;
-    QLineEdit* _deltaTime;
-    QElapsedTimer counterNewFrame;
-
-    QDoubleSpinBox *stepPerSecond;
+    QTimer m_timer;
 
     QSimulationPlayer* _qSimPlayer;
 
