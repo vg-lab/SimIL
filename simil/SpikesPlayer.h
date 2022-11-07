@@ -91,8 +91,6 @@ namespace simil
 
     virtual void FrameProcess( void );
 
-    void Update();
-
     SpikesCIter _previousSpike;
     SpikesCIter _currentSpike;
 

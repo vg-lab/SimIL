@@ -37,7 +37,7 @@ namespace qsimil
                       QSizePolicy::MinimumExpanding );
       unsigned int totalHSpan = 20;
 
-      QGridLayout* dockLayout = new QGridLayout( this );
+      auto dockLayout = new QGridLayout( this );
 
       _simSlider = new ClickableSlider( Qt::Horizontal );
       _simSlider->setMinimum( 0 );
@@ -90,15 +90,14 @@ namespace qsimil
       unsigned int row = 2;
       dockLayout->addWidget( _startTimeLabel, row, 0, 1, 2 );
       dockLayout->addWidget( _simSlider, row, 2, 1, totalHSpan - 3 );
-      // dockLayout->addWidget( _endTimeLabel, row, totalHSpan - 
-      //      2, 1, 1, Qt::AlignRight );
+      dockLayout->addWidget( _endTimeLabel, row, 2+totalHSpan-3 +1, 1, 2);
 
       row++;
-      dockLayout->addWidget( _repeatButton, row, 6, 1, 1 );
-      dockLayout->addWidget( prevButton, row, 7, 1, 1 );
-      dockLayout->addWidget( _playButton, row, 8, 2, 2 );
-      dockLayout->addWidget( nextButton, row, 10, 1, 1 );
-      dockLayout->addWidget( stopButton, row, 11, 1, 1 );
+      dockLayout->addWidget( _repeatButton, row, 7, 1, 1 );
+      dockLayout->addWidget( prevButton, row, 8, 1, 1 );
+      dockLayout->addWidget( _playButton, row, 9, 2, 2 );
+      dockLayout->addWidget( nextButton, row, 11, 1, 1 );
+      dockLayout->addWidget( stopButton, row, 12, 1, 1 );
 
       _playing = false;
 
@@ -106,39 +105,35 @@ namespace qsimil
            this, SLOT( _playPause( )));
 
       connect( stopButton, SIGNAL( clicked( )),
-             this, SLOT( _Stop( )));
+             this, SLOT( _stop( )));
 
       connect( nextButton, SIGNAL( clicked( )),
-             this, SLOT( _GoToEnd( )));
+             this, SLOT( _goToEnd( )));
 
       connect( prevButton, SIGNAL( clicked( )),
              this, SLOT( _restart( )));
 
       connect( _repeatButton, SIGNAL( clicked( )),
-             this, SLOT( _Repeat( )));
+             this, SLOT( _repeat( )));
 
       connect( _simSlider, SIGNAL( sliderPressed( )),
            this, SLOT( _playAt( )));
 
-
-      // TODO: connect( _simSlider, SIGNAL( updateSlider( float )),
-      //       this, SLOT( updateSimulationSlider( float )));
-
       _percentage = 0.0f;
     }
   }
+
   QSimulationPlayer::~QSimulationPlayer( void )
   {
-    delete _simPlayer;
+    if(_simPlayer) delete _simPlayer;
   }
 
   void QSimulationPlayer::_playPause( bool notify )
   {
-    if ( _playing ) {
+    if ( _playing )
       _pause( notify );
-    } else {
+    else
       _play( notify );
-    }
   }
 
   void QSimulationPlayer::_play( bool notify )
@@ -149,7 +144,7 @@ namespace qsimil
       _playButton->setIcon( _pauseIcon );
       _playing = true;
 
-      updateSlider( 0.0f );
+      emit playing();
 
       if( notify )
       {
@@ -168,6 +163,9 @@ namespace qsimil
       _simPlayer->Pause( );
       _playButton->setIcon( _playIcon );
       _playing = false;
+
+      emit stopped();
+
       if( notify )
       {
     #ifdef SIMIL_USE_ZEROEQ
@@ -186,8 +184,10 @@ namespace qsimil
       _playButton->setIcon( _playIcon );
       _playing = false;
 
-      const auto number = QString::number(_simPlayer->startTime(), 'g',3);
+      const auto number = QString::number(_simPlayer->currentTime(),'f',3);
       _startTimeLabel->setText( number);
+
+      emit stopped();
 
       if( notify )
       {
@@ -266,7 +266,9 @@ namespace qsimil
 
       _simPlayer->PlayAtTime(timeStamp);
       _playing = true;
-      
+
+      emit playing();
+
       if( notify )
       {
 #ifdef SIMIL_USE_ZEROEQ
@@ -289,15 +291,20 @@ namespace qsimil
     if( _simPlayer )
     {
       updateSlider( 0.0f );
-      bool playing = _playing;
+      const bool currentlyPlaying = _playing;
       _simPlayer->Stop( );
       _playing = false;
+
+      emit stopped();
+
       _simSlider->setSliderPosition(_simSlider->minimum( ));
       // TODO: this->_icp->cpGoInit( );
-      if( playing )
+      if( currentlyPlaying )
       {
         _simPlayer->Play( );
         _playing = true;
+
+        emit playing();
       }
 
       _playButton->setIcon((_playing ? _pauseIcon : _playIcon));
@@ -316,9 +323,6 @@ namespace qsimil
   {
     if( _simPlayer )
     {
-      // TODO
-      _simSlider->setSliderPosition(_simSlider->maximum( ));
-      // TODO: this->_icp->cpGoEnd();
       updateSlider( 1.0f );
       if( notify )
       {
@@ -342,7 +346,7 @@ namespace qsimil
     const auto tBegin = _simPlayer->startTime();
     const auto tEnd = _simPlayer->endTime();
     const auto current = percentage * (tEnd-tBegin) + tBegin;
-    const auto number = QString::number(current, 'g',3);
+    const auto number = QString::number(current, 'f',3);
     _startTimeLabel->setText( number );
   }
 
@@ -361,16 +365,16 @@ namespace qsimil
         _play( false );
         break;
       case zeroeq::gmrv::PAUSE:
-        _Pause( false );
+        _pause( false );
         break;
       case zeroeq::gmrv::STOP:
-        _Stop( false );
+        _stop( false );
         break;
       case zeroeq::gmrv::BEGIN:
         _restart( false );
         break;
       case zeroeq::gmrv::END:
-        _GoToEnd( false );
+        _goToEnd( false );
         break;
       case zeroeq::gmrv::ENABLE_LOOP:
         _zeroeqEventRepeat( true );
@@ -405,7 +409,11 @@ namespace qsimil
         _simPlayer = new simil::SpikesPlayer();
         break;
       default:
-        std::cerr << "Error: Simulation type not supported." << std::endl;
+        {
+          const auto message = std::string("Error: Simulation type not supported.\n") +
+                               __FILE__ + ":" + std::to_string(__LINE__) + "\n";
+          throw std::runtime_error(message);
+        }
         return;
         break;
     }
@@ -413,13 +421,9 @@ namespace qsimil
 
     updateSlider( 0.0f );
 
-    _startTimeLabel->setText( QString( "0.0" ) );
+    _startTimeLabel->setText(QString( "0.0" ));
 
-    if ( autoStart ) 
-    {
-      this->_play( );
-
-    }
+    if ( autoStart ) this->_play( );
   }
 
   void QSimulationPlayer::reset( void )
@@ -432,21 +436,20 @@ namespace qsimil
   {
     _simPlayer->Frame();
 
+    emit frame();
+
     updateSimulationSlider ( this->_simPlayer->GetRelativeTime( ) );
 
     if ( sendGIDS )
     {
       // TODO
-      ((simil::SpikesPlayer*)_simPlayer)->spikesNowVect( _gidsSimulation );
-      // TODO: this->_icp->cpChangeGIDSimulation( _gidsSimulation );
+      //dynamic_cast<simil::SpikesPlayer*>(_simPlayer)->spikesNowVect(_gidsSimulation);
     }
   }
 
   void QSimulationPlayer::updateSimulationSlider( float percentage )
   {
-    const auto number = QString::number( _simPlayer->currentTime( ), 'g',3);
-    _startTimeLabel->setText(number);
-
+    updateSimulationSlider();
     const int total = _simSlider->maximum( ) - _simSlider->minimum( );
     const int position = percentage * total;
 
@@ -471,5 +474,32 @@ namespace qsimil
   void QSimulationPlayer::play( void )
   {
     _play( );
+  }
+
+  void QSimulationPlayer::init(simil::SimulationPlayer *player, bool autoStart)
+  {
+    if(!player) return;
+
+    if(_simPlayer) delete _simPlayer;
+
+    _simPlayer = player;
+
+    _startTimeLabel->setText(QString( "0.0" ));
+
+    const auto endTime = QString::number( _simPlayer->endTime(), 'f',3);
+    _endTimeLabel->setText(endTime);
+
+    updateSlider( 0.0f );
+
+    if ( autoStart ) this->_play( );
+  }
+
+  void QSimulationPlayer::updateSimulationSlider()
+  {
+    if(_simPlayer)
+    {
+      const auto number = QString::number( _simPlayer->currentTime( ), 'f',3);
+      _startTimeLabel->setText(number);
+    }
   }
 };

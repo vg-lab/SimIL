@@ -52,10 +52,16 @@ namespace qsimil
 
     void init( const char* blueConfig, 
       simil::TSimulationType type, bool autoStart = false );
+    void init(simil::SimulationPlayer *player, bool autoStart = false);
     void reset( void );
     void update( bool sendGIDS = false );
     void updateSimulationSlider( float percentage );
     void updateSimulationSlider();
+
+  signals:
+    void frame();
+    void playing();
+    void stopped();
 
   protected:
     std::vector< uint32_t > _gidsSimulation;

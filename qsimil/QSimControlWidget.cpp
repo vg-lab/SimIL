@@ -23,6 +23,7 @@
 
 #include "QSimControlWidget.h"
 #include <QGroupBox>
+#include <QGridLayout>
 #include <QHBoxLayout>
 #include <QDoubleSpinBox>
 
@@ -32,98 +33,103 @@ namespace qsimil
     : QWidget(parent_)
     , _qSimPlayer( new QSimulationPlayer( ))
   {
-    
-    QGridLayout * grid = new QGridLayout( );
+    auto grid = new QHBoxLayout( );
     this->setLayout(grid);
 
-    QGroupBox* groupBox = new QGroupBox( tr("Simulation params") );
+    auto groupBox = new QGroupBox( tr("Simulation parameters") );
     groupBox->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Fixed);
 
-    grid->addWidget(groupBox);
+    grid->addWidget(groupBox, 0);
 
-    QHBoxLayout* hbox = new QHBoxLayout();
+    auto hbox = new QVBoxLayout();
     groupBox->setLayout(hbox);
 
-    hbox->addWidget(new QLabel( tr( "StepsPerSecond" )));
+    auto hLayout = new QHBoxLayout();
+    hLayout->addWidget(new QLabel( tr( "Steps/Second" )));
+    auto stepPerSecond = new QDoubleSpinBox( );
 
-    stepPerSecond = new QDoubleSpinBox( );
-    hbox->addWidget( stepPerSecond );
-    stepPerSecond->setSingleStep( 0.01 );
+    hLayout->addWidget( stepPerSecond);
+    stepPerSecond->setValue(1.0);
+    stepPerSecond->setSingleStep( 1 );
 
-    connect( stepPerSecond, SIGNAL( valueChanged(const QString&)), 
-      this, SLOT( onStepsPerSecondChanged(const QString& )));
+    connect( stepPerSecond, SIGNAL( valueChanged(double)),
+             this, SLOT( onStepsPerSecondChanged(double)));
+
+    hbox->addLayout(hLayout);
     
-    _deltaTime = new QLineEdit();
-    _deltaTime->setText( "0.25" );
-    hbox->addWidget(new QLabel( tr( "StepDeltaTime" ) ) );
-    hbox->addWidget( _deltaTime );
+    hLayout = new QHBoxLayout();
+    auto deltaTime = new QDoubleSpinBox();
+    deltaTime->setValue(0.25);
+    hLayout->addWidget(new QLabel( tr( "Step Delta Time" )));
+    hLayout->addWidget( deltaTime);
 
-    auto updateWindow = new QPushButton( tr( "Update" ) );
-    hbox->addWidget( updateWindow );
+    connect( deltaTime, SIGNAL( valueChanged(double)),
+             this, SLOT( onDeltaTimeChanged(double)));
 
-    connect( updateWindow, SIGNAL ( released( ) ), 
-      this, SLOT ( handleStepDeltaTimeUpdate() ) );
+    hbox->addLayout(hLayout);
 
-
-    QGroupBox* renderFuncMode = new QGroupBox( );
+    auto renderFuncMode = new QGroupBox( );
     renderFuncMode->setSizePolicy(QSizePolicy::Preferred, 
       QSizePolicy::Fixed);
 
-    grid->addWidget(renderFuncMode);
+    grid->addWidget(renderFuncMode, 1);
     QVBoxLayout* vlayout = new QVBoxLayout;
     renderFuncMode->setLayout( vlayout );
     
     vlayout->addWidget( _qSimPlayer );
+
+    connect(_qSimPlayer, SIGNAL(frame()), this, SIGNAL(frame()));
+
+    m_timer.setInterval(1000);
+    m_timer.setSingleShot(false);
+    connect(&m_timer, SIGNAL(timeout()), this, SLOT(update()));
+    connect(_qSimPlayer, SIGNAL(playing()), &m_timer, SLOT(start()));
+    connect(_qSimPlayer, SIGNAL(stopped()), &m_timer,  SLOT(stop()));
   }
 
-  void QSimControlWidget::onStepsPerSecondChanged( const QString& s_ )
+  void QSimControlWidget::onStepsPerSecondChanged(double d)
   {
-    // std::cout << "VEL: " << s_.toFloat( ) << std::endl;
-    QString v = s_ ; // s_.mid(1);  // Remove "x"
-    float v_ = 1000.0 / v.toFloat( );
-    this->setStepsPerSecond( v_ );
+    _stepsPerSecond = d;
+    updateValues();
   }
 
-  void QSimControlWidget::handleStepDeltaTimeUpdate( )
+  void QSimControlWidget::updateValues( )
   {
-    float value = this->_deltaTime->text().toFloat( );
-    this->setStepDeltaTime( value );
+    if(getSimulationPlayer())
+    {
+      getSimulationPlayer()->deltaTime( this->_stepsPerSecond * this->_stepDeltaTime );
+    }
   }
 
   void QSimControlWidget::init( const char* blueConfig, 
     simil::TSimulationType type, bool autoStart )
   {
     this->_qSimPlayer->init( blueConfig, type, autoStart );
-    this->counterNewFrame.start( );
-    this->_qSimPlayer->getSimulationPlayer( )->deltaTime( 
-      this->getStepsPerSecond( ) );
 
-    this->stepPerSecond->setValue( 1.00 );
-    this->handleStepDeltaTimeUpdate();
+    _stepsPerSecond = 1.0;
+    _stepDeltaTime = 0.25;
+    updateValues();
   }
 
   void QSimControlWidget::setStepsPerSecond(const float& d)
   {
     this->_stepsPerSecond = d;
+    updateValues();
   }
 
   void QSimControlWidget::setStepDeltaTime(const float& dt)
   {
     this->_stepDeltaTime = dt;
-    this->getSimulationPlayer( )->deltaTime( this->_stepDeltaTime );
-    this->_qSimPlayer->play( );
+    this->getSimulationPlayer( )->deltaTime( this->_stepsPerSecond * this->_stepDeltaTime );
+
+    if(_qSimPlayer->isPlaying()) this->_qSimPlayer->play( );
   }
 
   void QSimControlWidget::update( )
   {
-    if( counterNewFrame.elapsed( ) > getStepsPerSecond( ) )
+    if ( this->isPlaying( ) )
     {
-      counterNewFrame.restart( );
-
-      if ( this->isPlaying( ) )
-      {
-        this->_qSimPlayer->update( true );
-      }
+      this->_qSimPlayer->update( true );
     }
   }
 
@@ -141,12 +147,30 @@ namespace qsimil
   {
     return this->_stepsPerSecond;
   }
+
   float QSimControlWidget::getStepDeltaTime( void ) const 
   {
     return this->_stepDeltaTime;
   }
+
   bool QSimControlWidget::isPlaying( void ) const 
   {
     return this->_qSimPlayer->isPlaying( );
   }
+
+  void QSimControlWidget::init(simil::SimulationPlayer *player, bool autoStart)
+  {
+    _qSimPlayer->init(player, autoStart);
+
+    _stepsPerSecond = 1.0;
+    _stepDeltaTime = 0.25;
+    updateValues();
+  }
+
+  void QSimControlWidget::onDeltaTimeChanged(double d)
+  {
+    _stepDeltaTime = d;
+    updateValues();
+  }
+
 };
