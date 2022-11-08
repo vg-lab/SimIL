@@ -55,6 +55,8 @@ list( APPEND SIMIL_DEPENDENT_LIBRARIES HDF5 vmmlib Boost )
 
 if( BRION_FOUND )
   list( APPEND SIMIL_DEPENDENT_LIBRARIES Brion )
+  add_compile_definitions(SIMIL_USE_BRION)
+  include_directories(${BRION_INCLUDE_DIRS})
 endif()
 
 if( ZEROEQ_FOUND )
