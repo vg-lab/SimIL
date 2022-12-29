@@ -22,18 +22,18 @@
 
 
 #include "H5Activity.h"
+#include <cassert>
 
-#include <assert.h>
+const char RECORDERS_TAG[]="recorders/soma_spikes";
 
 namespace simil
 {
-
-  H5Activity::H5Activity( const H5Network& network,
+  H5Activity::H5Activity( H5Network& network,
               const std::string& fileName_,
-              const std::string& pattern_ )
+              const std::string & pattern_ )
   : _fileName( fileName_ )
   , _pattern( pattern_ )
-  , _network( &network )
+  , _network( network )
   { }
 
   H5Activity::~H5Activity( void )
@@ -51,9 +51,9 @@ namespace simil
   }
 
 
-  H5Spikes::H5Spikes( const H5Network& network,
+  H5Spikes::H5Spikes(  H5Network& network,
             const std::string& fileName_,
-            const std::string& pattern_ )
+            const std::string & pattern_ )
   : H5Activity( network, fileName_, pattern_ )
   , _startTime( 0.f )
   , _endTime( 0.f )
@@ -65,8 +65,6 @@ namespace simil
 
   void H5Spikes::Load( void )
   {
-//    const std::vector< std::string >& names = _network->_groupNames;
-
     if( _fileName.empty( ))
     {
       std::cerr << "Error: file path cannot be empty." << std::endl;
@@ -88,12 +86,16 @@ namespace simil
     // Create file
     _file = H5::H5File( _fileName, H5F_ACC_RDONLY );
 
+    // check if new file format and load it on success, else continue with old format.
+    if(H5Lexists(_file.getLocId(), RECORDERS_TAG, H5P_DEFAULT) > 0)
+    {
+      loadRecordersFormat();
+      return;
+    }
+
     // Get the number of outer objects.
     unsigned int outerObjects = _file.getNumObjs( );
-
     unsigned int records = 0;
-
-    std::vector< std::string > tempNames;
 
     // For each objects...
     for( unsigned int i = 0; i < outerObjects; i++ )
@@ -106,18 +108,12 @@ namespace simil
         continue;
 
       // Get object name.
-      std::string currentName = _file.getObjnameByIdx( i );
+      const std::string currentName = _file.getObjnameByIdx( i );
 
       // Check if group name contains the pattern word.
       if( currentName.find( _pattern ) == std::string::npos )
         continue;
 
-//      if( currentName != names[ i ])
-//      {
-//        std::cout << "Warning: name " << currentName << " does not match "
-//                  << "the expected network group " << names[ i ] << std::endl;
-//        continue;
-//      }
       // Open the current group.
       H5::Group group = _file.openGroup( currentName );
 
@@ -127,8 +123,6 @@ namespace simil
       // If there is more than one object... Skip it.
       if( innerDatasets != 2 )
         continue;
-
-      std::cout << "Found 2 datasets in " << currentName << std::endl;
 
       for( unsigned int j = 0; j < innerDatasets; j++ )
       {
@@ -181,10 +175,8 @@ namespace simil
           _groupNames.push_back( currentName );
           // Store current group.
           _groups.push_back( group );
-
         }
       }
-
     }
 
     _totalRecords = records;
@@ -193,16 +185,12 @@ namespace simil
 
   TSpikes H5Spikes::spikes( void )
   {
-    TSpikes result;
-
-    if( _totalRecords == 0 )
-      return result;
+    if(!_spikes.empty())
+      return _spikes;
 
     std::multimap< float, uint32_t > sortedResult;
 
-//    const std::vector< unsigned int >& offsets = _network->_offsets;
-
-    auto& attribs = _network->_attributes;
+    auto& attribs = _network._attributes;
 
     _startTime = std::numeric_limits< float >::max( );
     _endTime = std::numeric_limits< float >::min( );
@@ -219,8 +207,6 @@ namespace simil
       H5::DataSet& ids = _spikeIds[ i ];
 
       unsigned int currentOffset = std::get< H5Network::tna_offset >( att->second );
-
-      std::cout << "----- offset " << currentName << " " << currentOffset << std::endl;
 
       hsize_t dimsTimes[ 2 ];
       hsize_t dimsIds[ 2 ];
@@ -242,8 +228,6 @@ namespace simil
       ids.close( );
 
       _startTime = 0.0f;
-//      if( *tempTimes.begin( ) < _startTime )
-//        _startTime = *tempTimes.begin( );
 
       if( tempTimes.back( ) > _endTime )
         _endTime = tempTimes.back( );
@@ -267,11 +251,10 @@ namespace simil
       std::cout << "Loaded dataset " << currentName << " with " << tempTimes.size( ) << std::endl;
     }
 
-    result.reserve( sortedResult.size( ));
     for( auto spike : sortedResult )
-      result.push_back( spike );
+      _spikes.push_back( spike );
 
-    return result;
+    return _spikes;
   }
 
   float H5Spikes::startTime( void )
@@ -282,6 +265,145 @@ namespace simil
   float H5Spikes::endTime( void )
   {
     return _endTime;
+  }
+
+  void H5Spikes::loadRecordersFormat()
+  {
+    const auto recorders = _file.openGroup(RECORDERS_TAG);
+
+    _startTime = std::numeric_limits< float >::max( );
+    _endTime = std::numeric_limits< float >::min( );
+
+    std::multimap< float, uint32_t > sortedResult;
+
+    std::map<std::string, std::string> colors;
+
+    for(hsize_t idx = 0; idx < recorders.getNumObjs(); ++idx)
+    {
+      // Get object type.
+      H5G_obj_t ot = recorders.getObjTypeByIdx( idx );
+
+      // Check if type is a dataset.
+      if( ot != H5G_obj_t::H5G_DATASET )
+        continue;
+
+      // Get object name.
+      const std::string currentName = recorders.getObjnameByIdx( idx );
+
+      // Open the current group.
+      H5::DataSet dataSet = recorders.openDataSet( currentName );
+
+      H5::DataType stringType = dataSet.openAttribute("label").getDataType();
+      H5::DataType scalarType = dataSet.openAttribute("cell_id").getDataType();
+
+      std::string label;
+      std::string color;
+      unsigned long gid;
+      dataSet.openAttribute("label").read(stringType, label);
+      dataSet.openAttribute("color").read(stringType, color);
+
+      colors[label] = color;
+
+      dataSet.openAttribute("cell_id").read(scalarType, &gid);
+
+      auto bufferFloatType = H5::PredType::IEEE_F64LE;
+
+      assert(dataSet.getTypeClass() == H5T_FLOAT);
+      const auto floatType = dataSet.getFloatType();
+      const auto byteSize = floatType.getSize();
+
+      if(byteSize == 4)      bufferFloatType = H5::PredType::IEEE_F32LE;
+      else if(byteSize == 8) bufferFloatType = H5::PredType::IEEE_F64LE;
+
+      hsize_t dims[2];
+      memset(dims, 0, 2*sizeof(hsize_t));
+      dataSet.getSpace().getSimpleExtentDims( dims );
+      assert(dataSet.getSpace().getSimpleExtentNdims() == 2);
+      if(dims[0] == 0 || dims[1] == 0) continue;
+
+      auto buffer = new char[dims[0]*dims[1]*byteSize];
+      std::memset(buffer, 0, dims[0]*dims[1]*byteSize);
+
+      dataSet.read( reinterpret_cast<void*>(buffer), bufferFloatType );
+
+      TPosVect subset;
+      if(byteSize == 4)
+      {
+        auto bufferF = reinterpret_cast<float*>(&buffer[0]);
+        for(size_t bidx = 0; bidx < dims[0]*dims[1]; )
+        {
+          bidx++;
+          sortedResult.emplace(std::make_pair(bufferF[bidx], gid));
+          bidx++;
+        }
+      }
+      else
+      {
+        auto bufferD = reinterpret_cast<double*>(&buffer[0]);
+        for(size_t bidx = 0; bidx < dims[0]*dims[1];)
+        {
+          bidx++;
+          sortedResult.emplace(std::make_pair(static_cast<float>(bufferD[bidx]), gid));
+          bidx++;
+        }
+      }
+      delete [] buffer;
+    }
+
+    if(!sortedResult.empty())
+    {
+      for(auto item: sortedResult)
+      {
+        _startTime = std::min(_startTime, item.first);
+        _endTime = std::max(_endTime, item.first);
+        _spikes.emplace_back(item);
+      }
+    }
+
+    assignColors(colors);
+
+    std::cout << "total spikes: " << _spikes.size();
+  }
+
+  void H5Activity::assignColors(
+      const std::map<std::string, std::string> &groupsColor)
+  {
+    if(groupsColor.empty()) return;
+
+    auto &subsetColors = _network.getSubsetsColors();
+
+    for(const auto &groupColor: groupsColor)
+    {
+      const auto name = groupColor.first;
+      const auto color = groupColor.second.substr(1);
+      const auto cellName = name.substr(0, name.find('_'));
+
+      auto subsetIts = _network.getSubsets( );
+      for (auto it = subsetIts.first; it != subsetIts.second; ++it )
+      {
+        // do magic
+        const auto gName = (*it).first;
+        // only color groups...
+        if(gName.find("group") != std::string::npos)
+        {
+          // ...that contains the name
+          if(gName.find(cellName) != std::string::npos)
+          {
+            std::stringstream ss(color);
+            int num;
+
+            ss >> std::hex >> num;
+
+            const int r = num / 0x10000;
+            const int g = (num / 0x100) % 0x100;
+            const int b = num % 0x100;
+
+            subsetColors[gName] = vmml::Vector3f(r/255., g/255., b/255.);
+            break;
+          }
+        }
+      }
+    }
   }
 
 }

@@ -52,10 +52,12 @@ namespace simil
     _network->setPositions( _h5Network->getComposedPositions( ) );
 
     SubsetEventManager subsetEventManager;
-    auto subsetIts = _h5Network->getSubsets( );
+    const auto subsetIts = _h5Network->getSubsets( );
+    const auto &subsetColors = _h5Network->getSubsetsColors();
+
     for ( simil::SubsetMapCIt it = subsetIts.first; it != subsetIts.second;
           ++it )
-      subsetEventManager.addSubset( it->first, it->second );
+      subsetEventManager.addSubset( it->first, it->second, subsetColors.at(it->first) );
 
     _network->setSubset( subsetEventManager );
 
@@ -75,19 +77,20 @@ namespace simil
     }
 
     simulationdata->setGids( _h5Network->getGIDs( ) );
-
     simulationdata->setPositions( _h5Network->getComposedPositions( ) );
-
-    SubsetEventManager subsetEventManager;
-    auto subsetIts = _h5Network->getSubsets( );
-    for ( simil::SubsetMapCIt it = subsetIts.first; it != subsetIts.second;
-          ++it )
-      subsetEventManager.addSubset( it->first, it->second );
-
-    simulationdata->setSubset( subsetEventManager );
 
     simil::H5Spikes spikeReport( *_h5Network, activityFile );
     spikeReport.Load( );
+
+    SubsetEventManager subsetEventManager;
+    const auto subsetIts = _h5Network->getSubsets( );
+    const auto &subsetColors = _h5Network->getSubsetsColors();
+
+    for ( simil::SubsetMapCIt it = subsetIts.first; it != subsetIts.second;
+          ++it )
+      subsetEventManager.addSubset( it->first, it->second, subsetColors.at(it->first) );
+
+    simulationdata->setSubset( subsetEventManager );
 
     /*simil::StorageSparse* newStorage =
       new StorageSparse( "Spikes", tTYPE_UINT, TSimSpikes );*/

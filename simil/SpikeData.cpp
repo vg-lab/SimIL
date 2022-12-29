@@ -83,6 +83,13 @@ SpikeData::SpikeData()
         _startTime = spikeReport.startTime( );
         _endTime = spikeReport.endTime( );
 
+        _subsetEventManager.clear();
+
+        auto subsetIts = _h5Network->getSubsets( );
+        auto &subsetColors = _h5Network->getSubsetsColors();
+        for ( simil::SubsetMapCIt it = subsetIts.first; it != subsetIts.second; ++it )
+          _subsetEventManager.addSubset( it->first, it->second, subsetColors.at(it->first) );
+
         break;
       }
       case TCSV:
@@ -118,7 +125,7 @@ SpikeData::SpikeData()
   void SpikeData::reduceDataToGIDS( void )
   {
     _isDirty = true;
-    std::cout << "Before: " << _spikes.size( ) << std::endl;
+    std::cout << " Before: " << _spikes.size( ) << std::endl;
     TSpikes aux;
     aux.reserve( _spikes.size( ) );
     for ( auto spike : _spikes )

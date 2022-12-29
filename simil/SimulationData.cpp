@@ -81,8 +81,9 @@ namespace simil
         _positions = _h5Network->getComposedPositions( );
 
         auto subsetIts = _h5Network->getSubsets( );
+        auto &subsetColors = _h5Network->getSubsetsColors();
         for ( simil::SubsetMapCIt it = subsetIts.first; it != subsetIts.second; ++it )
-          _subsetEventManager.addSubset( it->first, it->second );
+          _subsetEventManager.addSubset( it->first, it->second, subsetColors.at(it->first) );
 
         break;
       }

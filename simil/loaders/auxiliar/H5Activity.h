@@ -29,13 +29,12 @@
 
 namespace simil
 {
-
   class SIMIL_API H5Activity
   {
 
   public:
 
-    H5Activity( const H5Network& network,
+    H5Activity( H5Network& network,
                 const std::string& fileName_,
                 const std::string& pattern_ );
 
@@ -48,10 +47,13 @@ namespace simil
 
   protected:
 
+    void assignColors(const std::map<std::string, std::string> &groupColors);
+
     std::string _fileName;
     std::string _pattern;
 
-    const H5Network* _network;
+    // 2022-12-28 @felix changed to non-const to allow activity to change subset colors.
+    H5Network& _network;
 
     H5::H5File _file;
     std::vector< std::string > _groupNames;
@@ -62,7 +64,7 @@ namespace simil
   {
   public:
 
-    H5Spikes( const H5Network& network,
+    H5Spikes( H5Network& network,
               const std::string& fileName_,
               const std::string& pattern_ = "neuron" );
 
@@ -75,17 +77,22 @@ namespace simil
     float endTime( void );
 
   protected:
+    /** \brief Loads HDF5 file format in recorders/soma_spikes
+     * subgroup directly.
+     *
+     */
+    void loadRecordersFormat();
 
     float _startTime;
     float _endTime;
 
     unsigned int _totalRecords;
 
+    TSpikes _spikes;
+
     std::vector< H5::DataSet > _spikeTimes;
     std::vector< H5::DataSet > _spikeIds;
-
   };
-
 }
 
 #endif /* __SIMIL__H5ACTIVITY_H__ */
