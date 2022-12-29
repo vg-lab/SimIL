@@ -29,12 +29,11 @@
 
 #include <H5Cpp.h>
 
-#include "../../types.h"
+#include <simil/types.h>
 #include <simil/api.h>
 
 namespace simil
 {
-
   class H5Activity;
   class H5Spikes;
 
@@ -64,22 +63,25 @@ namespace simil
 
     H5Network( void );
     H5Network( const std::string& fileName ,
-               const std::string& pattern = "neuron" );
+               const std::string & pattern = "neuron");
 
-    ~H5Network( void );
+    ~H5Network( void )
+    {};
 
     void load( void );
     void load( const std::string& fileName ,
-               const std::string& pattern = "neuron" );
+               const std::string & pattern = "neuron" );
 
     void clear( void );
 
     unsigned int subSetsNumber( void ) const;
 
     simil::TGIDSet getGIDs( void ) const;
-    simil::TPosVect getComposedPositions( void ) const;
+    simil::TPosVect getComposedPositions( void );
 
-    simil::SubsetMapRange getSubsets( void ) const;
+    simil::SubsetMapRange getSubsets( void );
+
+    std::map<std::string, vmml::Vector3f> &getSubsetsColors();
 
     const std::vector< unsigned int >& offsets( void ) const;
 
@@ -90,23 +92,34 @@ namespace simil
     std::string pattern( void ) const;
 
   protected:
+    /** \brief Loads the network and subset in the "cells" folder of
+     * a HDF5 file.
+     *
+     */
+    void loadCellsFormat();
 
     std::string _fileName;
     std::string _pattern;
 
-    unsigned int _totalRecords;
+    unsigned long _totalRecords;
 
     H5::H5File _file;
     std::vector< std::string > _groupNames;
     std::vector< std::string > _datasetNames;
+
     simil::SubsetMap _subsets;
+    std::map<std::string, vmml::Vector3f> _subsetsColors;
 
     std::vector< H5::Group > _groups;
+
     std::vector< H5::DataSet > _datasets;
 
     std::vector< unsigned int > _offsets;
 
     std::unordered_map< std::string, TNetworkAttributes > _attributes;
+
+    TPosVect _positions;
+    GIDVec _gids;
   };
 
 }

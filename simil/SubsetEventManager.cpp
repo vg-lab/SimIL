@@ -226,6 +226,7 @@ namespace simil
   {
     _subsets.clear( );
     _events.clear( );
+    _colors.clear();
   }
 
   std::vector< uint32_t >
@@ -240,8 +241,18 @@ namespace simil
     return result;
   }
 
+  vmml::Vector3f SubsetEventManager::getSubsetColor(const std::string &name) const
+  {
+    auto it = _colors.find(name);
+    if(it != _colors.end())
+      return it->second;
+
+    return vmml::Vector3f{0,0,0};
+  }
+
   void SubsetEventManager::addSubset( const std::string& name,
-                                      const GIDVec& subset )
+                                      const GIDVec& subset,
+                                      const vmml::Vector3f& color)
   {
     if (_subsets.count(name) > 0)
     {
@@ -255,12 +266,14 @@ namespace simil
     else
     {
       _subsets.insert( std::make_pair( name, subset ));
+      _colors.insert(std::make_pair(name, color));
     }
   }
 
   void SubsetEventManager::removeSubset( const std::string& name )
   {
     _subsets.erase( name );
+    _colors.erase(name);
   }
 
   std::vector< Event >
