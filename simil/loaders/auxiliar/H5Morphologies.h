@@ -79,8 +79,10 @@ class H5Morphologies
   static constexpr const char* PARENT_ATTRIBUTE = "parent";
 
   static constexpr const char* CELLS_GROUP = "cells";
+  static constexpr const char* PLACEMENT_GROUP = "placement";
   static constexpr const char* CELL_TYPES_ATTRIBUTE = "types";
   static constexpr const char* POSITIONS_DATASET = "positions";
+  static constexpr const char* IDENTIFIERS_DATASET = "identifiers";
 
   std::string _fileName;
   std::string _pattern;

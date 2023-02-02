@@ -78,13 +78,15 @@ void H5Morphologies::loadMorphologies( )
   {
     auto cellGroupName = fetchPascalCaseName( cellType );
 
-    if(!H5Lexists(root.getLocId(), cellGroupName.c_str(), H5P_DEFAULT)) continue;
+    if ( !H5Lexists( root.getLocId( ) , cellGroupName.c_str( ) ,
+                     H5P_DEFAULT ))
+      continue;
     //if ( !root.nameExists( cellGroupName )) continue;
 
     auto cellGroup = root.openGroup( cellGroupName );
 
-    if(!H5Lexists(cellGroup.getLocId(), BRANCHES_GROUP, H5P_DEFAULT))
-    //if ( !cellGroup.nameExists( BRANCHES_GROUP ))
+    if ( !H5Lexists( cellGroup.getLocId( ) , BRANCHES_GROUP , H5P_DEFAULT ))
+      //if ( !cellGroup.nameExists( BRANCHES_GROUP ))
     {
       std::cerr << "Warning: couldn't find branches group in "
                 << cellGroupName
@@ -179,6 +181,7 @@ void H5Morphologies::loadNeurons( )
   auto root = _file.openGroup( CELLS_GROUP );
 
   std::map< uint32_t , NeuronType > typesById;
+  std::map< std::string , NeuronType > typesByName;
 
   // Read cell names
   auto types = root.openAttribute( CELL_TYPES_ATTRIBUTE );
@@ -190,38 +193,63 @@ void H5Morphologies::loadNeurons( )
 
   for ( uint32_t i = 0; i < labelsData.size( ); ++i )
   {
-    typesById[ i ] = fetchTypeBySnakeCaseName( std::string( labelsData[ i ] ));
+    auto name = std::string( labelsData[ i ] );
+    typesById[ i ] = fetchTypeBySnakeCaseName( name );
+    typesByName[ name ] = typesById[ i ];
   }
 
   types.close( );
 
   // Read neurons
-  auto positions = root.openDataSet( POSITIONS_DATASET );
-  auto dataSpace = positions.getSpace( );
 
-  hsize_t dims[2];
-  dataSpace.getSimpleExtentDims( dims );
+  auto placementGroup = root.openGroup( PLACEMENT_GROUP );
 
-  std::vector< double > raw;
-  raw.resize( dims[ 0 ] * dims[ 1 ] );
-
-  positions.read( raw.data( ) , positions.getFloatType( ));
-
-
-  for ( hsize_t i = 0; i < dims[ 0 ]; i++ )
+  for ( const auto& item: typesByName )
   {
-    auto index = i * 5;
+    std::string name = item.first;
+    auto type = item.second;
 
-    auto id = static_cast<uint32_t>(raw[ index ]);
-    auto type = typesById[ static_cast<uint32_t>(raw[ index + 1 ]) ];
-    double x = raw[ index + 2 ];
-    double y = raw[ index + 3 ];
-    double z = raw[ index + 4 ];
+    auto typeGroup = placementGroup.openGroup( name );
 
-    _neurons.push_back( Neuron{ type , id , x , y , z } );
+    //if ( !typeGroup.nameExists( POSITIONS_DATASET ))
+    if ( !H5Lexists( typeGroup.getLocId( ) , POSITIONS_DATASET , H5P_DEFAULT ))
+    {
+      std::cout << "Warning: neuron type " << name
+                << " has no position dataset." << std::endl;
+      continue;
+    }
+
+    auto positions = typeGroup.openDataSet( POSITIONS_DATASET );
+    auto identifiers = typeGroup.openDataSet( IDENTIFIERS_DATASET );
+
+    uint32_t identifiersRaw[2];
+    std::vector< double > positionsRaw;
+
+    auto dataSpace = positions.getSpace( );
+    hsize_t dims[2];
+    dataSpace.getSimpleExtentDims( dims );
+    positionsRaw.resize( dims[ 0 ] * dims[ 1 ] );
+
+    identifiers.read( identifiersRaw , identifiers.getIntType( ));
+    positions.read( positionsRaw.data( ) , positions.getFloatType( ));
+
+    uint32_t index = 0;
+    uint32_t to = identifiersRaw[ 0 ] + identifiersRaw[ 1 ];
+
+    for ( uint32_t id = identifiersRaw[ 0 ]; id < to; ++id )
+    {
+      double x = positionsRaw[ index++ ];
+      double y = positionsRaw[ index++ ];
+      double z = positionsRaw[ index++ ];
+      _neurons.push_back( Neuron{ type , id , x , y , z } );
+    }
+
+    positions.close( );
+    identifiers.close( );
+    typeGroup.close( );
   }
 
-  positions.close( );
+  placementGroup.close( );
   root.close( );
 
 }
@@ -234,6 +262,8 @@ H5Morphologies::H5Morphologies( std::string
   , _pattern( std::move( pattern ))
   , _file( )
   , _loaded( false )
+  , _morphologies( )
+  , _neurons( )
 {
 }
 
@@ -262,7 +292,7 @@ void H5Morphologies::load( )
 
   _file = H5::H5File( _fileName , H5F_ACC_RDONLY);
 
-  if(!H5Lexists(_file.getLocId(), MORPHOLOGIES_GROUP, H5P_DEFAULT))
+  if ( !H5Lexists( _file.getLocId( ) , MORPHOLOGIES_GROUP , H5P_DEFAULT ))
 //  if ( !_file.nameExists( MORPHOLOGIES_GROUP ))
   {
     std::cerr << "Error: couldn't find morphologies root" << std::endl;
