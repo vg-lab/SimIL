@@ -75,7 +75,7 @@ namespace simil
       Configuration( )
         : api( Rest_API::NEST )
         , url( "localhost" )
-        , port( 28080 )
+        , port( 52056 )
         , waitTime( 5000 )
         , failTime( 1000 )
         , spikesSize( 1000 )
@@ -142,7 +142,7 @@ namespace simil
     /** Callback methods for processing JSON contents.
      *
      */
-    RESTResult callbackSpikes( std::istream& contentdata );
+    RESTResult callbackSpikes( std::istream& data );
 
     RESTResult callbackNodeProperties( std::istream& contentdata );
 
@@ -180,7 +180,7 @@ namespace simil
 
     std::thread _looperSpikes;
     std::thread _looperNetwork;
-    SimulationData* _simulationdata;
+    SpikeData* _simulationData;
     Network* _network;
     std::atomic< bool > _forceStop;
     std::atomic< unsigned int > _spikesRead;
