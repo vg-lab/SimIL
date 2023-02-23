@@ -27,9 +27,13 @@
 
 // C++
 #include <iostream>
+#include <memory>
 
 // JsonCpp
 #include "jsoncpp/json/json.h"
+#include "simil/Network.h"
+#include "simil/SimulationData.h"
+#include "simil/SpikeData.h"
 
 constexpr uint64_t RANGE_LIMIT = std::numeric_limits< uint32_t >::max( );
 
@@ -40,22 +44,15 @@ namespace simil
 
   LoaderRestData::LoaderRestData( )
     : LoaderSimData( )
-    , _looperSpikes( [ ]( )
-                     { } )
-    , _looperNetwork( [ ]( )
-                      { } )
-    , _simulationData{ nullptr }
-    , _network{ nullptr }
     , _forceStop{ false }
     , _spikesRead{ 0 }
   { }
 
   LoaderRestData::~LoaderRestData( )
   {
-    stopThreads( );
   }
 
-  SimulationData*
+  std::unique_ptr< SimulationData >
   LoaderRestData::loadSimulationData( const std::string& url ,
                                       const std::string& port )
   {
@@ -71,25 +68,15 @@ namespace simil
     m_config.url = serverUrl;
     m_config.port = serverPort;
 
-    if ( _simulationData == nullptr )
-    {
-      _simulationData = new SpikeData( );
-    }
-    else
-    {
-      _simulationData->clear( );
-    }
+    auto data = new SpikeData( );
+    loopSpikes( data , serverUrl , restAPIPrefix( ) , serverPort );
 
-    if ( _looperSpikes.joinable( )) _looperSpikes.join( );
-
-    _looperSpikes = std::thread( &LoaderRestData::loopSpikes , this ,
-                                 serverUrl , restAPIPrefix( ) , serverPort );
-
-    return _simulationData;
+    return std::unique_ptr< SimulationData >( data );
   }
 
-  Network* LoaderRestData::loadNetwork( const std::string& url ,
-                                        const std::string& port )
+  std::unique_ptr< Network >
+  LoaderRestData::loadNetwork( const std::string& url ,
+                               const std::string& port )
   {
     auto serverUrl = m_config.url;
     unsigned int serverPort = m_config.port;
@@ -103,19 +90,14 @@ namespace simil
     m_config.url = serverUrl;
     m_config.port = serverPort;
 
-    delete _network;
-    _network = new Network( );
+    auto network = new Network( );
 
-    if ( _looperNetwork.joinable( )) _looperNetwork.join( );
-
-    _looperNetwork = std::thread( &LoaderRestData::loopNetwork , this ,
-                                  serverUrl , restAPIPrefix( ) , serverPort );
-
-    return _network;
+    loopNetwork( network , serverUrl , restAPIPrefix( ) , serverPort );
+    return std::unique_ptr< Network >( network );
   }
 
   LoaderRestData::RESTResult
-  LoaderRestData::callbackSpikes( std::istream& data )
+  LoaderRestData::callbackSpikes( SpikeData* spikes , std::istream& data ) const
   {
     if ( data.eof( ) || data.fail( )) return { RESTResultType::NODATA , false };
     Json::Value root;
@@ -147,8 +129,8 @@ namespace simil
     TSpikes vecSpikes;
     vecSpikes.reserve( m_config.spikesSize );
 
-    float startTime = _simulationData->startTime( );
-    float endTime = _simulationData->endTime( );
+    float startTime = spikes->startTime( );
+    float endTime = spikes->endTime( );
     uint32_t rangeErrors = 0;
 
     for ( uint32_t idx = 0; idx < nodeIds.size( ); ++idx )
@@ -169,10 +151,10 @@ namespace simil
 
     if ( !vecSpikes.empty( ))
     {
-      _simulationData->addSpikes( vecSpikes );
-      _simulationData->setStartTime( startTime );
-      _simulationData->setEndTime( endTime );
-      _simulationData->clear( );
+      spikes->addSpikes( vecSpikes );
+      spikes->setStartTime( startTime );
+      spikes->setEndTime( endTime );
+      spikes->clear( );
     }
 
     if ( rangeErrors > 0 )
@@ -186,7 +168,8 @@ namespace simil
   }
 
   LoaderRestData::RESTResult
-  LoaderRestData::callbackNodeProperties( std::istream& contentdata )
+  LoaderRestData::callbackNodeProperties( Network* network ,
+                                          std::istream& contentdata )
   {
     if ( contentdata.eof( ) || contentdata.fail( ))
       return { RESTResultType::NODATA , false };
@@ -205,7 +188,7 @@ namespace simil
            !root.isArray( ))
         return { RESTResultType::NODATA , false };
 
-      auto& oldgids = _network->gids( );
+      auto& oldgids = network->gids( );
 
       for ( unsigned int idx = 0; idx < root.size( ); ++idx )
       {
@@ -257,7 +240,7 @@ namespace simil
 
     if ( !gids.empty( ))
     {
-      _network->setNeurons( gids , positions );
+      network->setNeurons( gids , positions );
     }
 
     if ( gids.size( ) != positions.size( ))
@@ -269,9 +252,10 @@ namespace simil
 
     if ( !populationMap.empty( ))
     {
-      auto addSubset = [ this ]( const std::pair< std::string , GIDVec >& item )
+      auto addSubset = [ network ](
+        const std::pair< std::string , GIDVec >& item )
       {
-        _network->subsetsEvents( )->addSubset(
+        network->subsetsEvents( )->addSubset(
           std::string( "Subset " ) + item.first , item.second );
       };
       std::for_each( populationMap.cbegin( ) , populationMap.cend( ) ,
@@ -291,13 +275,14 @@ namespace simil
     return { type , false };
   }
 
-  void LoaderRestData::loopSpikes( const std::string& url ,
+  void LoaderRestData::loopSpikes( SpikeData* data ,
+                                   const std::string& url ,
                                    const std::string& prefix ,
                                    const unsigned int port )
   {
     while ( !_forceStop )
     {
-      const auto result = getSpikes( url , prefix , port );
+      const auto result = getSpikes( data , url , prefix , port );
       if ( result.stopThread ) break;
       switch ( result.type )
       {
@@ -317,14 +302,15 @@ namespace simil
 
   }
 
-  void LoaderRestData::loopNetwork( const std::string& url ,
+  void LoaderRestData::loopNetwork( Network* network ,
+                                    const std::string& url ,
                                     const std::string& prefix ,
                                     const unsigned int port )
   {
     // NOTE: aborts after getting node positions, as NEST doesn't add new nodes later.
-    while ( !_forceStop && _network->gidsSize( ) < 2 )
+    while ( !_forceStop && network->gidsSize( ) < 2 )
     {
-      const auto result = getNodeProperties( url , prefix , port );
+      const auto result = getNodeProperties( network , url , prefix , port );
       if ( result.stopThread ) break;
       switch ( result.type )
       {
@@ -344,7 +330,8 @@ namespace simil
   }
 
   LoaderRestData::RESTResult
-  LoaderRestData::getNodeProperties( const std::string& url ,
+  LoaderRestData::getNodeProperties( Network* network ,
+                                     const std::string& url ,
                                      const std::string& prefix ,
                                      const unsigned int port )
   {
@@ -358,7 +345,7 @@ namespace simil
 
     if ( answer == boost::system::errc::success ) // Success
     {
-      return callbackNodeProperties( client.get_response( ));
+      return callbackNodeProperties( network , client.get_response( ));
     }
 
     std::cerr << "REST - NODES ERROR: " << client.get_status_message( )
@@ -367,9 +354,11 @@ namespace simil
     return { RESTResultType::NOTCONNECTED , false };
   }
 
-  LoaderRestData::RESTResult LoaderRestData::getSpikes( const std::string& url ,
-                                                        const std::string& prefix ,
-                                                        const unsigned int port )
+  LoaderRestData::RESTResult
+  LoaderRestData::getSpikes( SpikeData* spikes ,
+                             const std::string& url ,
+                             const std::string& prefix ,
+                             const unsigned int port )
   {
     // Let's fetch the spikes from api.xxx/prefix/spikes/
     HTTPSyncClient client;
@@ -391,10 +380,10 @@ namespace simil
 
     if ( answer == boost::system::errc::success )
     {
-      const auto result = callbackSpikes( client.get_response( ));
+      const auto result = callbackSpikes( spikes , client.get_response( ));
       if ( result.type == RESTResultType::NEWDATA )
       {
-        _spikesRead = _simulationData->spikes( ).size( );
+        _spikesRead = spikes->spikes( ).size( );
       }
 
       return result;
@@ -442,46 +431,12 @@ namespace simil
 
   void LoaderRestData::setConfiguration( const Configuration& config )
   {
-    stopThreads( );
-
     m_config = config;
-
-    if ( !_network || _network->gidsSize( ) == 0 )
-    {
-      _looperSpikes = std::thread( &LoaderRestData::loopSpikes , this ,
-                                   m_config.url , restAPIPrefix( ) ,
-                                   m_config.port );
-    }
   }
 
   LoaderRestData::Configuration LoaderRestData::getConfiguration( ) const
   {
     return m_config;
-  }
-
-  void LoaderRestData::resetSpikes( )
-  {
-    if ( _spikesRead == 0 ) return;
-
-    // reset spikes, maintain pointers.
-    stopThreads( );
-
-    _spikesRead = 0;
-
-    auto spikes = dynamic_cast< SpikeData* >( _simulationData );
-    spikes->clear( );
-
-    _looperSpikes = std::thread( &LoaderRestData::loopSpikes , this ,
-                                 m_config.url , restAPIPrefix( ) ,
-                                 m_config.port );
-  }
-
-  void LoaderRestData::stopThreads( )
-  {
-    _forceStop = true;
-    if ( _looperSpikes.joinable( )) _looperSpikes.join( );
-    if ( _looperNetwork.joinable( )) _looperNetwork.join( );
-    _forceStop = false;
   }
 
 } // namespace simil

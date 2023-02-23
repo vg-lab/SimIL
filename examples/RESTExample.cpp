@@ -24,7 +24,7 @@
 #include <simil/loaders/LoaderRestData.h>
 #include <iostream>
 
-int main( int , char**  )
+int main( int , char** )
 {
   simil::LoaderSimData* importer;
 
@@ -34,9 +34,10 @@ int main( int , char**  )
   std::cout << "Network" << std::endl;
   std::cout << "--------------------------------------" << std::endl;
 
-  simil::SimulationData* simData = importer->loadSimulationData("localhost","8080");
+  std::shared_ptr< simil::SimulationData > simData =
+    importer->loadSimulationData( "localhost" , "8080" );
 
-  simil::Network* netData = importer->loadNetwork("localhost","8080");
+  auto netData = importer->loadNetwork( "localhost" , "8080" );
 
   std::cout << "Loaded GIDS: " << netData->gids( ).size( ) << std::endl;
   std::cout << "Loaded positions: " << netData->positions( ).size( )
@@ -46,7 +47,7 @@ int main( int , char**  )
   std::cout << "Spikes" << std::endl;
   std::cout << "--------------------------------------" << std::endl;
 
-  simil::SpikeData* spkData = dynamic_cast< simil::SpikeData* >( simData );
+  auto spkData = std::dynamic_pointer_cast< simil::SpikeData >( simData );
 
   if ( spkData == nullptr )
   {
@@ -54,7 +55,6 @@ int main( int , char**  )
               << std::endl;
     return 1;
   }
-
 
 
   simil::TSpikes spikes = spkData->spikes( );
@@ -70,7 +70,7 @@ int main( int , char**  )
   {
     std::cout << "Loaded gids: " << netData->gids( ).size( ) << std::endl;
     std::cout << "Loaded spikes: " << spkData->spikes( ).size( ) << std::endl;
-    std::this_thread::sleep_for( std::chrono::milliseconds( 3000 ) );
+    std::this_thread::sleep_for( std::chrono::milliseconds( 3000 ));
   }
 
   return 0;

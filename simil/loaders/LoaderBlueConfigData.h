@@ -37,12 +37,13 @@ namespace simil
     LoaderBlueConfigData( );
     virtual ~LoaderBlueConfigData( );
 
-    virtual SimulationData*
-      loadSimulationData( const std::string& filePath_,
-                          const std::string& aux = "" ) override;
+    virtual std::unique_ptr< SimulationData >
+    loadSimulationData( const std::string& activityFile ,
+                        const std::string& aux = "" ) override;
 
-    virtual Network* loadNetwork( const std::string& filePath_,
-                                  const std::string& targets = "" ) override;
+    virtual std::unique_ptr< Network >
+    loadNetwork( const std::string& aux ,
+                 const std::string& activityFile = "" ) override;
 
   protected:
     brion::BlueConfig* _blueConfig;

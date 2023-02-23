@@ -26,62 +26,61 @@
 namespace simil
 {
   LoaderBlueConfigData::LoaderBlueConfigData( )
-  : LoaderSimData( )
-  , _blueConfig( nullptr )
+    : LoaderSimData( )
+    , _blueConfig( nullptr )
   { }
 
   LoaderBlueConfigData::~LoaderBlueConfigData( )
   {
-    if ( _blueConfig != nullptr )
-      delete _blueConfig;
+    delete _blueConfig;
   }
 
-  Network *LoaderBlueConfigData::loadNetwork( const std::string &filePath_,
-                                              const std::string &aux)
+  std::unique_ptr< Network >
+  LoaderBlueConfigData::loadNetwork( const std::string& filePath_ ,
+                                     const std::string& aux )
   {
-
-    Network * _network = new Network();
-
-    if (_blueConfig == nullptr)
-    {
-      _blueConfig = new brion::BlueConfig(filePath_);
-    }
-
-    _network->setDataType(TBlueConfig);
-
-    brion::Targets targets = _blueConfig->getTargets();
-
-    brain::Circuit *circuit = new brain::Circuit(*_blueConfig);
-
-    if (!aux.empty())
-      _network->setGids(brion::Target::parse(targets, aux));
-    else
-      _network->setGids(circuit->getGIDs());
-
-    _network->setPositions(circuit->getPositions(_network->gids()));
-
-    delete circuit;
-
-    return _network;
-  }
-
-  SimulationData*
-    LoaderBlueConfigData::loadSimulationData( const std::string& filePath_,
-                                              const std::string&  )
-  {
-    SpikeData* simulationdata = new SpikeData( );
+    auto _network = std::unique_ptr< Network >( new Network( ));
 
     if ( _blueConfig == nullptr )
     {
       _blueConfig = new brion::BlueConfig( filePath_ );
     }
 
-    brain::SpikeReportReader spikeReport( _blueConfig->getSpikeSource( ) );
+    _network->setDataType( TBlueConfig );
+
+    brion::Targets targets = _blueConfig->getTargets( );
+
+    brain::Circuit* circuit = new brain::Circuit( *_blueConfig );
+
+    if ( !aux.empty( ))
+      _network->setGids( brion::Target::parse( targets , aux ));
+    else
+      _network->setGids( circuit->getGIDs( ));
+
+    _network->setPositions( circuit->getPositions( _network->gids( )));
+
+    delete circuit;
+
+    return _network;
+  }
+
+  std::unique_ptr< SimulationData >
+  LoaderBlueConfigData::loadSimulationData( const std::string& filePath_ ,
+                                            const std::string& )
+  {
+    auto simulationdata = std::unique_ptr< SpikeData >( new SpikeData( ));
+
+    if ( _blueConfig == nullptr )
+    {
+      _blueConfig = new brion::BlueConfig( filePath_ );
+    }
+
+    brain::SpikeReportReader spikeReport( _blueConfig->getSpikeSource( ));
     simulationdata->setSimulationType( TSimSpikes );
     simulationdata->setSpikes(
-      spikeReport.getSpikes( 0, spikeReport.getEndTime( ) ) );
+      spikeReport.getSpikes( 0 , spikeReport.getEndTime( )));
     simulationdata->setStartTime( 0.0f );
-    simulationdata->setEndTime( spikeReport.getEndTime( ) );
+    simulationdata->setEndTime( spikeReport.getEndTime( ));
 
     return simulationdata;
   }

@@ -23,6 +23,8 @@
 #ifndef __SIMIL__LOADSIMDATA_H__
 #define __SIMIL__LOADSIMDATA_H__
 
+#include <memory>
+
 #include "../DataSet.h"
 #include <simil/api.h>
 
@@ -32,15 +34,17 @@ namespace simil
   {
   public:
     LoaderSimData( )
-    {}
+    { }
 
     virtual ~LoaderSimData( ) = 0;
 
-    virtual SimulationData*
-      loadSimulationData( const std::string& filePath_,
-                          const std::string& aux ="" ) = 0;
-    virtual Network* loadNetwork( const std::string& filePath_,
-                                  const std::string& aux ="" ) = 0;
+    virtual std::unique_ptr< SimulationData >
+    loadSimulationData( const std::string& filePath_ ,
+                        const std::string& aux = "" ) = 0;
+
+    virtual std::unique_ptr< Network >
+    loadNetwork( const std::string& filePath_ ,
+                 const std::string& aux = "" ) = 0;
   };
 
   inline LoaderSimData::~LoaderSimData( )

@@ -26,24 +26,28 @@
 #include "Network.h"
 #include "SimulationData.h"
 #include "SpikeData.h"
+#include <memory>
 
 namespace simil
 {
   class DataSet
   {
   public:
-    DataSet( SimulationData* simData = nullptr, Network* network = nullptr );
-    ~DataSet( );
 
-    SimulationData* simulationData( );
-    void simulationData( SimulationData* simData );
+    DataSet( std::shared_ptr< SimulationData > simData = nullptr ,
+             std::shared_ptr< Network > network = nullptr );
 
-    Network* network( );
-    void network( Network* network );
+    std::shared_ptr< SimulationData > simulationData( ) const;
+
+    void simulationData( std::shared_ptr< SimulationData > simData );
+
+    std::shared_ptr< Network > network( ) const;
+
+    void network( std::shared_ptr< Network > network );
 
   protected:
-    SimulationData* _simulationData;
-    Network* _network;
+    std::shared_ptr< SimulationData > _simulationData;
+    std::shared_ptr< Network > _network;
   };
 
 } // namespace simil

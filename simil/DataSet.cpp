@@ -21,38 +21,37 @@
  */
 
 #include "DataSet.h"
+#include "SimulationData.h"
+#include <memory>
+#include <utility>
 
 namespace simil
 {
-  DataSet::DataSet( SimulationData* simData, Network* network )
-    : _simulationData( simData )
-    , _network( network )
+  DataSet::DataSet( std::shared_ptr< SimulationData > simData ,
+                    std::shared_ptr< Network > network )
+    : _simulationData( std::move( simData ))
+    , _network( std::move( network ))
   {
-  }
-  DataSet::~DataSet( )
-  {
-    if ( _simulationData != nullptr )
-      delete _simulationData;
-    if ( _network != nullptr )
-      delete _network;
   }
 
-  SimulationData* DataSet::simulationData( )
+  std::shared_ptr< SimulationData > DataSet::simulationData( ) const
   {
     return _simulationData;
   }
-  void DataSet::simulationData( SimulationData* simData )
+
+  void DataSet::simulationData( std::shared_ptr< SimulationData > simData )
   {
-    _simulationData = simData;
+    _simulationData = std::move( simData );
   }
 
-  Network* DataSet::network( )
+  std::shared_ptr< Network > DataSet::network( ) const
   {
     return _network;
   }
-  void DataSet::network( Network* network )
+
+  void DataSet::network( std::shared_ptr< Network > network )
   {
-    _network = network;
+    _network = std::move( network );
   }
 
 } // namespace simil

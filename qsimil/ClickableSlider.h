@@ -26,9 +26,11 @@
 #include <QMouseEvent>
 #include <QSlider>
 
+#include <qsimil/api.h>
+
 namespace qsimil
 {
-  class ClickableSlider : public QSlider
+  class QSIMIL_API ClickableSlider : public QSlider
   {
   public:
 

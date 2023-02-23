@@ -21,38 +21,45 @@
  */
 
 #include "SpikesPlayer.h"
+#include "SimulationData.h"
+#include "SpikeData.h"
 #include "log.h"
 #include <exception>
 #include <assert.h>
+#include <memory>
+
 namespace simil
 {
   SpikesPlayer::SpikesPlayer( void )
-  : SimulationPlayer( )
+    : SimulationPlayer( )
   {
     _simulationType = TSimSpikes;
   }
 
-  void SpikesPlayer::LoadData( SimulationData* data_ )
+  void SpikesPlayer::LoadData( std::shared_ptr< SimulationData > data_ )
   {
-    if( !data_ || !dynamic_cast< SpikeData* >( data_ )  )
+    if ( !data_ || !std::dynamic_pointer_cast< SpikeData >( data_ ))
       return;
 
     Clear( );
 
-    if((data_->endTime( ) - data_->startTime( )) <= 0 )
+    if (( data_->endTime( ) - data_->startTime( )) <= 0 )
     {
-      const auto errorText = std::string("Empty spike data or incorrect time range: start-> ") + std::to_string(data_->startTime()) +
-                                         " end-> " + std::to_string(data_->endTime());
-      throw std::runtime_error(errorText);
+      const auto errorText =
+        std::string( "Empty spike data or incorrect time range: start-> " ) +
+        std::to_string( data_->startTime( )) +
+        " end-> " + std::to_string( data_->endTime( ));
+      throw std::runtime_error( errorText );
     }
 
     _simData = data_;
 
-    std::cout << "GID Set size: " << gids().size( ) << std::endl;
+    std::cout << "GID Set size: " << gids( ).size( ) << std::endl;
 
-    SpikeData* spikeData = dynamic_cast< SpikeData* >( _simData );
+    auto spikeData = std::dynamic_pointer_cast< SpikeData >( _simData );
 
-    std::cout << "Loaded " << spikeData->spikes( ).size( ) << " spikes." << std::endl;
+    std::cout << "Loaded " << spikeData->spikes( ).size( ) << " spikes."
+              << std::endl;
 
     _currentSpike = spikeData->spikes( ).begin( );
     _previousSpike = _currentSpike;
@@ -62,74 +69,71 @@ namespace simil
 
     _currentTime = _startTime;
 
-    _invTimeRange = 1.0f / ( _endTime - _startTime);
+    _invTimeRange = 1.0f / ( _endTime - _startTime );
   }
 
-  void SpikesPlayer::LoadData( Network* net_ ,SimulationData* data_ )
+  void SpikesPlayer::LoadData( std::shared_ptr< Network > net_ ,
+                               std::shared_ptr< SimulationData > data_ )
   {
-      if( !data_ || !dynamic_cast< SpikeData* >( data_ ) || !net_  )
-        return;
+    if ( !data_ || !std::dynamic_pointer_cast< SpikeData >( data_ ) || !net_ )
+      return;
 
-      //assert( ( data_->endTime( ) - data_->startTime( )) > 0 );
+    //assert( ( data_->endTime( ) - data_->startTime( )) > 0 );
 
-      Clear( );
+    Clear( );
 
-      _simData = data_;
-      _network = net_;
+    _simData = data_;
+    _network = net_;
 
-      std::cout << "GID Set size: " << gids().size( ) << std::endl;
+    std::cout << "GID Set size: " << gids( ).size( ) << std::endl;
 
-      SpikeData* spikeData = dynamic_cast< SpikeData* >( _simData );
+    auto spikeData = std::dynamic_pointer_cast< SpikeData >( _simData );
 
-      std::cout << "Loaded " << spikeData->spikes( ).size( ) << " spikes." << std::endl;
+    std::cout << "Loaded " << spikeData->spikes( ).size( ) << " spikes."
+              << std::endl;
 
-      _currentSpike = spikeData->spikes( ).begin( );
-      _previousSpike = _currentSpike;
+    _currentSpike = spikeData->spikes( ).begin( );
+    _previousSpike = _currentSpike;
 
-      _startTime = spikeData->startTime( );
-      _endTime = spikeData->endTime( );
+    _startTime = spikeData->startTime( );
+    _endTime = spikeData->endTime( );
 
-      _currentTime = _startTime;
+    _currentTime = _startTime;
 
-    if (( _endTime - _startTime)>0)
-        _invTimeRange = 1.0f / ( _endTime - _startTime);
+    if (( _endTime - _startTime ) > 0 )
+      _invTimeRange = 1.0f / ( _endTime - _startTime );
     else
-        _invTimeRange = 1.0f;
+      _invTimeRange = 1.0f;
   }
 
-  void SpikesPlayer::LoadData( TDataType dataType,
-                               const std::string& networkPath,
+  void SpikesPlayer::LoadData( TDataType dataType ,
+                               const std::string& networkPath ,
                                const std::string& activityPath )
   {
-    auto simData = new SpikeData( networkPath, dataType, activityPath );
+    auto simData = std::make_shared< SpikeData >(
+      networkPath , dataType , activityPath );
 
     LoadData( simData );
   }
 
-  void SpikesPlayer::Clear( void )
+  void SpikesPlayer::Clear( )
   {
     SimulationPlayer::Clear( );
-
-    if( _simData )
-    {
-      delete _simData;
-      _simData = nullptr;
-    }
-
+    _simData = nullptr;
   }
 
-  void SpikesPlayer::Stop( void )
+  void SpikesPlayer::Stop( )
   {
-    _checkSimData();
+    _checkSimData( );
     SimulationPlayer::Stop( );
     _currentSpike = spikes( ).begin( );
     _previousSpike = _currentSpike;
   }
 
-  void SpikesPlayer::PlayAtTime(float timePos)
+  void SpikesPlayer::PlayAtTime( float timePos )
   {
-    _checkSimData();
-    SimulationPlayer::PlayAtTime(timePos);
+    _checkSimData( );
+    SimulationPlayer::PlayAtTime( timePos );
 
     const Spikes& spikes_ = spikes( );
 
@@ -141,7 +145,7 @@ namespace simil
 
   void SpikesPlayer::PlayAtPercentage( float percentage )
   {
-    _checkSimData();
+    _checkSimData( );
     SimulationPlayer::PlayAtPercentage( percentage );
 
     const Spikes& spikes_ = spikes( );
@@ -152,119 +156,114 @@ namespace simil
     _currentSpike = spikes_.elementAt( _currentTime );
   }
 
-  void SpikesPlayer::FrameProcess( void )
+  void SpikesPlayer::FrameProcess( )
   {
-    _checkSimData();
+    _checkSimData( );
     _previousSpike = _currentSpike;
 
-    if (_endTime - _startTime < std::numeric_limits<float>::epsilon())
-        return;
+    if ( _endTime - _startTime < std::numeric_limits< float >::epsilon( ))
+      return;
 
     const TSpikes& spikes_ = spikes( );
-    SpikesCIter last;
-    SpikesCIter spike = _currentSpike;
-    while( ( *spike ).first  < _currentTime )
+    auto spike = _currentSpike;
+    while (( *spike ).first < _currentTime )
     {
-      if( spike == spikes_.end( ))
+      if ( spike == spikes_.end( ))
       {
         _finished = true;
         Finished( );
         return;
       }
-      last = spike;
       spike++;
     }
     _currentSpike = spike;
   }
 
-  const Spikes& SpikesPlayer::spikes( void )
+  const Spikes& SpikesPlayer::spikes( )
   {
-    return dynamic_cast< SpikeData* >( _simData )->spikes( );
+    return std::dynamic_pointer_cast< SpikeData >( _simData )->spikes( );
   }
 
-  unsigned int SpikesPlayer::spikesSize() const
+  unsigned int SpikesPlayer::spikesSize( ) const
   {
-      return dynamic_cast< SpikeData* >( _simData )->spikes( ).size();
+    return std::dynamic_pointer_cast< SpikeData >(
+      _simData )->spikes( ).size( );
   }
 
 
-  SpikeData* SpikesPlayer::spikeReport( void ) const
+  std::shared_ptr< SpikeData > SpikesPlayer::spikeReport( ) const
   {
-    return dynamic_cast< SpikeData* >( _simData );
+    return std::dynamic_pointer_cast< SpikeData >( _simData );
   }
 
   SpikesCRange
   SpikesPlayer::spikesAtTime( float time )
   {
-    return spikesBetween( time, time );
+    return spikesBetween( time , time );
   }
 
-  SpikesCRange SpikesPlayer::spikesBetween( float startTime_, float endTime_ )
+  SpikesCRange SpikesPlayer::spikesBetween( float startTime_ , float endTime_ )
   {
-    _checkSimData();
+    _checkSimData( );
     assert( endTime_ > startTime_ );
 
     const Spikes& spikes_ = spikes( );
 
-    SpikesCIter begin = spikes_.end( );
-    SpikesCIter end = spikes_.end( );
+    auto begin = spikes_.end( );
+    auto end = spikes_.end( );
 
     begin = spikes_.elementAt( startTime_ );
     auto spike = begin;
-    unsigned int spikesSize =  spikes_.size( );
-    while( spike->first < endTime_ && spike - spikes_.begin( ) < spikesSize )
+    unsigned int spikesSize = spikes_.size( );
+    while ( spike->first < endTime_ && spike - spikes_.begin( ) < spikesSize )
       ++spike;
 
-    if( spike - spikes_.begin( ) >= spikesSize )
+    if ( spike - spikes_.begin( ) >= spikesSize )
       spike = begin = spikes_.end( );
 
     end = spike;
 
-    return std::make_pair( begin, end );
+    return std::make_pair( begin , end );
   }
 
-  SpikesCRange SpikesPlayer::spikesNow( void )
+  SpikesCRange SpikesPlayer::spikesNow( )
   {
-    return std::make_pair( _previousSpike, _currentSpike );
+    return std::make_pair( _previousSpike , _currentSpike );
   }
 
   void SpikesPlayer::spikesNowVect( std::vector< uint32_t >& gidsv )
   {
-    _checkSimData();
+    _checkSimData( );
     auto spikes_ = this->spikesNow( );
-    gidsv.resize( std::distance( spikes_.first, spikes_.second ));
-    std::vector< uint32_t >::iterator resultIt = gidsv.begin( );
-    for( auto& it = spikes_.first; it != spikes_.second; ++it, ++resultIt )
+    gidsv.resize( std::distance( spikes_.first , spikes_.second ));
+    auto resultIt = gidsv.begin( );
+    for ( auto& it = spikes_.first; it != spikes_.second; ++it , ++resultIt )
     {
       *resultIt = it->second;
     }
   }
 
-  SpikeData* SpikesPlayer::data( void ) const
+  void SpikesPlayer::_checkSimData( )
   {
-    return dynamic_cast< SpikeData* >( _simData );
-  }
-
-  void SpikesPlayer::_checkSimData( void )
-  {
-    SpikeData *spikeData = static_cast<SpikeData*>(_simData);
-    if (spikeData->isDirty())
+    auto spikeData = std::dynamic_pointer_cast< SpikeData >( _simData );
+    if ( spikeData->isDirty( ))
     {
-      std::cout << "Loaded " << spikeData->spikes().size() << " spikes." << std::endl;
+      std::cout << "Loaded " << spikeData->spikes( ).size( ) << " spikes."
+                << std::endl;
 
-      _currentSpike = spikeData->spikes().begin();
+      _currentSpike = spikeData->spikes( ).begin( );
 
-      _startTime = spikeData->startTime();
-      _endTime = spikeData->endTime();
+      _startTime = spikeData->startTime( );
+      _endTime = spikeData->endTime( );
 
-      if ((_simData->endTime() - _simData->startTime()) > 0)
-        _invTimeRange = 1.0f / (_simData->endTime() - _simData->startTime());
+      if (( _simData->endTime( ) - _simData->startTime( )) > 0 )
+        _invTimeRange = 1.0f / ( _simData->endTime( ) - _simData->startTime( ));
       else
         _invTimeRange = 1.0f;
 
-      _relativeTime = (_currentTime - _startTime) * _invTimeRange;
+      _relativeTime = ( _currentTime - _startTime ) * _invTimeRange;
 
-      spikeData->cleanDirty();
+      spikeData->cleanDirty( );
     }
   }
 }
