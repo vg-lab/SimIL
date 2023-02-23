@@ -34,14 +34,16 @@ namespace simil
   {
   public:
     LoaderCSVData( );
+
     virtual ~LoaderCSVData( );
 
-    virtual SimulationData*
-      loadSimulationData( const std::string& activityFile,
-                          const std::string& aux = "" ) override;
+    virtual std::unique_ptr< SimulationData >
+    loadSimulationData( const std::string& activityFile ,
+                        const std::string& aux = "" ) override;
 
-    virtual Network* loadNetwork( const std::string& aux,
-                                  const std::string& activityFile="" ) override;
+    virtual std::unique_ptr< Network >
+    loadNetwork( const std::string& aux ,
+                 const std::string& activityFile = "" ) override;
 
   protected:
     simil::CSVNetwork* _csvNetwork;

@@ -35,11 +35,12 @@ namespace simil
     LoaderHDF5Data( );
     virtual ~LoaderHDF5Data( );
 
-    virtual SimulationData*
+    virtual std::unique_ptr< SimulationData >
       loadSimulationData( const std::string& networkFile,
                           const std::string& activityFile="" ) override;
 
-    virtual Network* loadNetwork( const std::string& networkFile,
+    virtual std::unique_ptr< Network >
+    loadNetwork( const std::string& networkFile,
                                   const std::string& aux = "" ) override;
 
   protected:

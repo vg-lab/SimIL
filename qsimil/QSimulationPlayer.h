@@ -31,12 +31,13 @@
 #include <QLabel>
 #include <simil/simil.h>
 #include "ClickableSlider.h"
+#include <qsimil/api.h>
 
 // TODO: Add zeroeq
 
 namespace qsimil
 {
-  class QSimulationPlayer: public QWidget
+  class QSIMIL_API QSimulationPlayer: public QWidget
   {
     Q_OBJECT
   public:

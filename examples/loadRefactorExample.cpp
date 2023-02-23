@@ -21,35 +21,37 @@
  */
 
 #include <simil/simil.h>
+
 #ifdef SIMIL_USE_BRION
 #include <simil/loaders/LoaderBlueConfigData.h>
 #endif
+
 #include <simil/loaders/LoaderHDF5Data.h>
 #include <simil/loaders/LoaderCSVData.h>
 #include <iostream>
 
-void usage()
+void usage( )
 {
-    std::cerr << "USAGE: similRefactorLoadExample -bc|-h5|-csv file [target]"
-              << std::endl;
+  std::cerr << "USAGE: similRefactorLoadExample -bc|-h5|-csv file [target]"
+            << std::endl;
 #ifdef SIMIL_USE_BRION
-    std::cerr << "-bc blueconfig loader" << std::endl;
+  std::cerr << "-bc blueconfig loader" << std::endl;
 #else
-    std::cerr << "-bc NOT available blueconfig loader"
-                 ", consider compile again with BRION support"
-              << std::endl;
+  std::cerr << "-bc NOT available blueconfig loader"
+               ", consider compile again with BRION support"
+            << std::endl;
 #endif
-    std::cerr << "-h5 HDF5 loader " << std::endl;
-    std::cerr << "-csv CSV loader " << std::endl;
+  std::cerr << "-h5 HDF5 loader " << std::endl;
+  std::cerr << "-csv CSV loader " << std::endl;
 
 }
 
 
-int main( int argc, char** argv )
+int main( int argc , char** argv )
 {
   if ( argc < 2 )
   {
-    usage();
+    usage( );
     return 1;
   }
   std::string simtype = argv[ 1 ];
@@ -65,7 +67,7 @@ int main( int argc, char** argv )
   }
   else
 #endif
-    if ( argc < 4 )
+  if ( argc < 4 )
   {
     std::cerr << "Error: an activity file must be provided after network file"
               << std::endl;
@@ -85,7 +87,7 @@ int main( int argc, char** argv )
     else
     {
       importer = new simil::LoaderHDF5Data( );
-      usage();
+      usage( );
       return 1;
     }
   }
@@ -95,9 +97,7 @@ int main( int argc, char** argv )
   std::cout << "--------------------------------------" << std::endl;
 
 
-
-  simil::Network * netData =
-          importer->loadNetwork( path, secondaryPath );
+  auto netData = importer->loadNetwork( path , secondaryPath );
 
   std::cout << "Loaded GIDS: " << netData->gids( ).size( ) << std::endl;
   std::cout << "Loaded positions: " << netData->positions( ).size( )
@@ -107,10 +107,10 @@ int main( int argc, char** argv )
   std::cout << "Spikes" << std::endl;
   std::cout << "--------------------------------------" << std::endl;
 
-  simil::SimulationData* simData =
-    importer->loadSimulationData( path, secondaryPath );
+  std::shared_ptr< simil::SimulationData > simData =
+    importer->loadSimulationData( path , secondaryPath );
 
-  simil::SpikeData* spkData = dynamic_cast< simil::SpikeData* >( simData );
+  auto spkData = std::dynamic_pointer_cast< simil::SpikeData >( simData );
 
   if ( spkData == nullptr )
   {

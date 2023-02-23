@@ -23,10 +23,16 @@
 #ifndef __SIMIL__SIMULATIONPLAYER_H__
 #define __SIMIL__SIMULATIONPLAYER_H__
 
+#include "Network.h"
+#include <memory>
+
 #ifdef SIMIL_USE_BRION
+
 #include <brion/brion.h>
 #include <brain/brain.h>
+
 #endif
+
 #include <simil/api.h>
 
 #include <unordered_map>
@@ -46,11 +52,11 @@ namespace simil
 {
   typedef enum
   {
-    T_PLAYBACK_PLAY = 0,
-    T_PLAYBACK_PAUSE,
-    T_PLAYBACK_STOP,
-    T_PLAYBACK_RESTART,
-    T_PLAYBACK_REPEAT,
+    T_PLAYBACK_PLAY = 0 ,
+    T_PLAYBACK_PAUSE ,
+    T_PLAYBACK_STOP ,
+    T_PLAYBACK_RESTART ,
+    T_PLAYBACK_REPEAT ,
     T_PLAYBACK_SINGLE_SHOT
 
   } TPlaybackOperation;
@@ -64,14 +70,16 @@ namespace simil
 
     virtual ~SimulationPlayer( );
 
-    virtual void LoadData( SimulationData* data );
+    virtual void LoadData( std::shared_ptr< SimulationData > data );
 
-    virtual void LoadData(DataSet*);
+    virtual void LoadData( const DataSet& );
 
-    virtual void LoadData( Network* network,SimulationData* data);
+    virtual void
+    LoadData( std::shared_ptr< Network > network ,
+              std::shared_ptr< SimulationData > data );
 
-    virtual void LoadData( TDataType dataType,
-                           const std::string& networkPath,
+    virtual void LoadData( TDataType dataType ,
+                           const std::string& networkPath ,
                            const std::string& activityPath = "" );
 
     virtual void Clear( void );
@@ -99,6 +107,7 @@ namespace simil
     bool isPlaying( void );
 
     virtual void deltaTime( float deltaTime );
+
     virtual float deltaTime( void );
 
     float startTime( void );
@@ -108,15 +117,18 @@ namespace simil
     float currentTime( void ) const;
 
     void loop( bool loop );
+
     bool loop( void );
 
     const TGIDSet& gids( void ) const;
-    unsigned int gidsSize() const;
+
+    unsigned int gidsSize( ) const;
+
     TPosVect positions( void ) const;
 
-    TSimulationType simulationType( void ) const ;
+    TSimulationType simulationType( void ) const;
 
-    SimulationData* data( void ) const;
+    virtual const std::shared_ptr< SimulationData >& data( void ) const;
 
 #ifdef SIMIL_USE_ZEROEQ
 
@@ -135,6 +147,7 @@ namespace simil
     virtual void _checkSimData( void );
 
     virtual void FrameProcess( void ) = 0;
+
     virtual void Finished( void );
 
     float _currentTime;
@@ -156,9 +169,8 @@ namespace simil
 #ifdef SIMIL_USE_ZEROEQ
     ZeroEqEventsManager* _zeqEvents;
 #endif
-    DataSet* _dataset;
-    Network* _network;
-    SimulationData* _simData;
+    std::shared_ptr< Network > _network;
+    std::shared_ptr< SimulationData > _simData;
   };
 
 } // namespace simil

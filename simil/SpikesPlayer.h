@@ -23,10 +23,16 @@
 #ifndef __SIMIL__SPIKESPLAYER_H__
 #define __SIMIL__SPIKESPLAYER_H__
 
+#include "simil/Network.h"
+#include <memory>
+
 #ifdef SIMIL_USE_BRION
+
 #include <brion/brion.h>
 #include <brain/brain.h>
+
 #endif
+
 #include <simil/api.h>
 
 #include <unordered_map>
@@ -50,46 +56,50 @@ namespace simil
   typedef TSpikes::iterator SpikesIter;
   typedef TSpikes::const_iterator SpikesCIter;
 
-  typedef std::pair< SpikesIter, SpikesIter > SpikesRange;
-  typedef std::pair< SpikesCIter, SpikesCIter > SpikesCRange;
+  typedef std::pair< SpikesIter , SpikesIter > SpikesRange;
+  typedef std::pair< SpikesCIter , SpikesCIter > SpikesCRange;
 
   class SIMIL_API SpikesPlayer : public SimulationPlayer
   {
   public:
 
-    SpikesPlayer( void );
+    SpikesPlayer( );
 
-    virtual void LoadData( SimulationData* data );
+    void LoadData( std::shared_ptr< SimulationData > data ) override;
 
-    virtual void LoadData( Network* network,SimulationData* data);
+    void LoadData( std::shared_ptr< Network > network ,
+                   std::shared_ptr< SimulationData > data ) override;
 
-    virtual void LoadData( TDataType dataType,
-                           const std::string& networkPath,
-                           const std::string& activityPath = "" );
+    void LoadData( TDataType dataType ,
+                   const std::string& networkPath ,
+                   const std::string& activityPath = "" ) override;
 
-    virtual void Clear( void );
-    virtual void PlayAtTime(float timePos);
-    virtual void PlayAtPercentage( float percentage );
-    virtual void Stop( void );
+    void Clear( ) override;
 
-    virtual const Spikes& spikes( void );
-    unsigned int spikesSize() const;
-    SpikeData* spikeReport( void ) const;
+    void PlayAtTime( float timePos ) override;
+
+    void PlayAtPercentage( float percentage ) override;
+
+    void Stop( ) override;
+
+    virtual const Spikes& spikes( );
+
+    unsigned int spikesSize( ) const;
+
+    std::shared_ptr< SpikeData > spikeReport( void ) const;
 
     SpikesCRange spikesAtTime( float time );
 
-    SpikesCRange spikesBetween( float startTime, float endTime );
+    SpikesCRange spikesBetween( float startTime , float endTime );
 
-    SpikesCRange spikesNow( void );
+    SpikesCRange spikesNow( );
 
     void spikesNowVect( std::vector< uint32_t >& );
 
-    SpikeData* data( void ) const;
-
   protected:
-    virtual void _checkSimData( void );
+    void _checkSimData( ) override;
 
-    virtual void FrameProcess( void );
+    void FrameProcess( ) override;
 
     SpikesCIter _previousSpike;
     SpikesCIter _currentSpike;

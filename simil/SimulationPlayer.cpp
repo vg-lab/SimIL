@@ -22,32 +22,34 @@
 
 // SimIL
 #include "SimulationPlayer.h"
+#include "SimulationData.h"
 #include "log.h"
+#include "DataSet.h"
 
 // C++
 #include <exception>
 #include <assert.h>
+#include <memory>
 
 namespace simil
 {
   SimulationPlayer::SimulationPlayer( void )
-  : _currentTime( 0.0f )
-  , _previousTime( 0.0f )
-  , _relativeTime( 0.0f )
-  , _invTimeRange( 1.0f )
-  , _deltaTime( 0.0f )
-  , _startTime( 0.0f )
-  , _endTime( 0.0f )
-  , _playing( false )
-  , _loop( false )
-  , _finished( false )
-  , _simulationType( TSimNetwork )
+    : _currentTime( 0.0f )
+    , _previousTime( 0.0f )
+    , _relativeTime( 0.0f )
+    , _invTimeRange( 1.0f )
+    , _deltaTime( 0.0f )
+    , _startTime( 0.0f )
+    , _endTime( 0.0f )
+    , _playing( false )
+    , _loop( false )
+    , _finished( false )
+    , _simulationType( TSimNetwork )
 #ifdef SIMIL_USE_ZEROEQ
-  , _zeqEvents( nullptr )
+    , _zeqEvents( nullptr )
 #endif
-  , _dataset( nullptr )
-  , _network( nullptr )
-  , _simData( nullptr )
+    , _network( nullptr )
+    , _simData( nullptr )
   { }
 
   SimulationPlayer::~SimulationPlayer( )
@@ -55,61 +57,58 @@ namespace simil
     Clear( );
   }
 
-  void SimulationPlayer::LoadData( SimulationData* data_ )
+  void SimulationPlayer::LoadData( std::shared_ptr< SimulationData > data_ )
   {
-    if( !data_ )
+    if ( !data_ )
       return;
 
-    assert( ( data_->endTime( ) - data_->startTime( )) > 0 );
+    assert(( data_->endTime( ) - data_->startTime( )) > 0 );
 
     Clear( );
 
     _simData = data_;
 
-    std::cout << "GID Set size: " << gids().size( ) << std::endl;
+    std::cout << "GID Set size: " << gids( ).size( ) << std::endl;
 
     _invTimeRange = 1.0f / ( _simData->endTime( ) - _simData->startTime( ));
   }
 
-  void SimulationPlayer::LoadData(DataSet * dataset_)
+  void SimulationPlayer::LoadData( const DataSet& dataset_ )
   {
-    if( !dataset_ )
-      return;
-
     Clear( );
-
-    _dataset = dataset_;
-    LoadData(dataset_->network(),dataset_->simulationData());
+    LoadData( dataset_.network( ) , dataset_.simulationData( ));
   }
 
-  void SimulationPlayer::LoadData( Network* net_ ,SimulationData* data_ )
+  void SimulationPlayer::LoadData( std::shared_ptr< Network > network ,
+                                   std::shared_ptr< SimulationData > data )
   {
-    if( !net_ || !data_)
+    if ( !network || !data )
       return;
 
-    _network = net_;
-    _simData = data_;
+    _network = network;
+    _simData = data;
 
-    std::cout << "GID Set size: " << gids().size( ) << std::endl;
+    std::cout << "GID Set size: " << gids( ).size( ) << std::endl;
 
-    const auto timeDiff =  _simData->endTime( ) - _simData->startTime( );
-    if (timeDiff > 0)
-        _invTimeRange = 1.0f / timeDiff;
+    const auto timeDiff = _simData->endTime( ) - _simData->startTime( );
+    if ( timeDiff > 0 )
+      _invTimeRange = 1.0f / timeDiff;
     else
-        _invTimeRange = 1.0f;
+      _invTimeRange = 1.0f;
   }
 
-  void SimulationPlayer::LoadData( TDataType dataType,
-                                   const std::string& networkPath_,
+  void SimulationPlayer::LoadData( TDataType dataType ,
+                                   const std::string& networkPath_ ,
                                    const std::string& )
   {
-    switch( dataType )
+    switch ( dataType )
     {
       case TDataType::TBlueConfig:
       case TDataType::THDF5:
-        {
-          _simData = new SimulationData( networkPath_, dataType );
-        }
+      {
+        _simData = std::make_shared< SimulationData >( networkPath_ ,
+                                                       dataType );
+      }
         break;
       default:
         break;
@@ -120,34 +119,19 @@ namespace simil
 
   void SimulationPlayer::Clear( void )
   {
-    if( _simData )
-    {
-      delete _simData;
-      _simData = nullptr;
-    }
-
-    if (_network)
-    {
-      delete _network;
-      _network = nullptr;
-    }
-
-    if (_dataset)
-    {
-      delete _dataset;
-      _dataset = nullptr;
-    }
+    _simData = nullptr;
+    _network = nullptr;
   }
 
   void SimulationPlayer::Frame( void )
   {
-    _checkSimData();
-    if( _playing )
+    _checkSimData( );
+    if ( _playing )
     {
       _previousTime = _currentTime;
       _currentTime += _deltaTime;
 
-      _relativeTime = ( _currentTime - startTime( )) * _invTimeRange ;
+      _relativeTime = ( _currentTime - startTime( )) * _invTimeRange;
 
       FrameProcess( );
     }
@@ -155,14 +139,14 @@ namespace simil
 
   void SimulationPlayer::Reset( void )
   {
-    _checkSimData();
+    _checkSimData( );
     Stop( );
     Play( );
   }
 
   void SimulationPlayer::Play( void )
   {
-    _checkSimData();
+    _checkSimData( );
     _playing = true;
     _finished = false;
   }
@@ -181,10 +165,10 @@ namespace simil
 
   void SimulationPlayer::GoTo( float timeStamp )
   {
-    timeStamp = std::max(_startTime, std::min(timeStamp, _endTime));
+    timeStamp = std::max( _startTime , std::min( timeStamp , _endTime ));
 
     _currentTime = timeStamp;
-    _previousTime = std::max( _currentTime - _deltaTime, _startTime );
+    _previousTime = std::max( _currentTime - _deltaTime , _startTime );
 
     _relativeTime = ( _currentTime - _startTime ) * _invTimeRange;
   }
@@ -195,15 +179,15 @@ namespace simil
 
     const float timeStamp = percentage * ( _endTime - _startTime ) + _startTime;
 
-    PlayAtTime(timeStamp);
+    PlayAtTime( timeStamp );
   }
 
-  void SimulationPlayer::PlayAtTime(float time)
+  void SimulationPlayer::PlayAtTime( float time )
   {
-    time = std::max(_startTime, std::min(time, _endTime));
+    time = std::max( _startTime , std::min( time , _endTime ));
 
     _currentTime = time;
-    _previousTime = std::max( _currentTime - _deltaTime, _startTime );
+    _previousTime = std::max( _currentTime - _deltaTime , _startTime );
 
     _relativeTime = ( _currentTime - _startTime ) * _invTimeRange;
 
@@ -212,7 +196,7 @@ namespace simil
 
   float SimulationPlayer::GetRelativeTime( void )
   {
-    _checkSimData();
+    _checkSimData( );
     return _relativeTime;
   }
 
@@ -238,13 +222,13 @@ namespace simil
 
   float SimulationPlayer::startTime( void )
   {
-    _checkSimData();
+    _checkSimData( );
     return _startTime;
   }
 
   float SimulationPlayer::endTime( void )
   {
-    _checkSimData();
+    _checkSimData( );
     return _endTime;
   }
 
@@ -265,20 +249,20 @@ namespace simil
 
   const TGIDSet& SimulationPlayer::gids( void ) const
   {
-    if(_network)
-      return _network->gids();
+    if ( _network )
+      return _network->gids( );
 
-    return _simData->gids();
+    return _simData->gids( );
   }
 
-  unsigned int SimulationPlayer::gidsSize() const
+  unsigned int SimulationPlayer::gidsSize( ) const
   {
-    return gids().size();
+    return gids( ).size( );
   }
 
   TPosVect SimulationPlayer::positions( void ) const
   {
-    if (_network)
+    if ( _network )
       return _network->positions( );
 
     return _simData->positions( );
@@ -292,34 +276,34 @@ namespace simil
   void SimulationPlayer::Finished( void )
   {
     Stop( );
-    if( _loop )
+    if ( _loop )
     {
-      _checkSimData();
+      _checkSimData( );
       Play( );
     }
   }
 
-  SimulationData* SimulationPlayer::data( void ) const
+  const std::shared_ptr< SimulationData >& SimulationPlayer::data( void ) const
   {
     return _simData;
   }
 
   void SimulationPlayer::_checkSimData( void )
   {
-    if (_simData && _simData->isDirty())
+    if ( _simData && _simData->isDirty( ))
     {
-      const auto timeDiff = _simData->endTime() - _simData->startTime();
-      if (timeDiff > 0)
+      const auto timeDiff = _simData->endTime( ) - _simData->startTime( );
+      if ( timeDiff > 0 )
         _invTimeRange = 1.0f / timeDiff;
       else
         _invTimeRange = 1.0f;
 
-      _startTime = _simData->startTime();
-      _endTime = _simData->endTime();
+      _startTime = _simData->startTime( );
+      _endTime = _simData->endTime( );
 
-      _relativeTime = (_currentTime - _startTime) * _invTimeRange;
+      _relativeTime = ( _currentTime - _startTime ) * _invTimeRange;
 
-      _simData->cleanDirty();
+      _simData->cleanDirty( );
     }
   }
 
