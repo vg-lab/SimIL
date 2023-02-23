@@ -75,6 +75,7 @@ namespace simil
       unsigned int waitTime;   /** wait time after a successful call. */
       unsigned int failTime;   /** wait time after a failed call.     */
       unsigned int spikesSize; /** amount of spikes to ask in a call. */
+      std::weak_ptr<Network> network; /** If not null, the loader won't load a new network and will use this network instead */
 
       Configuration( )
         : api( Rest_API::NEST )
@@ -83,6 +84,7 @@ namespace simil
         , waitTime( 5000 )
         , failTime( 1000 )
         , spikesSize( 1000 )
+        , network()
       { };
     };
 

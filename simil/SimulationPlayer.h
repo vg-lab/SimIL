@@ -35,8 +35,6 @@
 
 #include <simil/api.h>
 
-#include <unordered_map>
-
 #ifdef SIMIL_USE_ZEROEQ
 #include <boost/signals2/signal.hpp>
 #include <boost/bind.hpp>
@@ -129,6 +127,8 @@ namespace simil
     TSimulationType simulationType( void ) const;
 
     virtual const std::shared_ptr< SimulationData >& data( void ) const;
+
+    std::shared_ptr<Network> getNetwork() const;
 
 #ifdef SIMIL_USE_ZEROEQ
 

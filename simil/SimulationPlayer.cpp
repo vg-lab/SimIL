@@ -273,6 +273,11 @@ namespace simil
     return _simulationType;
   }
 
+  std::shared_ptr<Network> SimulationPlayer::getNetwork() const
+  {
+    return _network;
+  }
+
   void SimulationPlayer::Finished( void )
   {
     Stop( );
