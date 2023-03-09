@@ -154,7 +154,6 @@ namespace simil
       spikes->addSpikes( vecSpikes );
       spikes->setStartTime( startTime );
       spikes->setEndTime( endTime );
-      spikes->clear( );
     }
 
     if ( rangeErrors > 0 )
@@ -194,6 +193,10 @@ namespace simil
       {
         auto props = root[ idx ];
         if ( props.isNull( )) continue;
+
+        const auto status = props["nodeStatus"];
+        const auto element_type = status[ "element_type" ].asString();
+        if(element_type.compare("neuron") != 0) continue;
 
         const auto gid = props[ "nodeId" ].asUInt64( );
         if ( gid > RANGE_LIMIT )
