@@ -26,8 +26,10 @@
 #include "HTTP/SyncClient.h"
 
 // C++
+#include <cstddef>
 #include <iostream>
 #include <memory>
+#include <thread>
 
 // JsonCpp
 #include "jsoncpp/json/json.h"
@@ -46,6 +48,7 @@ namespace simil
     : LoaderSimData( )
     , _forceStop{ false }
     , _spikesRead{ 0 }
+    , m_config( )
   { }
 
   LoaderRestData::~LoaderRestData( )
@@ -69,7 +72,10 @@ namespace simil
     m_config.port = serverPort;
 
     auto data = new SpikeData( );
-    loopSpikes( data , serverUrl , restAPIPrefix( ) , serverPort );
+
+    spikeLooper = std::thread( &LoaderRestData::loopSpikes ,
+                               this , data , serverUrl ,
+                               restAPIPrefix( ) , serverPort );
 
     return std::unique_ptr< SimulationData >( data );
   }
@@ -194,9 +200,9 @@ namespace simil
         auto props = root[ idx ];
         if ( props.isNull( )) continue;
 
-        const auto status = props["nodeStatus"];
-        const auto element_type = status[ "element_type" ].asString();
-        if(element_type.compare("neuron") != 0) continue;
+        const auto status = props[ "nodeStatus" ];
+        const auto element_type = status[ "element_type" ].asString( );
+        if ( element_type.compare( "neuron" ) != 0 ) continue;
 
         const auto gid = props[ "nodeId" ].asUInt64( );
         if ( gid > RANGE_LIMIT )
@@ -440,6 +446,11 @@ namespace simil
   LoaderRestData::Configuration LoaderRestData::getConfiguration( ) const
   {
     return m_config;
+  }
+
+  const std::thread& LoaderRestData::getSpikeLooper( ) const
+  {
+    return spikeLooper;
   }
 
 } // namespace simil

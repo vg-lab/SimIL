@@ -75,7 +75,7 @@ namespace simil
       unsigned int waitTime;   /** wait time after a successful call. */
       unsigned int failTime;   /** wait time after a failed call.     */
       unsigned int spikesSize; /** amount of spikes to ask in a call. */
-      std::weak_ptr<Network> network; /** If not null, the loader won't load a new network and will use this network instead */
+      std::weak_ptr< Network > network; /** If not null, the loader won't load a new network and will use this network instead */
 
       Configuration( )
         : api( Rest_API::NEST )
@@ -84,7 +84,7 @@ namespace simil
         , waitTime( 5000 )
         , failTime( 1000 )
         , spikesSize( 1000 )
-        , network()
+        , network( )
       { };
     };
 
@@ -110,6 +110,12 @@ namespace simil
      */
     struct Version
     getVersion( const std::string url , const unsigned int port );
+
+    /**
+     * Returns the thread that keeps looking for new spikes.
+     * @return the spikes.
+     */
+    const std::thread& getSpikeLooper( ) const;
 
   protected:
     static const std::string ARBOR_PREFIX;   /** uri prefix to get arbor data from server. */
@@ -182,6 +188,8 @@ namespace simil
     std::atomic< bool > _forceStop;
     std::atomic< unsigned int > _spikesRead;
     Configuration m_config;
+
+    std::thread spikeLooper;
   };
 
 } // namespace simil
