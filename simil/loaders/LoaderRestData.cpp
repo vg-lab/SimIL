@@ -48,19 +48,21 @@ namespace simil
     : LoaderSimData( )
     , _forceStop{ false }
     , _spikesRead{ 0 }
-    , m_config( )
+    , _config( )
   { }
 
   LoaderRestData::~LoaderRestData( )
   {
+    _forceStop = true;
+    _spikeLooper.join();
   }
 
   std::unique_ptr< SimulationData >
   LoaderRestData::loadSimulationData( const std::string& url ,
                                       const std::string& port )
   {
-    auto serverUrl = m_config.url;
-    unsigned int serverPort = m_config.port;
+    auto serverUrl = _config.url;
+    unsigned int serverPort = _config.port;
 
     if ( !url.empty( ))
       serverUrl = url;
@@ -68,15 +70,14 @@ namespace simil
     if ( !port.empty( ))
       serverPort = stoi( port );
 
-    m_config.url = serverUrl;
-    m_config.port = serverPort;
+    _config.url = serverUrl;
+    _config.port = serverPort;
 
     auto data = new SpikeData( );
 
-    spikeLooper = std::thread( &LoaderRestData::loopSpikes ,
-                               this , data , serverUrl ,
-                               restAPIPrefix( ) , serverPort );
-
+    _spikeLooper = std::thread( &LoaderRestData::loopSpikes ,
+                                this , data , serverUrl ,
+                                restAPIPrefix( ) , serverPort );
     return std::unique_ptr< SimulationData >( data );
   }
 
@@ -84,8 +85,8 @@ namespace simil
   LoaderRestData::loadNetwork( const std::string& url ,
                                const std::string& port )
   {
-    auto serverUrl = m_config.url;
-    unsigned int serverPort = m_config.port;
+    auto serverUrl = _config.url;
+    unsigned int serverPort = _config.port;
 
     if ( !url.empty( ))
       serverUrl = url;
@@ -93,8 +94,8 @@ namespace simil
     if ( !port.empty( ))
       serverPort = stoi( port );
 
-    m_config.url = serverUrl;
-    m_config.port = serverPort;
+    _config.url = serverUrl;
+    _config.port = serverPort;
 
     auto network = new Network( );
 
@@ -133,7 +134,7 @@ namespace simil
       return { RESTResultType::NODATA , last.isBool( ) && last.asBool( ) };
 
     TSpikes vecSpikes;
-    vecSpikes.reserve( m_config.spikesSize );
+    vecSpikes.reserve( _config.spikesSize );
 
     float startTime = spikes->startTime( );
     float endTime = spikes->endTime( );
@@ -298,11 +299,11 @@ namespace simil
         case RESTResultType::NOTCONNECTED:
         case RESTResultType::EXCEPTION:
           std::this_thread::sleep_for(
-            std::chrono::milliseconds( m_config.failTime ));
+            std::chrono::milliseconds( _config.failTime ));
           break;
         case RESTResultType::NODATA:
           std::this_thread::sleep_for(
-            std::chrono::milliseconds( m_config.waitTime ));
+            std::chrono::milliseconds( _config.waitTime ));
           break;
         case RESTResultType::NEWDATA:
           break;
@@ -326,11 +327,11 @@ namespace simil
         case RESTResultType::NOTCONNECTED:
         case RESTResultType::EXCEPTION:
           std::this_thread::sleep_for(
-            std::chrono::milliseconds( m_config.failTime ));
+            std::chrono::milliseconds( _config.failTime ));
           break;
         case RESTResultType::NODATA:
           std::this_thread::sleep_for(
-            std::chrono::milliseconds( m_config.waitTime ));
+            std::chrono::milliseconds( _config.waitTime ));
           break;
         case RESTResultType::NEWDATA:
           break;
@@ -379,7 +380,7 @@ namespace simil
       uri.append( "&" );
     }
     uri.append( "top=" );
-    uri.append( std::to_string( m_config.spikesSize ));
+    uri.append( std::to_string( _config.spikesSize ));
 
     client.set_host( url );
     client.set_uri( uri );
@@ -435,22 +436,22 @@ namespace simil
 
   std::string LoaderRestData::restAPIPrefix( ) const
   {
-    return m_config.api == Rest_API::NEST ? NEST_PREFIX : ARBOR_PREFIX;
+    return _config.api == Rest_API::NEST ? NEST_PREFIX : ARBOR_PREFIX;
   }
 
   void LoaderRestData::setConfiguration( const Configuration& config )
   {
-    m_config = config;
+    _config = config;
   }
 
   LoaderRestData::Configuration LoaderRestData::getConfiguration( ) const
   {
-    return m_config;
+    return _config;
   }
 
   const std::thread& LoaderRestData::getSpikeLooper( ) const
   {
-    return spikeLooper;
+    return _spikeLooper;
   }
 
 } // namespace simil

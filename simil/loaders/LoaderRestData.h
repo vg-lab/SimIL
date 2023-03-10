@@ -187,9 +187,9 @@ namespace simil
 
     std::atomic< bool > _forceStop;
     std::atomic< unsigned int > _spikesRead;
-    Configuration m_config;
+    Configuration _config;
 
-    std::thread spikeLooper;
+    std::thread _spikeLooper;
   };
 
 } // namespace simil
