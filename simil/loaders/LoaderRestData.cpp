@@ -26,6 +26,7 @@
 #include "HTTP/SyncClient.h"
 
 // C++
+#include <bits/std_thread.h>
 #include <cstddef>
 #include <iostream>
 #include <memory>
@@ -41,20 +42,18 @@ constexpr uint64_t RANGE_LIMIT = std::numeric_limits< uint32_t >::max( );
 
 namespace simil
 {
-  const std::string LoaderRestData::ARBOR_PREFIX = "/arbor";
-  const std::string LoaderRestData::NEST_PREFIX = "/nest";
+  const std::string LoaderRestData::Configuration::ARBOR_PREFIX = "/arbor";
+  const std::string LoaderRestData::Configuration::NEST_PREFIX = "/nest";
 
   LoaderRestData::LoaderRestData( )
     : LoaderSimData( )
-    , _forceStop{ false }
-    , _spikesRead{ 0 }
     , _config( )
+    , _forceNetworkLoopStop( false )
   { }
 
   LoaderRestData::~LoaderRestData( )
   {
-    _forceStop = true;
-    _spikeLooper.join();
+    _forceNetworkLoopStop = true;
   }
 
   std::unique_ptr< SimulationData >
@@ -73,12 +72,16 @@ namespace simil
     _config.url = serverUrl;
     _config.port = serverPort;
 
-    auto data = new SpikeData( );
+    Looper looper( _config );
 
-    _spikeLooper = std::thread( &LoaderRestData::loopSpikes ,
-                                this , data , serverUrl ,
-                                restAPIPrefix( ) , serverPort );
-    return std::unique_ptr< SimulationData >( data );
+    looper.data = std::unique_ptr< SpikeData >( new SpikeData( ));
+    looper.thread = std::thread( &LoaderRestData::loopSpikes ,
+                                 &looper );
+    looper.thread.join( );
+
+    std::unique_ptr< SpikeData > final;
+    std::swap(*final, *looper.data);
+    return final;
   }
 
   std::unique_ptr< Network >
@@ -99,12 +102,36 @@ namespace simil
 
     auto network = new Network( );
 
-    loopNetwork( network , serverUrl , restAPIPrefix( ) , serverPort );
+    loopNetwork( network , serverUrl , _config.restAPIPrefix( ) , serverPort );
     return std::unique_ptr< Network >( network );
   }
 
+  std::unique_ptr< LoaderRestData::Looper >
+  LoaderRestData::loadSimulationDataAsync( const std::string& url ,
+                                           const std::string& port )
+  {
+    auto serverUrl = _config.url;
+    unsigned int serverPort = _config.port;
+
+    if ( !url.empty( ))
+      serverUrl = url;
+
+    if ( !port.empty( ))
+      serverPort = stoi( port );
+
+    _config.url = serverUrl;
+    _config.port = serverPort;
+
+    auto looper = std::unique_ptr< Looper >( new Looper( _config ));
+
+    looper->data = std::unique_ptr< SpikeData >( new SpikeData( ));
+    looper->thread = std::thread( &LoaderRestData::loopSpikes ,
+                                  looper.get( ));
+    return looper;
+  }
+
   LoaderRestData::RESTResult
-  LoaderRestData::callbackSpikes( SpikeData* spikes , std::istream& data ) const
+  LoaderRestData::callbackSpikes( Looper* looper , std::istream& data )
   {
     if ( data.eof( ) || data.fail( )) return { RESTResultType::NODATA , false };
     Json::Value root;
@@ -134,10 +161,10 @@ namespace simil
       return { RESTResultType::NODATA , last.isBool( ) && last.asBool( ) };
 
     TSpikes vecSpikes;
-    vecSpikes.reserve( _config.spikesSize );
+    vecSpikes.reserve( looper->configuration.spikesSize );
 
-    float startTime = spikes->startTime( );
-    float endTime = spikes->endTime( );
+    float startTime = looper->data->startTime( );
+    float endTime = looper->data->endTime( );
     uint32_t rangeErrors = 0;
 
     for ( uint32_t idx = 0; idx < nodeIds.size( ); ++idx )
@@ -158,9 +185,9 @@ namespace simil
 
     if ( !vecSpikes.empty( ))
     {
-      spikes->addSpikes( vecSpikes );
-      spikes->setStartTime( startTime );
-      spikes->setEndTime( endTime );
+      looper->data->addSpikes( vecSpikes );
+      looper->data->setStartTime( startTime );
+      looper->data->setEndTime( endTime );
     }
 
     if ( rangeErrors > 0 )
@@ -285,25 +312,22 @@ namespace simil
     return { type , false };
   }
 
-  void LoaderRestData::loopSpikes( SpikeData* data ,
-                                   const std::string& url ,
-                                   const std::string& prefix ,
-                                   const unsigned int port )
+  void LoaderRestData::loopSpikes( Looper* looper )
   {
-    while ( !_forceStop )
+    while ( looper->shouldContinue( ))
     {
-      const auto result = getSpikes( data , url , prefix , port );
+      const auto result = getSpikes( looper );
       if ( result.stopThread ) break;
       switch ( result.type )
       {
         case RESTResultType::NOTCONNECTED:
         case RESTResultType::EXCEPTION:
           std::this_thread::sleep_for(
-            std::chrono::milliseconds( _config.failTime ));
+            std::chrono::milliseconds( looper->configuration.failTime ));
           break;
         case RESTResultType::NODATA:
           std::this_thread::sleep_for(
-            std::chrono::milliseconds( _config.waitTime ));
+            std::chrono::milliseconds( looper->configuration.waitTime ));
           break;
         case RESTResultType::NEWDATA:
           break;
@@ -318,7 +342,7 @@ namespace simil
                                     const unsigned int port )
   {
     // NOTE: aborts after getting node positions, as NEST doesn't add new nodes later.
-    while ( !_forceStop && network->gidsSize( ) < 2 )
+    while ( !_forceNetworkLoopStop && network->gidsSize( ) < 2 )
     {
       const auto result = getNodeProperties( network , url , prefix , port );
       if ( result.stopThread ) break;
@@ -365,35 +389,32 @@ namespace simil
   }
 
   LoaderRestData::RESTResult
-  LoaderRestData::getSpikes( SpikeData* spikes ,
-                             const std::string& url ,
-                             const std::string& prefix ,
-                             const unsigned int port )
+  LoaderRestData::getSpikes( Looper* looper )
   {
     // Let's fetch the spikes from api.xxx/prefix/spikes/
     HTTPSyncClient client;
-    std::string uri( prefix + "/spikes/?" );
-    if ( _spikesRead > 0 )
+    std::string uri( looper->configuration.restAPIPrefix( ) + "/spikes/?" );
+    if ( looper->spikesRead > 0 )
     {
       uri.append( "skip=" );
-      uri.append( std::to_string( _spikesRead ));
+      uri.append( std::to_string( looper->spikesRead ));
       uri.append( "&" );
     }
     uri.append( "top=" );
-    uri.append( std::to_string( _config.spikesSize ));
+    uri.append( std::to_string( looper->configuration.spikesSize ));
 
-    client.set_host( url );
+    client.set_host( looper->configuration.url );
     client.set_uri( uri );
-    client.set_port( port );
+    client.set_port( looper->configuration.port );
 
     const auto answer = client.execute( );
 
     if ( answer == boost::system::errc::success )
     {
-      const auto result = callbackSpikes( spikes , client.get_response( ));
+      const auto result = callbackSpikes( looper , client.get_response( ));
       if ( result.type == RESTResultType::NEWDATA )
       {
-        _spikesRead = spikes->spikes( ).size( );
+        looper->spikesRead = looper->data->spikes( ).size( );
       }
 
       return result;
@@ -434,11 +455,6 @@ namespace simil
     return result;
   }
 
-  std::string LoaderRestData::restAPIPrefix( ) const
-  {
-    return _config.api == Rest_API::NEST ? NEST_PREFIX : ARBOR_PREFIX;
-  }
-
   void LoaderRestData::setConfiguration( const Configuration& config )
   {
     _config = config;
@@ -449,9 +465,35 @@ namespace simil
     return _config;
   }
 
-  const std::thread& LoaderRestData::getSpikeLooper( ) const
+  std::string LoaderRestData::Configuration::restAPIPrefix( ) const
   {
-    return _spikeLooper;
+    return api == Rest_API::NEST ? NEST_PREFIX : ARBOR_PREFIX;
   }
 
+  LoaderRestData::Looper::Looper( LoaderRestData::Configuration c )
+    : data( nullptr )
+    , thread( )
+    , configuration( std::move( c ))
+    , stop( false )
+    , spikesRead( 0 )
+  {
+  }
+
+  LoaderRestData::Looper::~Looper( )
+  {
+    if ( thread.joinable( ))
+    {
+      thread.join( );
+    }
+  }
+
+  bool LoaderRestData::Looper::shouldContinue( ) const
+  {
+    return !stop && data != nullptr;
+  }
+
+  void LoaderRestData::Looper::stopLooper( )
+  {
+    stop = true;
+  }
 } // namespace simil

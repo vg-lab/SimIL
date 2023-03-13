@@ -25,8 +25,8 @@
 
 // Project
 #include "LoaderSimData.h"
-#include "simil/Network.h"
-#include "simil/SpikeData.h"
+#include <simil/Network.h>
+#include <simil/SpikeData.h>
 #include <memory>
 #include <simil/api.h>
 
@@ -42,18 +42,9 @@ namespace simil
 {
   class SIMIL_API LoaderRestData : public LoaderSimData
   {
+
   public:
-    LoaderRestData( );
 
-    virtual ~LoaderRestData( );
-
-    virtual std::unique_ptr< SimulationData >
-    loadSimulationData( const std::string& url ,
-                        const std::string& port = "" ) override;
-
-    virtual std::unique_ptr< Network >
-    loadNetwork( const std::string& url ,
-                 const std::string& port = "" ) override;
 
     /** \brief Implemented rest APIs.
      *
@@ -69,6 +60,10 @@ namespace simil
      */
     struct Configuration
     {
+
+      static const std::string ARBOR_PREFIX;
+      static const std::string NEST_PREFIX;
+
       Rest_API api;        /** REST API, NEST or ARBOR.           */
       std::string url;        /** server url.                        */
       unsigned int port;       /** server port.                       */
@@ -86,7 +81,59 @@ namespace simil
         , spikesSize( 1000 )
         , network( )
       { };
+
+      /** \brief Helper method to get the uri prefix depending on the rest API used.
+       *
+       */
+      std::string restAPIPrefix( ) const;
+
     };
+
+    struct Looper
+    {
+
+      std::shared_ptr< SpikeData > data;
+
+      std::thread thread;
+      Configuration configuration;
+      std::atomic_bool stop;
+      std::atomic_uint32_t spikesRead;
+
+      Looper( const Looper& other ) = delete;
+
+      explicit Looper( Configuration configuration );
+
+      ~Looper( );
+
+      bool shouldContinue( ) const;
+
+      void stopLooper( );
+    };
+
+  private:
+
+    Configuration _config;
+
+    std::atomic_bool _forceNetworkLoopStop;
+
+  public:
+
+    LoaderRestData( );
+
+    ~LoaderRestData( ) override;
+
+    virtual std::unique_ptr< SimulationData >
+    loadSimulationData( const std::string& url ,
+                        const std::string& port = "" ) override;
+
+    virtual std::unique_ptr< Network >
+    loadNetwork( const std::string& url ,
+                 const std::string& port = "" ) override;
+
+    std::unique_ptr< Looper >
+    loadSimulationDataAsync( const std::string& url ,
+                             const std::string& port = "" );
+
 
     /** \brief Sets the REST connection options.
      * \param[in] o Options struct reference.
@@ -108,18 +155,10 @@ namespace simil
     /** \brief Returns the api version of the connection.
      *
      */
-    struct Version
+    Version
     getVersion( const std::string url , const unsigned int port );
 
-    /**
-     * Returns the thread that keeps looking for new spikes.
-     * @return the spikes.
-     */
-    const std::thread& getSpikeLooper( ) const;
-
   protected:
-    static const std::string ARBOR_PREFIX;   /** uri prefix to get arbor data from server. */
-    static const std::string NEST_PREFIX;    /** uri prefix to get nest data from server.  */
 
     enum class RESTResultType
     {
@@ -141,20 +180,9 @@ namespace simil
       }
     };
 
-    /** Callback methods for processing JSON contents.
-     *
-     */
-    RESTResult callbackSpikes( SpikeData* spikes , std::istream& data ) const;
 
     RESTResult callbackNodeProperties( Network* network ,
                                        std::istream& contentdata );
-
-    /** Calling methods to request data from server.
-     *
-     */
-    void loopSpikes( SpikeData* data ,
-                     const std::string& url , const std::string& prefix ,
-                     const unsigned int port );
 
     void loopNetwork( Network* network ,
                       const std::string& url , const std::string& prefix ,
@@ -170,26 +198,24 @@ namespace simil
                        const std::string& url , const std::string& prefix ,
                        const unsigned int port );
 
+    /** Callback methods for processing JSON contents.
+     *
+     */
+    static RESTResult callbackSpikes( Looper* looper , std::istream& data );
+
+    /** Calling methods to request data from server.
+     *
+     */
+    static void loopSpikes( Looper* looper );
+
     /** \brief Get spikes information from then server.
      * \param[in] url server address
      * \param[in] prefix server uri prefix.
      * \param[in] port server address port.
      *
      */
-    RESTResult getSpikes( SpikeData* spikes ,
-                          const std::string& url , const std::string& prefix ,
-                          const unsigned int port );
+    static RESTResult getSpikes( Looper* looper );
 
-    /** \brief Helper method to get the uri prefix depending on the rest API used.
-     *
-     */
-    std::string restAPIPrefix( ) const;
-
-    std::atomic< bool > _forceStop;
-    std::atomic< unsigned int > _spikesRead;
-    Configuration _config;
-
-    std::thread _spikeLooper;
   };
 
 } // namespace simil
