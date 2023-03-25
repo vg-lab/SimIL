@@ -200,57 +200,89 @@ void H5Morphologies::loadNeurons( )
 
   types.close( );
 
-  // Read neurons
-
-  auto placementGroup = root.openGroup( PLACEMENT_GROUP );
-
-  for ( const auto& item: typesByName )
+  if ( !H5Lexists( root.getLocId( ) , POSITIONS_DATASET , H5P_DEFAULT ))
   {
-    std::string name = item.first;
-    auto type = item.second;
-
-    auto typeGroup = placementGroup.openGroup( name );
-
-    //if ( !typeGroup.nameExists( POSITIONS_DATASET ))
-    if ( !H5Lexists( typeGroup.getLocId( ) , POSITIONS_DATASET , H5P_DEFAULT ))
-    {
-      std::cout << "Warning: neuron type " << name
-                << " has no position dataset." << std::endl;
-      continue;
-    }
-
-    auto positions = typeGroup.openDataSet( POSITIONS_DATASET );
-    auto identifiers = typeGroup.openDataSet( IDENTIFIERS_DATASET );
-
-    uint32_t identifiersRaw[2];
-    std::vector< double > positionsRaw;
-
-    auto dataSpace = positions.getSpace( );
-    hsize_t dims[2];
-    dataSpace.getSimpleExtentDims( dims );
-    positionsRaw.resize( dims[ 0 ] * dims[ 1 ] );
-
-    identifiers.read( identifiersRaw , identifiers.getIntType( ));
-    positions.read( positionsRaw.data( ) , positions.getFloatType( ));
-
-    uint32_t index = 0;
-    uint32_t to = identifiersRaw[ 0 ] + identifiersRaw[ 1 ];
-
-    for ( uint32_t id = identifiersRaw[ 0 ]; id < to; ++id )
-    {
-      double x = positionsRaw[ index++ ];
-      double y = positionsRaw[ index++ ];
-      double z = positionsRaw[ index++ ];
-      _neurons.push_back( Neuron{ type , id , x , y , z } );
-    }
-
-    positions.close( );
-    identifiers.close( );
-    typeGroup.close( );
+    std::cout << "Warning: neuron positions missing!" << std::endl;
+    return;
   }
 
-  placementGroup.close( );
-  root.close( );
+  auto positions = root.openDataSet( POSITIONS_DATASET );
+
+  std::vector< double > positionsRaw;
+
+  auto dataSpace = positions.getSpace( );
+  hsize_t dims[2];
+  dataSpace.getSimpleExtentDims( dims );
+  dataSpace.close();
+  positionsRaw.resize( dims[ 0 ] * dims[ 1 ] );
+  positions.read( positionsRaw.data( ) , positions.getFloatType( ));
+
+  uint32_t index = 0;
+
+  for ( uint32_t id = positionsRaw[ 0 ]; id < dims[0]; ++id )
+  {
+    const uint32_t idNum = static_cast<uint32_t>(positionsRaw[index]);
+    const uint32_t typeNum = static_cast<uint32_t>(positionsRaw[index + 1]);
+    const auto x = positionsRaw[ index+2 ];
+    const auto y = positionsRaw[ index+3 ];
+    const auto z = positionsRaw[ index+4 ];
+    _neurons.push_back( Neuron{ typesById[typeNum] , idNum , x , y , z } );
+
+    index += dims[1];
+  }
+
+  positions.close( );
+  root.close();
+
+  // Read neurons
+//  auto placementGroup = root.openGroup( PLACEMENT_GROUP );
+//
+//  for ( const auto& item: typesByName )
+//  {
+//    std::string name = item.first;
+//    auto type = item.second;
+//
+//    auto typeGroup = placementGroup.openGroup( name );
+//
+//    if ( !H5Lexists( root.getLocId( ) , POSITIONS_DATASET , H5P_DEFAULT ))
+//    {
+//      std::cout << "Warning: neuron type " << name
+//                << " has no position dataset." << std::endl;
+//      continue;
+//    }
+//
+//    auto positions = typeGroup.openDataSet( POSITIONS_DATASET );
+//    auto identifiers = typeGroup.openDataSet( IDENTIFIERS_DATASET );
+//
+//    uint32_t identifiersRaw[2];
+//    std::vector< double > positionsRaw;
+//
+//    auto dataSpace = positions.getSpace( );
+//    hsize_t dims[2];
+//    dataSpace.getSimpleExtentDims( dims );
+//    positionsRaw.resize( dims[ 0 ] * dims[ 1 ] );
+//
+//    identifiers.read( identifiersRaw , identifiers.getIntType( ));
+//    positions.read( positionsRaw.data( ) , positions.getFloatType( ));
+//
+//    uint32_t index = 0;
+//    uint32_t to = identifiersRaw[ 0 ] + identifiersRaw[ 1 ];
+//
+//    for ( uint32_t id = identifiersRaw[ 0 ]; id < to; ++id )
+//    {
+//      double x = positionsRaw[ index++ ];
+//      double y = positionsRaw[ index++ ];
+//      double z = positionsRaw[ index++ ];
+//      _neurons.push_back( Neuron{ type , id , x , y , z } );
+//    }
+//
+//    positions.close( );
+//    identifiers.close( );
+//    typeGroup.close( );
+//  }
+//
+//  placementGroup.close( );
+//  root.close( );
 
 }
 

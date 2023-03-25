@@ -27,18 +27,11 @@
 #include <memory>
 
 #ifdef SIMIL_USE_BRION
-
 #include <brion/brion.h>
 #include <brain/brain.h>
-
 #endif
 
-#include <simil/api.h>
-
-#include <unordered_map>
-
 #ifdef SIMIL_USE_ZEROEQ
-
 #include <boost/signals2/signal.hpp>
 #include <boost/bind.hpp>
 #include "ZeroEqEventsManager.h"
@@ -49,6 +42,7 @@
 #include "SpikeData.h"
 #include "DataSet.h"
 #include "SimulationPlayer.h"
+
 #include <simil/api.h>
 
 namespace simil
