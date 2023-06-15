@@ -34,23 +34,26 @@ std::string H5Morphologies::fetchPascalCaseName( NeuronType type )
     case NeuronType::GOLGI_CELL:
       return "GolgiCell";
     case NeuronType::PURKINJE_CELL:
-      return "PurnkinjeCell";
+      return "PurkinjeCell";
     case NeuronType::STELLATE_CELL:
       return "StellateCell";
     case NeuronType::BASKET_CELL:
       return "BasketCell";
+    default:
+      break;
   }
-  return "";
+  return "Undefined";
 }
 
 NeuronType H5Morphologies::fetchTypeBySnakeCaseName( const std::string& name )
 {
   if ( name == "granule_cell" ) return NeuronType::GRANULE_CELL;
   if ( name == "golgi_cell" ) return NeuronType::GOLGI_CELL;
-  if ( name == "purnkinje_cell" ) return NeuronType::PURKINJE_CELL;
+  if ( name == "purkinje_cell" ) return NeuronType::PURKINJE_CELL;
   if ( name == "stellate_cell" ) return NeuronType::STELLATE_CELL;
   if ( name == "basket_cell" ) return NeuronType::BASKET_CELL;
-  return NeuronType::GOLGI_CELL;
+
+  return NeuronType::UNDEFINED;
 }
 
 MorphologyType
@@ -226,7 +229,8 @@ void H5Morphologies::loadNeurons( )
     const auto x = positionsRaw[ index+2 ];
     const auto y = positionsRaw[ index+3 ];
     const auto z = positionsRaw[ index+4 ];
-    _neurons.push_back( Neuron{ typesById[typeNum] , idNum , x , y , z } );
+    if(typesById[typeNum] != NeuronType::UNDEFINED)
+      _neurons.push_back( Neuron{ typesById[typeNum] , idNum , x , y , z } );
 
     index += dims[1];
   }
@@ -301,7 +305,6 @@ H5Morphologies::H5Morphologies( std::string
 
 void H5Morphologies::load( )
 {
-
   if ( _loaded ) return;
   if ( _fileName.empty( ))
   {

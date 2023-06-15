@@ -29,7 +29,8 @@ enum class NeuronType
   GOLGI_CELL ,
   PURKINJE_CELL ,
   STELLATE_CELL ,
-  BASKET_CELL
+  BASKET_CELL,
+  UNDEFINED
 };
 
 static const NeuronType ALL_NEURON_TYPES[] = {
@@ -37,7 +38,8 @@ static const NeuronType ALL_NEURON_TYPES[] = {
   NeuronType::GOLGI_CELL ,
   NeuronType::PURKINJE_CELL ,
   NeuronType::STELLATE_CELL ,
-  NeuronType::BASKET_CELL
+  NeuronType::BASKET_CELL ,
+  NeuronType::UNDEFINED
 };
 
 struct MorphologyNeurite
