@@ -22,38 +22,40 @@
 
 #include <simil/simil.h>
 #include <iostream>
+#include <cassert>
 
 int main( int argc, char** argv )
 {
 
   if( argc < 3 )
+  {
+    std::cout << "Usage: " << argv[0] << " network_file.csv activity_file.csv" << std::endl;
     return -1;
+  }
 
   std::string networkFile = argv[ 1 ];
   std::string activityFile = argv[ 2 ];
 
-  simil::CSVNetwork network( networkFile, ',', false );
+  simil::CSVNetwork network( networkFile, ',' );
   network.load( );
 
-  simil::TGIDSet gids = network.getGIDs( );
-  std::cout << gids.size( ) << std::endl;
+  const auto gids = network.getGIDs( );
+  std::cout << "gids size: " << gids.size( ) << std::endl;
 
-  std::cout << "GIDs: ";
-  for( auto gid : gids )
-    std::cout << " "<< gid;
-  std::cout << std::endl;
+  const auto positions = network.getComposedPositions( );
+  assert(gids.size() == positions.size());
 
-  simil::TPosVect positions = network.getComposedPositions( );
-  std::cout << positions.size( ) << std::endl;
+  auto pit = positions.cbegin();
+  for(auto it = gids.cbegin(); it != gids.cend(); ++it,++pit)
+  {
+    std::cout << "gid: " << *it << ", pos: " << *pit << std::endl;
+  }
 
-  for( auto position : positions )
-    std::cout << position << std::endl;
-
-  simil::CSVSpikes activity( network, activityFile, ',', false );
+  simil::CSVSpikes activity( network, activityFile );
   activity.load( );
 
-  simil::TSpikes spikes = activity.spikes( );
+  const auto spikes = activity.spikes( );
 
-//  for( auto spike : spikes )
-//    std::cout << spike.first << ", " << spike.second << std::endl;
+  for( auto spike : spikes )
+    std::cout << "gid: " << spike.first << ", time: " << spike.second << std::endl;
 }

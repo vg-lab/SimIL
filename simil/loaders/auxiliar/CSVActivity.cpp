@@ -23,86 +23,136 @@
 
 #include "CSVActivity.h"
 
+#include <sys/stat.h>
+#include <cassert>
+#include <locale>
+#include <fstream>
+#include <map>
+#include <utility> // std::swap
+
 #include <QFile>
 #include <QStringList>
 
-#include <map>
+struct dotSeparator: std::numpunct<char>
+{
+    char do_decimal_point() const { return '.'; }
+};
+
+const std::vector<char> SEPARATORS{ ',',';','\t',' ' };
 
 namespace simil
 {
-
   CSVActivity::CSVActivity( const CSVNetwork& network,
                             const std::string& filename,
-                            char separator,
-                            bool headerLine )
-  : _network( &network )
+                            char separator )
+  : _network( network )
+  , _endTime(0.f)
   , _fileName( filename )
   , _separator( separator )
-  , _headerLine( headerLine )
-  { }
+  {}
 
   CSVActivity::~CSVActivity( void )
-  { }
+  {}
 
+  float CSVActivity::startTime() const
+  {
+    return 0.f;
+  }
+
+  float CSVActivity::endTime() const
+  {
+    return _endTime;
+  }
 
   CSVSpikes::CSVSpikes( const CSVNetwork& network,
                         const std::string& filename,
-                        char separator,
-                        bool headerLine )
-  : CSVActivity( network, filename, separator, headerLine )
-  , _startTime( 0.0f )
-  , _endTime( 0.0f )
-  { }
+                        char separator)
+  : CSVActivity( network, filename, separator )
+  {}
 
   CSVSpikes::~CSVSpikes( void )
-  { }
+  {}
 
   void CSVSpikes::load( void )
   {
-
     QFile file( QString( _fileName.data( )));
     if( !file.open( QIODevice::ReadOnly | QFile::Text))
     {
-      std::cerr << "Error: Could not open CSV file " << _fileName << "." << std::endl;
-      return;
+      const std::string errorMessage = std::string("Error, could not open CSV activity file: ") + _fileName;
+      throw std::runtime_error(errorMessage);
     }
 
-//    if( _headerLine )
-//      file.readLine( );
-
-    _spikes.clear( );
+    clear();
 
     unsigned int counter = 0;
+    unsigned int gidPos = 0;
+    unsigned int timePos = 1;
+    bool ok = false;
 
-    float endTime = 0.0f;
+    // Tests for correct separator and fields position, use second line in
+    // case file has a header line.
+    QByteArray line = file.readLine( );
+    line = file.readLine();
+    QList< QByteArray > wordList = line.split( _separator );
+    if(wordList.size() != 2)
+    {
+      for(auto candidate: SEPARATORS )
+      {
+        wordList = line.split( candidate );
+        if( wordList.size( ) != 2 )
+          continue;
+
+        _separator = candidate;
+        break;
+      }
+    }
+
+    // Check order, that's why we need the second line.
+    if(wordList.size() == 2)
+    {
+      wordList[gidPos].toInt(&ok);
+      if(!ok)
+        std::swap(gidPos, timePos);
+    }
+    assert(file.seek(0));
 
     while( !file.atEnd( ))
     {
       QStringList stringLine;
-      QByteArray line = file.readLine( );
-      QList< QByteArray > wordList = line.split( _separator );
+      line = file.readLine( );
+      wordList = line.split(_separator);
+      wordList.removeAll("");
+
+      if(wordList.size() != 2)
+      {
+        const std::string errorText = std::string("CSV error in line: ") + std::to_string(counter) +
+                                      std::string(". Please check file format and make sure all lines match the following structure for each line:") +
+                                      std::string(" GID, TIME\n") + std::string("Both fields are obligatory.\n") +
+                                      std::string("Separator used: '") + _separator + "'\n";
+        throw std::runtime_error(errorText);
+      }
+
       for( auto word : wordList )
         stringLine.append( word.constData( ));
 
       std::vector< int > row( stringLine.size( ));
 
-      QString gidString = stringLine[ 0 ];
-      QString timeString = stringLine[ 1 ];
+      QString gidString = stringLine[ gidPos ];
+      QString timeString = stringLine[ timePos ];
 
-      bool okGID;
-      bool okTime;
+      bool okGID = false;
+      bool okTime = false;
 
       const unsigned int gidValue = gidString.toInt( &okGID );
       const float timeValue = timeString.toFloat( &okTime );
 
-      if( timeValue > endTime )
-        endTime = timeValue;
+      if( timeValue > _endTime )
+        _endTime = timeValue;
 
       if( !okGID || !okTime )
       {
-        std::cout << "Warning: Value " << gidString.toStdString( )
-                  << " or " << timeString.toStdString( )
-                  << " not converted to float." << std::endl;
+        std::cout << std::boolalpha << "Warning: Line " << counter << ". Invalid conversion of '" << gidString.toStdString( )
+                  << "' or '" << timeString.toStdString( ) << "' results: " << okGID << "," << okTime << std::endl;
         continue;
       }
 
@@ -111,15 +161,11 @@ namespace simil
       counter++;
     }
 
-    _startTime = 0;
-    _endTime = endTime;
-
-    std::cout << "Read " << _spikes.size( ) << " values." << std::endl;
-
     file.close( );
+    std::cout << "CSV Read " << _spikes.size( ) << " spikes." << std::endl;
   }
 
-  TSpikes CSVSpikes::spikes( void )
+  TSpikes CSVSpikes::spikes() const
   {
     TSpikes result;
 
@@ -130,13 +176,33 @@ namespace simil
     return result;
   }
 
-  float CSVSpikes::startTime( void )
+  void CSVSpikes::save(const std::string filename)
   {
-    return _startTime;
+    std::ofstream aFile;
+    aFile.open(filename, std::ios_base::trunc);
+
+    if(aFile.fail())
+    {
+      std::cerr << "Unable to create CSV activity file: " << filename << std::endl;
+      return;
+    }
+
+    aFile.imbue(std::locale(aFile.getloc(), new dotSeparator()));
+
+    for(auto it = _spikes.cbegin(); it != _spikes.cend(); ++it)
+    {
+      auto &val = *it;
+      aFile << std::to_string(val.second) << "," << val.first << '\n';
+    }
+    aFile.flush();
+    aFile.close();
+    std::cout << "Write CSV activity file: " << filename << std::endl;
   }
 
-  float CSVSpikes::endTime( void )
+  void CSVSpikes::clear()
   {
-    return _endTime;
+    _endTime = 0.f;
+    _spikes.clear();
   }
+
 }
