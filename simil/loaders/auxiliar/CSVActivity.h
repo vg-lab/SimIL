@@ -29,57 +29,108 @@
 
 namespace simil
 {
-
+  /** \class CSVActivity
+   * \brief Loads the activity of a network from a CSV file.
+   *
+   */
   class SIMIL_API CSVActivity
   {
+    public:
+      /** \brief CSVActivity class constructor.
+       * \param[in] network Network definition in CSVNetwork class format.
+       * \param[in] filename Name of CSV file.
+       * \param[in] separator Suggested separator character, can change in load().
+       *
+       */
+      CSVActivity( const CSVNetwork& network,
+                   const std::string& filename,
+                   char separator = ',');
 
-  public:
+      /** \brief CSVActivity class virtual destructor.
+       *
+       */
+      virtual ~CSVActivity( void );
 
-    CSVActivity( const CSVNetwork& network,
-                 const std::string& filename,
-                 char separator = ',',
-                 bool headerLine = false );
+      /** \brief Data loading.
+       *
+       */
+      virtual void load( void ) = 0;
 
-    virtual ~CSVActivity( void );
+      /** \brief Save the contents of the class to a CSV file.
+       * \param[in] filename Name of CSV file on disk.
+       *
+       */
+      virtual void save(const std::string filename) = 0;
 
-    virtual void load( void ) = 0;
+      /** \brief Clears the contents of the class.
+       *
+       */
+      virtual void clear() = 0;
 
-  protected:
+      /** \brief Returns the activity start time.
+       *
+       */
+      float startTime() const;
 
-    const CSVNetwork* _network;
+      /** \brief Returns the activity end time.
+       *
+       */
+      float endTime() const;
 
-    std::string _fileName;
-    char _separator;
-    bool _headerLine;
+    protected:
+      const CSVNetwork& _network; /** Network definition. */
+      float _endTime;             /** activity end time as float. */
 
+      std::string _fileName; /** file filename. */
+      char _separator;       /** suggested separator character. */
   };
 
+  /** \class CSVSpikes
+   * \brief Loads the spike activation activity from a CSV file, in
+   * format GID,TIME.
+   *
+   */
   class SIMIL_API CSVSpikes : public CSVActivity
   {
-  public:
+    public:
+      /** \brief CSVSpikes class constructor.
+       * \param[in] network Network definition reference.
+       * \param[in] filename Name of CSV file on disk.
+       * \param[in] separator Suggested separator character, can change on load().
+       *
+       */
+      CSVSpikes( const CSVNetwork& network,
+                 const std::string& filename,
+                 char separator = ',');
 
-    CSVSpikes( const CSVNetwork& network,
-               const std::string& filename,
-               char separator = ',',
-               bool headerLine = true );
+      /** \brief CSVSpikes class virtual destructor.
+       *
+       */
+      virtual ~CSVSpikes( void );
 
-    ~CSVSpikes( void );
+      virtual void load( void );
+      virtual void save(const std::string filename);
 
-    void load( void );
+      virtual void clear();
 
-    TSpikes spikes( void );
-    float startTime( void );
-    float endTime( void );
+      /** \brief Returns the spikes activity data as a vector<time,gid>.
+       *
+       */
+      TSpikes spikes() const;
 
-  protected:
-
-    float _startTime;
-    float _endTime;
-
-//    std::vector< std::vector< int >> _values;
-    std::multimap< float, uint32_t > _spikes;
+    protected:
+      std::multimap< float, uint32_t > _spikes; /** spikes as a map of time - multiple gids. */
   };
 
+  /** \class CSVVoltages
+   *  \brief Loads the network voltage values from a CSV file. TODO: @felix
+   *
+   *
+   */
+  class SIMIL_API CSVVoltages : public CSVActivity
+  {
+      CSVVoltages(const CSVNetwork &network, const std::string &filename, const unsigned char separator);
+  };
 }
 
 

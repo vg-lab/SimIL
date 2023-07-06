@@ -94,7 +94,7 @@ SpikeData::SpikeData()
       }
       case TCSV:
       {
-        CSVSpikes spikeReport( *_csvNetwork, report, ',', false );
+        CSVSpikes spikeReport( *_csvNetwork, report );
         spikeReport.load( );
 
         _spikes = spikeReport.spikes( );
@@ -125,7 +125,8 @@ SpikeData::SpikeData()
   void SpikeData::reduceDataToGIDS( void )
   {
     _isDirty = true;
-    std::cout << " Before: " << _spikes.size( ) << std::endl;
+    const auto before = _spikes.size();
+    std::cout << "Reduce - Before: " << before;
     TSpikes aux;
     aux.reserve( _spikes.size( ) );
     for ( auto spike : _spikes )
@@ -136,7 +137,7 @@ SpikeData::SpikeData()
 
     _spikes = Spikes( aux );
 
-    std::cout << "After: " << _spikes.size( ) << std::endl;
+    std::cout << " After: " << _spikes.size( ) << ". Used " << (100*before)/_spikes.size() << "%" << std::endl;
   }
 
   const Spikes& SpikeData::spikes( void ) const

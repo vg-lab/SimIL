@@ -111,6 +111,9 @@ namespace simil
   };
 
 
+  /* \class VoltageData
+   * \brief Loads voltage simulation data. TODO: @felix
+   */
   class VoltageData : public SimulationData
   {
     VoltageData( const std::string& filePath, TDataType dataType,

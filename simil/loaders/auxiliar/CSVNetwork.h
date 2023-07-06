@@ -28,37 +28,61 @@
 
 namespace simil
 {
+  /** \class CSVNetwork
+   * \brief Loads the contents of a network description in a CSV file.
+   *
+   */
   class SIMIL_API CSVNetwork
   {
-  public:
+    public:
+      /** \brief CSVNetwork class constructor.
+       * \param[in] filename Name on disk of the CSV file.
+       * \param[in] separator Suggested separator character, can change in load().
+       *
+       */
+      CSVNetwork( const std::string& filename,
+                  char separator = ',' );
 
-    CSVNetwork( const std::string& filename,
-                char separator = ',',
-                bool headerLine = false );
+      /** \brief CSVNetwork class destructor.
+       *
+       */
+      ~CSVNetwork( );
 
-    ~CSVNetwork( );
+      /** \brief Loads the network data from the constructor params.
+       *
+       */
+      void load( void );
 
-    void load( void );
+      /** \brief Dumps the contents of the class to a CSV file.
+       * WARNING: overwrites.
+       * \param[in] filename Name of the file in the cwd.
+       *
+       */
+      void save(const std::string filename);
 
-    void clear( void );
+      /** \brief Clears the contents of the class.
+       *
+       */
+      void clear( void );
 
-    simil::TGIDSet getGIDs( void ) const;
-    simil::TPosVect getComposedPositions( void ) const;
+      /** \brief Returns the gids set.
+       *
+       */
+      simil::TGIDSet getGIDs( void ) const;
 
-  protected:
+      /** \brief Returns the gids positions vector.
+       *
+       */
+      simil::TPosVect getComposedPositions( void ) const;
 
-    std::string _fileName;
-    char _separator;
-    bool _headerLine;
+    protected:
 
-    simil::TGIDSet _gids;
-    simil::TPosVect _positions;
+      std::string _fileName; /** file filename. */
+      char _separator;       /** suggested separator character. */
 
+      simil::TGIDSet _gids;       /** gids set. */
+      simil::TPosVect _positions; /** gids positions vector. */
   };
-
-
 }
-
-
 
 #endif /* __SIMIL_CSVNETWORK__ */

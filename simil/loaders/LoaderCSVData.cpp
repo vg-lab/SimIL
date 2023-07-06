@@ -67,7 +67,7 @@ namespace simil
 
     if ( _csvActivity == nullptr )
     {
-      _csvActivity = new CSVSpikes( *_csvNetwork , activityFile , ',' , false );
+      _csvActivity = new CSVSpikes( *_csvNetwork , activityFile );
       _csvActivity->load( );
     }
 
