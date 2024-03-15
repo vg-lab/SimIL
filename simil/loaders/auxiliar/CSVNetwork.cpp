@@ -184,5 +184,4 @@ namespace simil
   {
     return _positions;
   }
-
 }

@@ -18,6 +18,7 @@ set( QSIMIL_LINK_LIBRARIES
   SimIL
   ${Boost_LIBRARIES}
   ${Boost_SYSTEM_LIBRARY}
+  ${HDF5_LIBRARIES}
   Qt5::Core
   Qt5::Widgets
 )
@@ -44,4 +45,5 @@ add_definitions( -DQSIMIL_SHARED )
 set( QSIMIL_INCLUDE_NAME qsimil )
 set( QSIMIL_NAMESPACE qsimil )
 common_library( QSimIL )
+target_include_directories(QSimIL PUBLIC ${HDF5_INCLUDE_DIRS})
 

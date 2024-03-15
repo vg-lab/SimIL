@@ -56,6 +56,10 @@ namespace simil
   typedef std::pair< SubsetMapCIt, SubsetMapCIt > SubsetMapRange;
   typedef std::pair< EventMapCIt, EventMapCIt > EventRange;
 
+  typedef std::tuple<float, float, int> Voltage; /** time, voltage, group */
+  typedef std::vector< Voltage > TVoltages;
+  typedef std::vector<std::pair<float, float>> Voltages; /** time, voltage */
+
   typedef enum
   {
     TSimNetwork = 0,
