@@ -54,8 +54,8 @@ set( SIMIL_LINK_LIBRARIES
      ${Boost_LIBRARIES}
      ${Boost_SYSTEM_LIBRARY}
      ${HDF5_LIBRARIES}
-     Qt5::Core
-     Qt5::Widgets
+     Qt6::Core
+     Qt6::Widgets
 )
 
 if(WIN32)

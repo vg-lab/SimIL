@@ -23,6 +23,9 @@
 
 #include "H5Activity.h"
 #include <cassert>
+#include <string>
+ #include <sstream>
+
 
 const char RECORDERS_TAG[]="recorders/soma_spikes";
 

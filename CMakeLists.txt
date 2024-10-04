@@ -48,8 +48,8 @@ endif()
 common_find_package( HDF5 REQUIRED COMPONENTS C CXX SYSTEM )
 common_find_package( Boost REQUIRED COMPONENTS system )
 common_find_package( ZeroEQ )
-common_find_package( Qt5Core SYSTEM )
-common_find_package( Qt5Widgets SYSTEM )
+common_find_package( Qt6Core SYSTEM )
+common_find_package( Qt6Widgets SYSTEM )
 
 list( APPEND SIMIL_DEPENDENT_LIBRARIES HDF5 vmmlib Boost )
 
