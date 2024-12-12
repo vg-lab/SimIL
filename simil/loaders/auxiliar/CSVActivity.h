@@ -79,6 +79,7 @@ namespace simil
 
     protected:
       const CSVNetwork& _network; /** Network definition. */
+      float _startTime;           /** activity start time as float. */
       float _endTime;             /** activity end time as float. */
 
       std::string _fileName; /** file filename. */
@@ -123,13 +124,71 @@ namespace simil
   };
 
   /** \class CSVVoltages
-   *  \brief Loads the network voltage values from a CSV file. TODO: @felix
-   *
+   *  \brief Loads the network voltage values from a CSV file.
    *
    */
   class SIMIL_API CSVVoltages : public CSVActivity
   {
-      CSVVoltages(const CSVNetwork &network, const std::string &filename, const unsigned char separator);
+    public:
+      /** \brief CSVVoltages class constructor.
+       * \param[in] network Network definition reference.
+       * \param[in] filename Name of CSV file on disk.
+       * \param[in] separator Suggested separator character, can change on load().
+       */
+      CSVVoltages(const CSVNetwork &network,
+                  const std::string &filename,
+                  const unsigned char separator);
+
+      /** \brief CSVVoltages class virtual destructor.
+       *
+       */
+      virtual ~CSVVoltages();
+
+      virtual void load( void );
+      virtual void save(const std::string filename);
+
+      virtual void clear();
+
+      /** \brief Returns the voltage activity data as a vector<time,vector<voltage>>.
+       *
+       */
+      TVoltages voltages() const;
+
+      /** \brief Returns the names of the groups.
+       *
+       */
+      std::vector<std::string> groups() const;
+
+      /** \brief Returns the voltage range for the given group.
+       * \param[in] voltages TVoltages vector.
+       * \param[in] group Group index in groups vector.
+       *
+       */
+      static std::pair<float, float> groupRange(const TVoltages &voltages, const unsigned int group);
+
+      /** \brief Returns the minimum voltage time step.
+       * \param[in] voltages TVoltages vector.
+       * \param[in] group Group index in groups vector.
+       *
+       */
+      static float groupTimeStep(const TVoltages &voltages, const unsigned int group);
+
+      /** \brief Returns the time range of the data. 
+       * \param[in] voltages TVoltages vector.
+       * 
+       */
+      static std::pair<float, float> timeRange(const TVoltages &voltages);
+
+      /** \brief Returns the time range for the given group. 
+       * \param[in] voltages TVoltages vector.
+       * \param[in] group Group index in groups vector.
+       * 
+       */
+      static std::pair<float, float> timeRangeOfGroup(const TVoltages &voltages, const unsigned int group);
+
+    protected:
+      TVoltages _voltages; /** spikes as vector of multiple voltages. */
+      std::vector<std::string> _groups;
   };
 }
 

@@ -4,9 +4,11 @@ set( SIMIL_PUBLIC_HEADERS
      log.h
      SimulationPlayer.h
      SpikesPlayer.h
+     VoltagesPlayer.h
      DataSet.h
      SimulationData.h
      SpikeData.h
+     VoltageData.h
      Network.h
      ZeroEqEventsManager.h
      SubsetEventManager.h
@@ -30,9 +32,11 @@ set( SIMIL_HEADERS
 set( SIMIL_SOURCES
      SimulationPlayer.cpp
      SpikesPlayer.cpp
+     VoltagesPlayer.cpp
      DataSet.cpp
      SimulationData.cpp
      SpikeData.cpp
+     VoltageData.cpp
      Network.cpp
 
      ZeroEqEventsManager.cpp
@@ -98,4 +102,6 @@ add_definitions( -DSIMIL_SHARED )
 
 set( SIMIL_INCLUDE_NAME simil )
 set( SIMIL_NAMESPACE simil )
+
 common_library( SimIL )
+target_include_directories(SimIL PUBLIC ${HDF5_INCLUDE_DIRS})

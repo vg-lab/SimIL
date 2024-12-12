@@ -71,12 +71,14 @@ namespace simil
     std::cout << "GID Set size: " << gids( ).size( ) << std::endl;
 
     _invTimeRange = 1.0f / ( _simData->endTime( ) - _simData->startTime( ));
+    _currentTime = _simData->startTime();
   }
 
   void SimulationPlayer::LoadData( const DataSet& dataset_ )
   {
     Clear( );
     LoadData( dataset_.network( ) , dataset_.simulationData( ));
+    _currentTime = _simData->startTime();
   }
 
   void SimulationPlayer::LoadData( std::shared_ptr< Network > network ,
@@ -95,6 +97,8 @@ namespace simil
       _invTimeRange = 1.0f / timeDiff;
     else
       _invTimeRange = 1.0f;
+
+    _currentTime = _simData->startTime();
   }
 
   void SimulationPlayer::LoadData( TDataType dataType ,
@@ -184,7 +188,7 @@ namespace simil
 
   void SimulationPlayer::PlayAtTime( float time )
   {
-    time = std::max( _startTime , std::min( time , _endTime ));
+    time = std::max(_startTime, std::min(time, _endTime));
 
     _currentTime = time;
     _previousTime = std::max( _currentTime - _deltaTime , _startTime );

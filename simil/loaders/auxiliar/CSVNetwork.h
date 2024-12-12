@@ -76,7 +76,6 @@ namespace simil
       simil::TPosVect getComposedPositions( void ) const;
 
     protected:
-
       std::string _fileName; /** file filename. */
       char _separator;       /** suggested separator character. */
 

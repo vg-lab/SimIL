@@ -29,7 +29,6 @@
 #endif
 #include <H5Cpp.h>
 
-
 #include "types.h"
 #include "SubsetEventManager.h"
 #include "loaders/auxiliar/H5Network.h"
@@ -108,16 +107,6 @@ namespace simil
     float _endTime;
 
     bool _isDirty;
-  };
-
-
-  /* \class VoltageData
-   * \brief Loads voltage simulation data. TODO: @felix
-   */
-  class VoltageData : public SimulationData
-  {
-    VoltageData( const std::string& filePath, TDataType dataType,
-                 const std::string& report = "" );
   };
 
 } // namespace simil

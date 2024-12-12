@@ -23,43 +23,90 @@
 #ifndef __QT_CLICKABLESLIDER_H__
 #define __QT_CLICKABLESLIDER_H__
 
+// Qt
 #include <QMouseEvent>
 #include <QSlider>
+#include <QPainter>
 
+// SimIL
 #include <qsimil/api.h>
+
+// C++
+#include <cmath>
 
 namespace qsimil
 {
   class QSIMIL_API ClickableSlider : public QSlider
   {
+    Q_OBJECT
   public:
+    ClickableSlider(enum Qt::Orientation _orientation = Qt::Horizontal,
+                    QWidget *_parent = nullptr)
+    : QSlider(_orientation, _parent)
+    , m_range_min{-1}
+    , m_range_max{-1}
+    {
+    }
 
-    ClickableSlider( enum Qt::Orientation _orientation = Qt::Horizontal,
-                  QWidget* _parent = nullptr )
-    : QSlider( _orientation, _parent )
-    { }
-
-  protected:
-
-    void mousePressEvent ( QMouseEvent * _event )
+    /** \brief Sets the range to display. Values in [0,1] or -1 to disable.
+     * \param[in] min Range minimum point.
+     * \param[in] max Range maximum point.
+     *
+     */
+    void setHighlightRange(float min, float max)
+    {
+      if(min < max)
       {
-        if (_event->button() == Qt::LeftButton)
-        {
-            if (orientation() == Qt::Vertical)
-                setValue(minimum() + ((maximum()-minimum()) * 
-                  (height()-_event->y())) / height() ) ;
-            else
-                setValue(minimum() + ((maximum()-minimum()) * 
-                  _event->x()) / width() ) ;
-
-            _event->accept();
-        }
-        QSlider::mousePressEvent(_event);
+        m_range_min = std::max(0.f, min);
+        m_range_max = std::min(1.f, max);
+      }
+      else
+      {
+        m_range_max = m_range_min = -1;
       }
 
-  };  // ClickableSlider
-}; // qsimil
+      update();
+    }
 
+  protected:
+    void mousePressEvent(QMouseEvent *_event) override
+    {
+      if (_event->button() == Qt::LeftButton)
+      {
+        if (orientation() == Qt::Vertical)
+          setValue(minimum() + ((maximum() - minimum()) * (height() - _event->y())) / height());
+        else
+          setValue(minimum() + ((maximum() - minimum()) * _event->x()) / width());
 
+        _event->accept();
+        emit sliderPressed();
+      }
+      else
+        QSlider::mousePressEvent(_event);
+    }
+
+    void paintEvent(QPaintEvent *event) override
+    {
+      if (m_range_min < m_range_max)
+      {
+        const auto qRect = rect();
+        const int xMin = std::ceil(qRect.width() * m_range_min);
+        const int xMax = std::ceil(qRect.width() * m_range_max); // width of the handle, to makeit in the center.
+
+        QPainter p(this);
+        p.setPen(Qt::transparent);
+        p.setBrush(QColor("#909090"));
+        p.drawRect(QRect{xMin, 0, xMax-xMin, qRect.height()});
+        p.end();
+      }
+
+      QSlider::paintEvent(event);
+    }
+
+  private:
+    float m_range_min; /** min value of displayed range in [0,1]. -1 to not in use. */
+    float m_range_max; /** max value of displayed range in [0,1]. -1 to not in use. */
+  };                  // ClickableSlider
+};                    // qsimil
 
 #endif /* SRC_QT_CLICKABLESLIDER_H_ */

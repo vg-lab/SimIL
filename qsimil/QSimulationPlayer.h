@@ -24,13 +24,15 @@
 #ifndef __QSIMIL__QSIMULATION_PLAYER_H__
 #define __QSIMIL__QSIMULATION_PLAYER_H__
 
+// Qt
 #include <QWidget>
 #include <QDockWidget>
 #include <QSlider>
 #include <QPushButton>
 #include <QLabel>
+
+// SimIL
 #include <simil/simil.h>
-#include "ClickableSlider.h"
 #include <qsimil/api.h>
 
 // TODO: Add zeroeq
@@ -59,10 +61,29 @@ namespace qsimil
     void updateSimulationSlider( float percentage );
     void updateSimulationSlider();
 
+    /** \brief Resets the UI state and removes SimulationPlayer. 
+     * 
+    */
+    void resetState();
+
+    /** \brief Highlights the given range. -1 in any value to disable.
+     * \param[in] min Range minimum value in [0,1].
+     * \param[in] max Range maximum value in [0,1].
+     * 
+    */
+    void highlightRange(const float min, const float max);
+
+    /** \brief Sets the slider stylesheet.
+     * \param[in] style Stylesheet.
+     * 
+    */
+    void setSliderStyleSheet(const QString &style);
+
   signals:
     void frame();
     void playing();
     void stopped();
+    void looped(bool);
 
   protected:
     std::vector< uint32_t > _gidsSimulation;
