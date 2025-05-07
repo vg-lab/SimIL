@@ -24,6 +24,8 @@ set( SIMIL_PUBLIC_HEADERS
      loaders/auxiliar/CSVNetwork.h
      loaders/auxiliar/CSVActivity.h
      loaders/auxiliar/H5Morphologies.h
+
+     loaders/LoaderSnuddaData.h
 )
 
 set( SIMIL_HEADERS
@@ -51,6 +53,8 @@ set( SIMIL_SOURCES
      loaders/auxiliar/CSVNetwork.cpp
      loaders/auxiliar/CSVActivity.cpp
      loaders/auxiliar/H5Morphologies.cpp
+
+     loaders/LoaderSnuddaData.cpp
 )
 
 set( SIMIL_LINK_LIBRARIES

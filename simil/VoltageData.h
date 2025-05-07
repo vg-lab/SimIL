@@ -73,7 +73,7 @@ namespace simil
        * Warning: it's not a merge, groups are treated as different, its a concatenation.
        * \param[in] groups Groups names.
        * \param[in] voltages TVoltages vector.
-       *groupRange
+       *
        */
       void addVoltages(const std::vector<std::string> groups, const simil::TVoltages &voltages );
 

@@ -64,7 +64,6 @@ namespace simil
   {
     auto simulationdata = std::unique_ptr< SpikeData >( new SpikeData( ));
 
-
     if ( _csvActivity == nullptr )
     {
       _csvActivity = new CSVSpikes( *_csvNetwork , activityFile );

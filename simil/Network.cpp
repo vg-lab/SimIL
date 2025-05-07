@@ -214,7 +214,10 @@ namespace simil
 
   unsigned int Network::gidsSize( void )
   {
-      return _gidSize;
+    if(!_gids.empty())
+        _gidSize = _gids.size();
+        
+    return _gidSize;
   }
 
   const GIDVec& Network::gidsVec( void ) const

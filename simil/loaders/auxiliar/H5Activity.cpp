@@ -193,7 +193,7 @@ namespace simil
     auto& attribs = _network._attributes;
 
     _startTime = std::numeric_limits< float >::max( );
-    _endTime = std::numeric_limits< float >::min( );
+    _endTime = std::numeric_limits< float >::lowest( );
 
     for( unsigned int i = 0; i < _groupNames.size( ); i++ )
     {

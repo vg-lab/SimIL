@@ -171,6 +171,7 @@ float simil::VoltageData::voltageAt(const unsigned int group, const float time) 
   if(time >= lastVoltage.first)
     return lastVoltage.second;
 
+  // interpolation between values in an interval
   auto findInterval = [&time](const std::pair<float, float> &p){ return p.first > time; };
   auto it = std::find_if(groupVoltage.cbegin(), groupVoltage.cend(), findInterval);
   assert(it != groupVoltage.cend());

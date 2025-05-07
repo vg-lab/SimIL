@@ -42,7 +42,7 @@ namespace simil
 
     Spikes( const TSpikes& other )
     : TSpikes( other )
-    , _indexSize( 100 )
+    , _indexSize( 1000 )
     , _invTime( 0.0f )
     , _delta( 1.0f )
     , _startTime( 0.0f )
@@ -63,7 +63,7 @@ namespace simil
 
       unsigned int index = perc * (_indexSize-1);
 
-      TSpikes::const_iterator ref = *( _references.cbegin( ) + index );
+      TSpikes::const_iterator ref = cbegin() + _references[index];
 
       TSpikes::const_iterator it = ref;
       while( it->first < time && it != end())
@@ -75,7 +75,7 @@ namespace simil
       return result;
     }
 
-    const std::vector< TSpikes::const_iterator >& refData( void ) const
+    const std::vector< int >& refData( void ) const
     {
       return _references;
     }
@@ -91,44 +91,42 @@ namespace simil
 
     void buildIndex( void )
     {
-      _startTime = _endTime = 0;
+        _startTime = _endTime = 0;
 
-      _references.clear( );
+        _references.clear();
+        _references.resize(_indexSize);
 
-      if(empty()) return;
+        if (empty())
+            return;
 
-      _endTime = back( ).first;
-      _references.resize( _indexSize );
-      _invTime = 1.0f / ( _endTime - _startTime );
-      _delta = ( _endTime - _startTime ) / _indexSize;
+        _endTime = back().first;
+        _invTime = 1.0f / (_endTime - _startTime);
+        _delta = (_endTime - _startTime) / _indexSize;
 
-      float acc = 0.0f;
-      std::vector< float > limits( _indexSize, 0.0f );
+        float acc = 0.0f;
+        std::vector<float> limits(_indexSize, 0.0f);
 
-      for( auto& limit : limits )
-      {
-        limit = acc;
-        acc += _delta;
-      }
+        for (auto& limit : limits) {
+            limit = acc;
+            acc += _delta;
+        }
 
       TSpikes::iterator spikeIt = begin( );
       TSpikes::iterator last = spikeIt;
-      auto limitIt = limits.begin( );
-      for( auto& ref : _references )
-      {
-        while( spikeIt->first <= *limitIt && spikeIt != end( ))
-        {
-          last = spikeIt;
-          ++spikeIt;
-        }
+      auto limitIt = limits.cbegin( );
+      for (size_t i = 0; i < _references.size(); ++i) {
+          while (spikeIt->first <= *limitIt && spikeIt != end()) {
+              last = spikeIt;
+              ++spikeIt;
+          }
 
-        ref = last;
+          _references[i] = std::distance(begin(), last);
 
-        ++limitIt;
+          ++limitIt;
       }
     }
 
-    std::vector< TSpikes::const_iterator > _references;
+    std::vector< int > _references;
 
     unsigned int _indexSize;
     float _invTime;

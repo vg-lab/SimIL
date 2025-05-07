@@ -27,6 +27,8 @@
 #include <exception>
 #include <assert.h>
 #include <memory>
+#include <iostream> // std::cout, std::ostream, std::ios
+#include <fstream>  // std::filebuf
 
 namespace simil
 {
@@ -243,7 +245,43 @@ namespace simil
     }
   }
 
-  void SpikesPlayer::_checkSimData( )
+  bool SpikesPlayer::saveSpikesAsCSV(const std::string &filename)
+  {
+    try
+    {
+      std::filebuf csvBuffer;
+      if(!csvBuffer.open(filename, std::ios::out|std::ios::trunc))
+      {
+        std::cerr << "saveSpikesAsCSV - unable to open/create file " + filename << std::endl;
+        return false;
+      }  
+      
+      std::ostream csvFile(&csvBuffer);
+      csvFile << "time, gid\n";
+
+      auto spikeData = std::dynamic_pointer_cast<SpikeData>(_simData);
+      if(!spikeData)
+      {
+        std::cerr << "saveSpikesAsCSV - data are not spikes." << std::endl;
+        return false;
+      }
+
+      const auto spikes = spikeData->spikes();
+      for (auto it = spikes.begin(); it != spikes.end(); ++it)
+        csvFile << (*it).first << ", " << (*it).second << '\n';
+        
+      csvBuffer.close();
+    }
+    catch(...)
+    {
+      std::cerr << "saveSpikesAsCSV - Unable to save spikes data as CSV in file: " << filename << std::endl;
+      return false;
+    }
+
+    return true;
+  }
+
+  void SpikesPlayer::_checkSimData()
   {
     auto spikeData = std::dynamic_pointer_cast< SpikeData >( _simData );
     if ( spikeData->isDirty( ))
