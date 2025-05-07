@@ -45,15 +45,25 @@ std::string H5Morphologies::fetchPascalCaseName( NeuronType type )
   return "Undefined";
 }
 
-NeuronType H5Morphologies::fetchTypeBySnakeCaseName( const std::string& name )
+NeuronType H5Morphologies::fetchTypeBySnakeCaseName(const std::string& name)
 {
-  if ( name == "granule_cell" ) return NeuronType::GRANULE_CELL;
-  if ( name == "golgi_cell" ) return NeuronType::GOLGI_CELL;
-  if ( name == "purkinje_cell" ) return NeuronType::PURKINJE_CELL;
-  if ( name == "stellate_cell" ) return NeuronType::STELLATE_CELL;
-  if ( name == "basket_cell" ) return NeuronType::BASKET_CELL;
+    if (name == "granule_cell") {
+        return NeuronType::GRANULE_CELL;
+    }
+    if (name == "golgi_cell") {
+        return NeuronType::GOLGI_CELL;
+    }
+    if (name == "purkinje_cell") {
+        return NeuronType::PURKINJE_CELL;
+    }
+    if (name == "stellate_cell") {
+        return NeuronType::STELLATE_CELL;
+    }
+    if (name == "basket_cell") {
+        return NeuronType::BASKET_CELL;
+    }
 
-  return NeuronType::UNDEFINED;
+    return NeuronType::UNDEFINED;
 }
 
 MorphologyType
@@ -84,12 +94,10 @@ void H5Morphologies::loadMorphologies( )
     if ( !H5Lexists( root.getLocId( ) , cellGroupName.c_str( ) ,
                      H5P_DEFAULT ))
       continue;
-    //if ( !root.nameExists( cellGroupName )) continue;
 
     auto cellGroup = root.openGroup( cellGroupName );
 
     if ( !H5Lexists( cellGroup.getLocId( ) , BRANCHES_GROUP , H5P_DEFAULT ))
-      //if ( !cellGroup.nameExists( BRANCHES_GROUP ))
     {
       std::cerr << "Warning: couldn't find branches group in "
                 << cellGroupName

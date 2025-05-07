@@ -187,8 +187,8 @@ namespace simil
       static std::pair<float, float> timeRangeOfGroup(const TVoltages &voltages, const unsigned int group);
 
     protected:
-      TVoltages _voltages; /** spikes as vector of multiple voltages. */
-      std::vector<std::string> _groups;
+      TVoltages m_voltages; /** spikes as vector of multiple voltages. */
+      std::vector<std::string> m_groups;
   };
 }
 

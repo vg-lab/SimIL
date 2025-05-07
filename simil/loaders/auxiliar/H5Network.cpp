@@ -73,7 +73,7 @@ namespace simil
       return;
     }
 
-    // Create file
+    // Open file
     _file = H5::H5File( _fileName, H5F_ACC_RDONLY );
 
     if(H5Lexists(_file.getLocId(), CELLS_TAG, H5P_DEFAULT) > 0)
@@ -197,17 +197,10 @@ namespace simil
           _positions.insert( _positions.end( ), subset.begin( ), subset.end( ));
         }
 
-        // TODO: add subsets... clean code
         _subsets.insert( std::make_pair( label, _gids));
-
-        // Store group name.
         _groupNames.push_back( currentName );
-
         _datasetNames.push_back( label );
-
-        // Store current group.
         _groups.push_back( group );
-        // Store current dataset.
         _datasets.push_back( dataset );
 
         TNetworkAttributes attribs =

@@ -74,6 +74,7 @@ namespace simil
     TCSV,
     TREST,
     TCONE,
+    TSNUDDA,
     TDataUndefined
   } TDataType;
 

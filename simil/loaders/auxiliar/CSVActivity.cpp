@@ -255,7 +255,7 @@ namespace simil
       // Do not have header names, first line are values.
       for(int i = 1; i < wordList.size(); ++i)
       {
-        _groups.emplace_back(std::string("Group ") + std::to_string(i));
+        m_groups.emplace_back(std::string("Group ") + std::to_string(i));
       }
     }
     else
@@ -264,7 +264,7 @@ namespace simil
       {
         auto nameStr = wordList[i].toStdString();
         nameStr.erase(std::remove(nameStr.begin(), nameStr.end(), '\n'), nameStr.end());
-        _groups.emplace_back(nameStr);
+        m_groups.emplace_back(nameStr);
       }
     }
 
@@ -325,74 +325,20 @@ namespace simil
 
       for(auto it = voltages.cbegin(); it != voltages.cend(); ++it)
       {
-        _voltages.emplace_back(timeValue, *it, std::distance(voltages.cbegin(),it));
+        m_voltages.emplace_back(timeValue, *it, std::distance(voltages.cbegin(),it));
       }
 
       counter++;
     }
 
     file.close( );
-    std::cout << "CSV Read " << _voltages.size( ) << " voltages. " << _groups.size() << " groups.  Start time: " << _startTime << " End time: " << _endTime << std::endl;
-    for(unsigned int i = 0; i < _groups.size(); ++i)
+    std::cout << "CSV Read " << m_voltages.size( ) << " voltages. " << m_groups.size() << " groups.  Start time: " << _startTime << " End time: " << _endTime << std::endl;
+    for(unsigned int i = 0; i < m_groups.size(); ++i)
     {
-      const auto range = groupRange(_voltages, i);
-      const auto step = groupTimeStep(_voltages, i);
-      std::cout << "Group '" << _groups[i] << "' range: [" << range.first << ", " << range.second << "] time step: " << step << std::endl;
+      const auto range = groupRange(m_voltages, i);
+      const auto step = groupTimeStep(m_voltages, i);
+      std::cout << "Group '" << m_groups[i] << "' range: [" << range.first << ", " << range.second << "] time step: " << step << std::endl;
     }
-  }
-
-  void CSVVoltages::save(const std::string filename)
-  {
-    std::ofstream aFile;
-    aFile.open(filename, std::ios_base::trunc);
-
-    if(aFile.fail())
-    {
-      std::cerr << "Unable to create CSV activity/voltages file: " << filename << std::endl;
-      return;
-    }
-
-    aFile.imbue(std::locale(aFile.getloc(), new dotSeparator()));
-
-    aFile << "time,";
-    for(auto it = _groups.cbegin(); it != _groups.cend(); ++it)
-    {
-      aFile << *it;
-      if(it != _groups.cend() - 1) aFile << ",";
-    }
-
-    for(auto it = _voltages.cbegin(); it != _voltages.cend(); it += _groups.size())
-    {
-      for(size_t i = 0; i < _groups.size(); ++i)
-      {
-        auto &val = *(it + i);
-        if(i == 0) aFile << std::get<0>(val) << ",";
-        aFile << std::get<1>(val);
-        if(i +1 != _groups.size()) aFile << ",";
-      }
-      aFile << '\n';
-    }
-
-    aFile.flush();
-    aFile.close();
-    std::cout << "Write CSV activity file: " << filename << std::endl;
-  }
-
-  void CSVVoltages::clear()
-  {
-    _startTime = _endTime = 0.f;
-    _voltages.clear();
-    _groups.clear();
-  }
-
-  TVoltages CSVVoltages::voltages() const
-  {
-    return _voltages;
-  }
-
-  std::vector<std::string> CSVVoltages::groups() const
-  {
-    return _groups;
   }
 
   std::pair<float, float> CSVVoltages::groupRange(const TVoltages &voltages, const unsigned int group)
@@ -471,5 +417,59 @@ namespace simil
     std::for_each(voltages.cbegin(), voltages.cend(), filterTime);
 
     return range;
+  }
+
+  void CSVVoltages::save(const std::string filename)
+  {
+    std::ofstream aFile;
+    aFile.open(filename, std::ios_base::trunc);
+
+    if(aFile.fail())
+    {
+      std::cerr << "Unable to create CSV activity/voltages file: " << filename << std::endl;
+      return;
+    }
+
+    aFile.imbue(std::locale(aFile.getloc(), new dotSeparator()));
+
+    aFile << "time,";
+    for(auto it = m_groups.cbegin(); it != m_groups.cend(); ++it)
+    {
+      aFile << *it;
+      if(it != m_groups.cend() - 1) aFile << ",";
+    }
+
+    for(auto it = m_voltages.cbegin(); it != m_voltages.cend(); it += m_groups.size())
+    {
+      for(size_t i = 0; i < m_groups.size(); ++i)
+      {
+        auto &val = *(it + i);
+        if(i == 0) aFile << std::get<0>(val) << ",";
+        aFile << std::get<1>(val);
+        if(i +1 != m_groups.size()) aFile << ",";
+      }
+      aFile << '\n';
+    }
+
+    aFile.flush();
+    aFile.close();
+    std::cout << "Write CSV activity file: " << filename << std::endl;
+  }
+
+  void CSVVoltages::clear()
+  {
+    _startTime = _endTime = 0.f;
+    m_voltages.clear();
+    m_groups.clear();
+  }
+
+  TVoltages CSVVoltages::voltages() const
+  {
+    return m_voltages;
+  }
+
+  std::vector<std::string> CSVVoltages::groups() const
+  {
+    return m_groups;
   }
 }

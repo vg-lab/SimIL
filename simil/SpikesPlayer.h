@@ -90,6 +90,12 @@ namespace simil
 
     void spikesNowVect( std::vector< uint32_t >& );
 
+    /** \brief Saves the spikes data in a CSV file.
+     * \param[in] filename File name on disk of the CSV output file.
+     * 
+     */
+    bool saveSpikesAsCSV(const std::string &filename);
+
   protected:
     void _checkSimData( ) override;
 
