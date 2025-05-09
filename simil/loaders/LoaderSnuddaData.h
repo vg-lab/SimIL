@@ -48,9 +48,18 @@ namespace simil
         virtual std::unique_ptr<simil::Network> loadNetwork(const std::string& networkFile,
                                                             const std::string& aux = "") override;
 
+        /** \brief Sets the loading of synapses. To be called before the load network/activity
+         * \param[in] value True to load synapses and false otherwise.
+         * 
+         */
+        void setLoadSynapses(const bool value)
+        {
+            _loadSynapses = value;
+        }
+
       private:
         std::unordered_map<uint32_t, vmml::Vector3f> loadNeurons() const;
-        std::unordered_map<uint32_t, vmml::Vector3f> loadSynapses() const;
+        std::unordered_map<uint32_t, vmml::Vector3f> loadSynapses();
         void loadNeuronGroups();
         std::string _networkFilename;
         std::shared_ptr<simil::SpikeData> _simData = nullptr;

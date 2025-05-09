@@ -93,7 +93,7 @@ namespace simil
         return neurons;
     }
 
-    std::unordered_map<uint32_t, vmml::Vector3f> SnuddaLoader::loadSynapses() const
+    std::unordered_map<uint32_t, vmml::Vector3f> SnuddaLoader::loadSynapses() 
     {
         std::unordered_map<uint32_t, vmml::Vector3f> data;
 
@@ -123,7 +123,7 @@ namespace simil
         origoDs.read(simulation_origo.data(), H5::PredType::IEEE_F64LE);
 
         const vmml::Vector3f origoVector(simulation_origo[0], simulation_origo[1], simulation_origo[2]);
-
+        GIDVec subset;
         uint32_t idGenerator = 0;
         for (auto& synapse : synapses) {
             // https: // github.com/Hjorthmedh/Snudda/blob/master/snudda/utils/load.py#L621 : 726
@@ -144,8 +144,11 @@ namespace simil
             position += origoVector;
             position *= TO_MICROMETERS; // sysnapse position seems to be in meters too
 
+            subset.push_back(idGenerator);
             data.emplace(idGenerator++, position);
         }
+
+        _subsetEventManager.addSubset("synapses", subset);
 
         voxelSizeDs.close();
         synapsesDs.close();
@@ -164,11 +167,11 @@ namespace simil
 
         const auto dsId = networkFile.getId();
 
+        hsize_t dims;
         if (HDF5pathExists(dsId, "network/neurons/name")) {
             auto namesDs = networkFile.openDataSet("network/neurons/name");
             auto stringType = namesDs.getStrType();
 
-            hsize_t dims;
             namesDs.getSpace().getSimpleExtentDims(&dims);
 
             auto buffer = new char[dims * 6]; // fixed size
