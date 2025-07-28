@@ -20,11 +20,15 @@
  *
  */
 
-
+// SimIL
 #include "H5Activity.h"
-#include <cassert>
 
-const char RECORDERS_TAG[]="recorders/soma_spikes";
+// C++
+#include <cassert>
+#include <fstream>
+
+const std::string RECORDERS_TAG = "recorders/soma_spikes";
+const std::string CA1_ACTIVITY = "spikes/hippocampus_neurons";
 
 namespace simil
 {
@@ -79,7 +83,12 @@ namespace simil
     // Check whether file referenced by the path is an Hdf5 format file or not.
     if( !H5::H5File::isHdf5( _fileName ))
     {
-      std::cerr << "File " << _fileName << " is not a Hdf5 file..." << std::endl;
+        if (_fileName.find(".dat") != std::string::npos) {
+            loadEFPL_CA1ActivityFormat();
+            return;
+        }
+
+      std::cerr << "File " << _fileName << " is not a Hdf5 or a dat file..." << std::endl;
       return;
     }
 
@@ -87,10 +96,17 @@ namespace simil
     _file = H5::H5File( _fileName, H5F_ACC_RDONLY );
 
     // check if new file format and load it on success, else continue with old format.
-    if(H5Lexists(_file.getLocId(), RECORDERS_TAG, H5P_DEFAULT) > 0)
+    if(H5Lexists(_file.getLocId(), RECORDERS_TAG.c_str(), H5P_DEFAULT) > 0)
     {
       loadRecordersFormat();
       return;
+    }
+    else
+    {
+        if (H5Lexists(_file.getLocId(), CA1_ACTIVITY.c_str(), H5P_DEFAULT) > 0) {
+            loadEFPL_CA1ActivityFormat();
+            return;
+        }
     }
 
     // Get the number of outer objects.
@@ -363,6 +379,42 @@ namespace simil
     assignColors(colors);
 
     std::cout << "total spikes: " << _spikes.size();
+  }
+
+  void H5Spikes::loadEFPL_CA1ActivityFormat()
+  {
+    std::ifstream iFile;
+    iFile.open(_fileName, std::ifstream::in);
+    if(!iFile.good())
+    {
+        std::cerr << "Unable to open dat activity file: " << _fileName << std::endl;
+        return;
+    }
+
+    _startTime = std::numeric_limits<float>::max();
+    _endTime = std::numeric_limits<float>::lowest();
+
+    while (!iFile.eof()) {
+        std::string line;
+        getline(iFile,line);
+        if(line.empty())
+            continue;
+
+        std::string parts[2];
+        const auto pos = line.find('\t');
+        assert(pos != std::string::npos);
+        parts[0] = std::string(line.cbegin(), line.cbegin() + pos);
+        parts[1] = std::string(line.cbegin() + pos + 1, line.cend());
+
+        float timePart = atof(parts[0].c_str());
+        uint32_t gid = atoi(parts[1].c_str());
+
+        _spikes.emplace_back(std::make_pair(timePart, gid));
+        _startTime = std::min(_startTime, timePart);
+        _endTime = std::max(_endTime, timePart);
+    }
+
+    std::cout << "Loaded " << _spikes.size() << " spikes" << std::endl;
   }
 
   void H5Activity::assignColors(

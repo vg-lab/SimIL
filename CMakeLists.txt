@@ -85,6 +85,7 @@ if( QT5CORE_FOUND )
 endif()
 
 add_subdirectory( examples )
+add_subdirectory( exporters )
 
 include( CPackConfig )
 include( DoxygenRule )
