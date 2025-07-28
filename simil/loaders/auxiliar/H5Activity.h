@@ -83,6 +83,12 @@ namespace simil
      */
     void loadRecordersFormat();
 
+    /** \brief Loads the activity of the CA1 EFPL format of
+     * a HDF5 file.
+     *
+     */
+    void loadEFPL_CA1ActivityFormat();
+
     float _startTime;
     float _endTime;
 

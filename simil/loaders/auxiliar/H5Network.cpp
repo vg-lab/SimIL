@@ -26,6 +26,26 @@
 const char CELLS_TAG[]="cells/positions";
 const char MAPS_TAG[]="cells/type_maps";
 const char CONNECTIONS_TAG[]="cells/connections";
+const std::string CA1_NEURONS_TAG = "nodes/hippocampus_neurons/0/";
+const std::string CA1_LIBRARY_TAG = "nodes/hippocampus_neurons/0/@library";
+
+const std::vector<vmml::Vector3f> groupsColors = {
+    vmml::Vector3f{  1,   0,   0},
+    vmml::Vector3f{  0,   1,   0},
+    vmml::Vector3f{  0,   0,   1},
+    vmml::Vector3f{  1,   0,   1},
+    vmml::Vector3f{  1,   1,   0},
+    vmml::Vector3f{  1,   0, 0.5},
+    vmml::Vector3f{  1, 0.5,   0},
+    vmml::Vector3f{  1, 0.5, 0.5},
+    vmml::Vector3f{  1, 0.5,   1},
+    vmml::Vector3f{  1,   1, 0.5},
+    vmml::Vector3f{0.5, 0.5,   0},
+    vmml::Vector3f{0.5,   0, 0.5},
+    vmml::Vector3f{  0, 0.5,   0},
+    vmml::Vector3f{  0,   0, 0.5},
+    vmml::Vector3f{  0,   0.5, 0.5}
+};
 
 namespace simil
 {
@@ -80,6 +100,14 @@ namespace simil
     {
       loadCellsFormat();
       return;
+    }
+    else
+    {
+        if (H5Lexists(_file.getLocId(), CA1_NEURONS_TAG.c_str(), H5P_DEFAULT) > 0) {
+
+            loadEFPL_CA1NetworkFormat();
+            return;
+        }
     }
 
     // Get the number of outer objects.
@@ -365,6 +393,7 @@ namespace simil
     delete [] buffer;
     buffer = nullptr;
     _positions.insert( _positions.end( ), subset.begin( ), subset.end( ));
+    _totalRecords = _gids.size();
 
     dataSet.close();
 
@@ -396,39 +425,39 @@ namespace simil
         auto integerType = innerDs.getIntType();
         byteSize = integerType.getSize();
 
-        if(byteSize == 4)      bufferType = H5::PredType::NATIVE_INT;
-        else if(byteSize == 8) bufferType = H5::PredType::NATIVE_LONG;
+        if (byteSize == 4) {
+            bufferType = H5::PredType::NATIVE_INT;
+        } else if (byteSize == 8) {
+            bufferType = H5::PredType::NATIVE_LONG;
+        }
 
-        if(dims[0] == 0) continue;
+        if (dims[0] == 0) {
+            continue;
+        }
 
-        buffer = new char[dims[0]*byteSize];
-        std::memset(buffer, 0, dims[0]*byteSize);
+        buffer = new char[dims[0] * byteSize];
+        std::memset(buffer, 0, dims[0] * byteSize);
 
-        innerDs.read( reinterpret_cast<void*>(buffer), bufferType );
+        innerDs.read(reinterpret_cast<void*>(buffer), bufferType);
 
         GIDVec gids;
-        if(byteSize == 4)
-        {
-          auto bufferI = reinterpret_cast<int*>(&buffer[0]);
-          for(size_t idx = 0; idx < dims[0]; )
-          {
-            gids.emplace_back(static_cast<uint32_t>(bufferI[idx]));
-            ++idx;
-          }
+        if (byteSize == 4) {
+            auto bufferI = reinterpret_cast<int*>(&buffer[0]);
+            for (size_t idx = 0; idx < dims[0];) {
+                gids.emplace_back(static_cast<uint32_t>(bufferI[idx]));
+                ++idx;
+            }
+        } else {
+            auto bufferL = reinterpret_cast<long*>(&buffer[0]);
+            for (size_t idx = 0; idx < dims[0];) {
+                gids.emplace_back(static_cast<uint32_t>(bufferL[idx]));
+                ++idx;
+            }
         }
-        else
-        {
-          auto bufferL = reinterpret_cast<long*>(&buffer[0]);
-          for(size_t idx = 0; idx < dims[0];)
-          {
-            gids.emplace_back(static_cast<uint32_t>(bufferL[idx]));
-            ++idx;
-          }
-        }
-        delete [] buffer;
+        delete[] buffer;
         const auto groupName = "group " + name;
         _subsets.insert(std::make_pair(groupName, gids));
-        _subsetsColors.insert(std::make_pair(groupName, vmml::Vector3f{0,0,0}));
+        _subsetsColors.insert(std::make_pair(groupName, vmml::Vector3f{0, 0, 0}));
         innerDs.close();
       }
     }
@@ -501,4 +530,101 @@ namespace simil
       }
     }
   }
-}
+
+  void H5Network::loadEFPL_CA1NetworkFormat()
+  {
+      const std::string DS_X = CA1_NEURONS_TAG + "/x";
+      const std::string DS_Y = CA1_NEURONS_TAG + "/y";
+      const std::string DS_Z = CA1_NEURONS_TAG + "/z";
+
+      auto dataSetX = _file.openDataSet(DS_X);
+      auto dataSetY = _file.openDataSet(DS_Y);
+      auto dataSetZ = _file.openDataSet(DS_Z);
+
+      hsize_t dims[2];
+      dataSetX.getSpace().getSimpleExtentDims(dims);
+      assert(dataSetX.getSpace().getSimpleExtentNdims() == 1);
+
+      assert(dataSetX.getTypeClass() == H5T_FLOAT);
+      auto floatType = dataSetX.getFloatType();
+      auto byteSize = floatType.getSize();
+
+      auto bufferX = new double[dims[0]];
+      auto bufferY = new double[dims[0]];
+      auto bufferZ = new double[dims[0]];
+      auto bufferM = new uint32_t[dims[0]];
+      std::memset(bufferX, 0, dims[0] * byteSize);
+      std::memset(bufferY, 0, dims[0] * byteSize);
+      std::memset(bufferZ, 0, dims[0] * byteSize);
+      std::memset(bufferM, 0, dims[0] * sizeof(uint32_t));
+
+      dataSetX.read(reinterpret_cast<void*>(bufferX), H5::PredType::IEEE_F64LE);
+      dataSetY.read(reinterpret_cast<void*>(bufferY), H5::PredType::IEEE_F64LE);
+      dataSetZ.read(reinterpret_cast<void*>(bufferZ), H5::PredType::IEEE_F64LE);
+
+      for (size_t idx = 0; idx < dims[0]; ++idx) {
+          _gids.emplace_back(idx);
+          _positions.emplace_back(vmml::Vector3f{static_cast<float>(bufferX[idx]), static_cast<float>(bufferY[idx]),
+                                                 static_cast<float>(bufferZ[idx])});
+      }
+
+      dataSetX.close();
+      dataSetY.close();
+      dataSetZ.close(); 
+
+      loadEFPL_CA1_groups(CA1_NEURONS_TAG + "/morph_class",   CA1_LIBRARY_TAG + "/morph_class",   "Morphology Class");
+      loadEFPL_CA1_groups(CA1_NEURONS_TAG + "/etype",         CA1_LIBRARY_TAG + "/etype",         "Electrical Type");
+      loadEFPL_CA1_groups(CA1_NEURONS_TAG + "/layer",         CA1_LIBRARY_TAG + "/layer",         "Layer");
+      loadEFPL_CA1_groups(CA1_NEURONS_TAG + "/mtype",         CA1_LIBRARY_TAG + "/mtype",         "Morphological Type");
+      loadEFPL_CA1_groups(CA1_NEURONS_TAG + "/region",        CA1_LIBRARY_TAG + "/region",        "Region");
+      loadEFPL_CA1_groups(CA1_NEURONS_TAG + "/synapse_class", CA1_LIBRARY_TAG + "/synapse_class", "Synapse Class");
+
+      delete[] bufferX;
+      bufferX = nullptr;
+      delete[] bufferY;
+      bufferY = nullptr;
+      delete[] bufferZ;
+      bufferZ = nullptr;
+      delete[] bufferM;
+      bufferM = nullptr;
+  }
+
+  void H5Network::loadEFPL_CA1_groups(const std::string &datapath, const std::string &idpath, const std::string& label)
+  {
+      auto dataSet = _file.openDataSet(datapath);
+      auto ids = _file.openDataSet(idpath);
+
+      hsize_t dims[2];
+      ids.getSpace().getSimpleExtentDims(dims);
+      assert(ids.getSpace().getSimpleExtentNdims() == 1);
+      const auto groupsNum = dims[0];
+      std::vector<GIDVec> groups(groupsNum);
+      auto stringType = ids.getStrType();
+
+      std::vector<char*> cStringArray(dims[0], nullptr);
+      H5::DataSpace dataspace = ids.getSpace();
+      ids.read(cStringArray.data(), stringType, dataspace);
+
+      dataSet.getSpace().getSimpleExtentDims(dims);
+      assert(dataSet.getSpace().getSimpleExtentNdims() == 1);
+      auto bufferdata = new uint32_t[dims[0]];
+      std::memset(bufferdata, 0, dims[0] * sizeof(uint32_t));
+      dataSet.read(reinterpret_cast<void*>(bufferdata), H5::PredType::INTEL_U32);
+
+      for (unsigned int idx = 0; idx < dims[0]; ++idx)
+      {
+          groups[bufferdata[idx]].emplace_back(idx);
+      }
+      delete[] bufferdata;
+
+      for (unsigned int i = 0; i < groupsNum; ++i)
+      {
+          const auto groupLabel = label + " " + cStringArray[i];
+          _subsets.insert(std::make_pair(groupLabel, groups[i]));
+          _subsetsColors.insert(std::make_pair(groupLabel, groupsColors[i % groupsColors.size()]));
+      }
+
+      dataSet.close();
+      ids.close();
+  }
+} // namespace simil

@@ -98,28 +98,41 @@ namespace simil
      */
     void loadCellsFormat();
 
-    std::string _fileName;
-    std::string _pattern;
+    /** \brief Loads the network and subset in the CA1 EFPL format of
+     * a HDF5 file.
+     *
+     */
+    void loadEFPL_CA1NetworkFormat();
 
-    unsigned long _totalRecords;
+    /** \brief Helper method to load the different groups in the CA1 format.
+     * \param[in] dataPath Path of the dataset.
+     * \param[in] idPath Path of the groups identifiers.
+     * \param[in] label Label to assign to groups.
+     */
+    void loadEFPL_CA1_groups(const std::string& datapath, const std::string& idpath, const std::string& label);
 
-    H5::H5File _file;
-    std::vector< std::string > _groupNames;
-    std::vector< std::string > _datasetNames;
+    std::string _fileName; /** filename of hdf5 file. */
+    std::string _pattern; /** pattern to load. */
 
-    simil::SubsetMap _subsets;
-    std::map<std::string, vmml::Vector3f> _subsetsColors;
+    unsigned long _totalRecords; /** total number of records of the network file. */
 
-    std::vector< H5::Group > _groups;
+    H5::H5File _file; /** hdf5 network file */
+    std::vector< std::string > _groupNames; /** list of groups names. */
+    std::vector< std::string > _datasetNames; /** list of dataset names. */
 
-    std::vector< H5::DataSet > _datasets;
+    simil::SubsetMap _subsets; /** maps of groups */
+    std::map<std::string, vmml::Vector3f> _subsetsColors; /** map of colors of the subsets. */
 
-    std::vector< unsigned int > _offsets;
+    std::vector< H5::Group > _groups; /** list of groups, if opened. */
+
+    std::vector< H5::DataSet > _datasets; /** list of datasets, if opened. */
+
+    std::vector< unsigned int > _offsets; /** offsets in the gids list. */
 
     std::unordered_map< std::string, TNetworkAttributes > _attributes;
 
-    TPosVect _positions;
-    GIDVec _gids;
+    TPosVect _positions; /** gids positions list. */
+    GIDVec _gids; /** gids list. */
   };
 
 }
