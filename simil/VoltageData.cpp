@@ -27,6 +27,7 @@
 // C++
 #include <vector>
 #include <cassert>
+#include <algorithm>
 #include "VoltageData.h"
 
 //----------------------------------------------------------------------------

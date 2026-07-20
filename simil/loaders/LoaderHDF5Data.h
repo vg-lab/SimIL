@@ -25,11 +25,11 @@
 
 #include "LoaderSimData.h"
 #include "auxiliar/H5Activity.h"
-#include <simil/api.h>
+#include <simil/simil_export.h>
 
 namespace simil
 {
-  class SIMIL_API LoaderHDF5Data : public LoaderSimData
+  class SIMIL_EXPORT LoaderHDF5Data : public LoaderSimData
   {
   public:
     LoaderHDF5Data( );

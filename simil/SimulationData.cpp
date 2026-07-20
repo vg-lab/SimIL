@@ -133,7 +133,7 @@ namespace simil
   {
     _positions = positions;
   }
-  void SimulationData::setPosition( vmml::Vector3f position )
+  void SimulationData::setPosition( glm::vec3 position )
   {
     _positions.push_back(position);
   }

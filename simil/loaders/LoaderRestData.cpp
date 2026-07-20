@@ -224,7 +224,7 @@ namespace simil
 
         const auto position = props[ "position" ];
 
-        vmml::Vector3f positionVec{ 0. , 0. , 0. };
+        glm::vec3 positionVec{ 0. , 0. , 0. };
         for ( unsigned int i = 0; i < position.size( ); ++i )
           positionVec[ i ] = position[ i ].asFloat( );
 

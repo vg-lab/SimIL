@@ -48,7 +48,7 @@ int main( int argc, char** argv )
   auto pit = positions.cbegin();
   for(auto it = gids.cbegin(); it != gids.cend(); ++it,++pit)
   {
-    std::cout << "gid: " << *it << ", pos: " << *pit << std::endl;
+    std::cout << "gid: " << *it << ", pos: (" << pit->x << ", " << pit->y << ", " << pit->z << ")" << std::endl;
   }
 
   simil::CSVSpikes activity( network, activityFile );

@@ -124,12 +124,6 @@ SpikeData::SpikeData()
 
   void SpikeData::reduceDataToGIDS( void )
   {
-    if(_spikes.empty())
-    {
-        std::cerr << "No spikes in dataset. " << __FILE__ << ":" << __LINE__ << std::endl;
-        return;
-    }
-
     _isDirty = true;
     const auto before = _spikes.size();
     std::cout << "Reduce - Before: " << before;

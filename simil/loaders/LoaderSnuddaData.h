@@ -58,8 +58,8 @@ namespace simil
         }
 
       private:
-        std::unordered_map<uint32_t, vmml::Vector3f> loadNeurons() const;
-        std::unordered_map<uint32_t, vmml::Vector3f> loadSynapses();
+        std::unordered_map<uint32_t, glm::vec3> loadNeurons() const;
+        std::unordered_map<uint32_t, glm::vec3> loadSynapses();
         void loadNeuronGroups();
         std::string _networkFilename;
         std::shared_ptr<simil::SpikeData> _simData = nullptr;

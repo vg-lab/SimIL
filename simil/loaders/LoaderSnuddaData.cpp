@@ -24,6 +24,7 @@
 
 #include <unordered_map>
 #include <vector>
+#include <algorithm>
 #include <assert.h>
 
 constexpr int TO_MICROMETERS = 1000000;
@@ -52,7 +53,7 @@ namespace
 
 namespace simil
 {
-    std::unordered_map<uint32_t, vmml::Vector3f> SnuddaLoader::loadNeurons() const
+    std::unordered_map<uint32_t, glm::vec3> SnuddaLoader::loadNeurons() const
     {
         H5::H5File networkFile(_networkFilename, 0);
 
@@ -75,10 +76,10 @@ namespace simil
         positionDS.read(position.data(), H5::PredType::IEEE_F64LE);
         rotationDS.read(rotation.data(), H5::PredType::IEEE_F64LE);
 
-        std::unordered_map<uint32_t, vmml::Vector3f> neurons;
+        std::unordered_map<uint32_t, glm::vec3> neurons;
 
         for (size_t i = 0; i < ids.size(); ++i) {
-            vmml::Vector3f pos(position[i][0], position[i][1], position[i][2]);
+            glm::vec3 pos(position[i][0], position[i][1], position[i][2]);
             pos *= TO_MICROMETERS;
 
             neurons.insert({ids[i], pos});
@@ -93,9 +94,9 @@ namespace simil
         return neurons;
     }
 
-    std::unordered_map<uint32_t, vmml::Vector3f> SnuddaLoader::loadSynapses() 
+    std::unordered_map<uint32_t, glm::vec3> SnuddaLoader::loadSynapses() 
     {
-        std::unordered_map<uint32_t, vmml::Vector3f> data;
+        std::unordered_map<uint32_t, glm::vec3> data;
 
         H5::H5File networkFile(_networkFilename, 0);
 
@@ -122,7 +123,7 @@ namespace simil
         synapsesDs.read(synapses.data(), H5::PredType::INTEL_I32);
         origoDs.read(simulation_origo.data(), H5::PredType::IEEE_F64LE);
 
-        const vmml::Vector3f origoVector(simulation_origo[0], simulation_origo[1], simulation_origo[2]);
+        const glm::vec3 origoVector(simulation_origo[0], simulation_origo[1], simulation_origo[2]);
         GIDVec subset;
         uint32_t idGenerator = 0;
         for (auto& synapse : synapses) {
@@ -139,7 +140,7 @@ namespace simil
 
             // Channel model id defines the json file where the synapse model is described (inhibitory/excitatory)
 
-            vmml::Vector3f position(synapse[2], synapse[3], synapse[4]);
+            glm::vec3 position(synapse[2], synapse[3], synapse[4]);
             position *= static_cast<float>(voxelSize);
             position += origoVector;
             position *= TO_MICROMETERS; // sysnapse position seems to be in meters too

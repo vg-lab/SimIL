@@ -45,7 +45,7 @@ namespace simil
    * \brief Implements a SimulationPlayer with voltages data.
    *
    */
-  class SIMIL_API VoltagesPlayer
+  class SIMIL_EXPORT VoltagesPlayer
   : public SimulationPlayer
   {
     public:
@@ -123,7 +123,7 @@ namespace simil
       /** \brief Helper class to iterate and interpolate voltage values. 
        * 
       */
-      class SIMIL_API VoltageIterator
+      class SIMIL_EXPORT VoltageIterator
       {
         public:
           /** \brief VoltageIterator class constructor. 

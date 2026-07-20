@@ -32,6 +32,7 @@
 #include <cassert>
 #include <fstream>
 #include <iomanip>
+#include <algorithm>
 
 //----------------------------------------------------------------------------
 simil::VoltagesPlayer::VoltagesPlayer()

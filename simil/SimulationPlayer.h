@@ -33,7 +33,7 @@
 
 #endif
 
-#include <simil/api.h>
+#include <simil/simil_export.h>
 
 #ifdef SIMIL_USE_ZEROEQ
 #include <boost/signals2/signal.hpp>
@@ -44,7 +44,7 @@
 #include "types.h"
 #include "SimulationData.h"
 #include "DataSet.h"
-#include <simil/api.h>
+#include <simil/simil_export.h>
 
 namespace simil
 {
@@ -59,7 +59,7 @@ namespace simil
 
   } TPlaybackOperation;
 
-  class SIMIL_API SimulationPlayer
+  class SIMIL_EXPORT SimulationPlayer
   {
 
   public:

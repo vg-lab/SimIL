@@ -26,13 +26,13 @@
 #include <map>
 #include <vector>
 
-#include <simil/api.h>
+#include <simil/simil_export.h>
 
 #include "types.h"
 
 namespace simil
 {
-  class SIMIL_API SubsetEventManager
+  class SIMIL_EXPORT SubsetEventManager
   {
 
   public:
@@ -45,10 +45,10 @@ namespace simil
 
     void clear( void );
 
-    void addSubset( const std::string& name, const GIDVec& subset, const vmml::Vector3f &color = vmml::Vector3f{0,0,0} );
+    void addSubset( const std::string& name, const GIDVec& subset, const glm::vec3 &color = glm::vec3{0,0,0} );
 
     std::vector< uint32_t > getSubset( const std::string& name ) const;
-    vmml::Vector3f getSubsetColor( const std::string& name) const;
+    glm::vec3 getSubsetColor( const std::string& name) const;
 
     void removeSubset( const std::string& name );
 
@@ -74,7 +74,7 @@ namespace simil
 
     std::map< std::string, std::vector< uint32_t >> _subsets;
     std::map< std::string, std::vector< std::pair< float, float >>> _events;
-    std::map< std::string, vmml::Vector3f> _colors;
+    std::map< std::string, glm::vec3> _colors;
 
     float _totalTime;
   };

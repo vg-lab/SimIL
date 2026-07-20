@@ -31,7 +31,7 @@ namespace simil
   /* \class VoltageData
    * \brief Loads voltage simulation data. Tries to adhere to SimulationData api.
    */
-  class SIMIL_API VoltageData
+  class SIMIL_EXPORT VoltageData
   : public SimulationData
   {
     public:

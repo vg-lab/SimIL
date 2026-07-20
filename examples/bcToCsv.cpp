@@ -25,6 +25,7 @@
 #include <iostream>
 #include <fstream>
 #include <locale>
+#include <algorithm>
 
 struct dotSeparator: std::numpunct<char>
 {
@@ -68,9 +69,9 @@ int main( int argc, char** argv )
     for ( unsigned int i = 0; i < positions.size( ); ++i )
     {
       structure << gids.at(i) << ","
-                << positions[i].x( ) << ","
-                << positions[i].y( ) << ","
-                << positions[i].z( ) << std::endl;
+                << positions[i].x << ","
+                << positions[i].y << ","
+                << positions[i].z << std::endl;
     }
 
     structure.close();

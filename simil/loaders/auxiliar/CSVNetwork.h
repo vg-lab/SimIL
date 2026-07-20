@@ -24,7 +24,7 @@
 #define __SIMIL_CSVNETWORK__
 
 #include "../../types.h"
-#include <simil/api.h>
+#include <simil/simil_export.h>
 
 namespace simil
 {
@@ -32,7 +32,7 @@ namespace simil
    * \brief Loads the contents of a network description in a CSV file.
    *
    */
-  class SIMIL_API CSVNetwork
+  class SIMIL_EXPORT CSVNetwork
   {
     public:
       /** \brief CSVNetwork class constructor.

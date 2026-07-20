@@ -450,7 +450,7 @@ namespace simil
             const int g = (num / 0x100) % 0x100;
             const int b = num % 0x100;
 
-            subsetColors[gName] = vmml::Vector3f(r/255., g/255., b/255.);
+            subsetColors[gName] = glm::vec3(r/255., g/255., b/255.);
             break;
           }
         }

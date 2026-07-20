@@ -44,9 +44,9 @@
 #include <thread>
 #endif
 
-#include <simil/api.h>
+#include <simil/simil_export.h>
 
-class SIMIL_API ZeroEqEventsManager
+class SIMIL_EXPORT ZeroEqEventsManager
 {
 public:
 

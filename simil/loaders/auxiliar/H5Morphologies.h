@@ -12,7 +12,7 @@
 #include <ostream>
 #include <H5Cpp.h>
 
-#include <simil/api.h>
+#include <simil/simil_export.h>
 #include <simil/types.h>
 
 enum class MorphologyType
@@ -76,7 +76,7 @@ struct Neuron
   double z;
 };
 
-class SIMIL_API H5Morphologies
+class SIMIL_EXPORT H5Morphologies
 {
   static constexpr const char* MORPHOLOGIES_GROUP = "morphologies";
   static constexpr const char* BRANCHES_GROUP = "branches";

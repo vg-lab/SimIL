@@ -23,13 +23,17 @@
 #ifndef __SIMIL_TYPES_H__
 #define __SIMIL_TYPES_H__
 
+#include <iostream>
+#include <cstdint>
+#include <cstring>
+#include <sstream>
 #include <vector>
 #include <set>
 #include <map>
 #include <unordered_set>
 #include <unordered_map>
 
-#include <vmmlib/vmmlib.h>
+#include <glm/glm.hpp>
 
 namespace simil
 {
@@ -38,7 +42,7 @@ namespace simil
   typedef std::set< uint32_t > TGIDSet;
   typedef std::unordered_set< uint32_t > TGIDUSet;
   typedef std::vector< uint32_t > TGIDVect;
-  typedef std::vector< vmml::Vector3f > TPosVect;
+  typedef std::vector< glm::vec3 > TPosVect;
 
   typedef std::pair< float, uint32_t > Spike;
   typedef std::vector< Spike > TSpikes;

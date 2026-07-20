@@ -28,7 +28,7 @@
 #include "simil/Network.h"
 #include "simil/SpikeData.h"
 #include <memory>
-#include <simil/api.h>
+#include <simil/simil_export.h>
 
 // C++
 #include <thread>
@@ -40,7 +40,7 @@
  */
 namespace simil
 {
-  class SIMIL_API LoaderRestData : public LoaderSimData
+  class SIMIL_EXPORT LoaderRestData : public LoaderSimData
   {
   public:
     LoaderRestData( );

@@ -241,18 +241,18 @@ namespace simil
     return result;
   }
 
-  vmml::Vector3f SubsetEventManager::getSubsetColor(const std::string &name) const
+  glm::vec3 SubsetEventManager::getSubsetColor(const std::string &name) const
   {
     auto it = _colors.find(name);
     if(it != _colors.end())
       return it->second;
 
-    return vmml::Vector3f{0,0,0};
+    return glm::vec3{0,0,0};
   }
 
   void SubsetEventManager::addSubset( const std::string& name,
                                       const GIDVec& subset,
-                                      const vmml::Vector3f& color)
+                                      const glm::vec3& color)
   {
     if (_subsets.count(name) > 0)
     {

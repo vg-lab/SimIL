@@ -27,11 +27,11 @@
 
 #include <brion/brion.h>
 #include <brain/brain.h>
-#include <simil/api.h>
+#include <simil/simil_export.h>
 
 namespace simil
 {
-  class SIMIL_API LoaderBlueConfigData : public LoaderSimData
+  class SIMIL_EXPORT LoaderBlueConfigData : public LoaderSimData
   {
   public:
     LoaderBlueConfigData( );

@@ -100,7 +100,7 @@ namespace simil
       for( const auto &word : wordList )
         stringLine.append( word.constData( ));
 
-      vmml::Vector3f coordinates;
+      glm::vec3 coordinates;
 
       includesGID = wordList.size( ) > 3;
 

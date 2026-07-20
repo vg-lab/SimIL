@@ -25,11 +25,11 @@
 
 #include "../../types.h"
 #include "H5Network.h"
-#include <simil/api.h>
+#include <simil/simil_export.h>
 
 namespace simil
 {
-  class SIMIL_API H5Activity
+  class SIMIL_EXPORT H5Activity
   {
 
   public:

@@ -24,11 +24,11 @@
 #define __SIMIL_SPIKES_H_
 
 #include "types.h"
-#include <simil/api.h>
+#include <simil/simil_export.h>
 
 namespace simil
 {
-  class SIMIL_API Spikes : public TSpikes
+  class SIMIL_EXPORT Spikes : public TSpikes
   {
   public:
     Spikes( )

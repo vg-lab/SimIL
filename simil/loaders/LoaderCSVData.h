@@ -26,11 +26,11 @@
 #include "LoaderSimData.h"
 #include "auxiliar/CSVActivity.h"
 #include "auxiliar/CSVNetwork.h"
-#include <simil/api.h>
+#include <simil/simil_export.h>
 
 namespace simil
 {
-  class SIMIL_API LoaderCSVData : public LoaderSimData
+  class SIMIL_EXPORT LoaderCSVData : public LoaderSimData
   {
   public:
     LoaderCSVData( );

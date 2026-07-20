@@ -30,14 +30,14 @@
 #include <H5Cpp.h>
 
 #include <simil/types.h>
-#include <simil/api.h>
+#include <simil/simil_export.h>
 
 namespace simil
 {
   class H5Activity;
   class H5Spikes;
 
-  class SIMIL_API H5Network
+  class SIMIL_EXPORT H5Network
   {
     friend class H5Activity;
     friend class H5Spikes;
@@ -81,7 +81,7 @@ namespace simil
 
     simil::SubsetMapRange getSubsets( void );
 
-    std::map<std::string, vmml::Vector3f> &getSubsetsColors();
+    std::map<std::string, glm::vec3> &getSubsetsColors();
 
     const std::vector< unsigned int >& offsets( void ) const;
 
@@ -121,7 +121,7 @@ namespace simil
     std::vector< std::string > _datasetNames; /** list of dataset names. */
 
     simil::SubsetMap _subsets; /** maps of groups */
-    std::map<std::string, vmml::Vector3f> _subsetsColors; /** map of colors of the subsets. */
+    std::map<std::string, glm::vec3> _subsetsColors; /** map of colors of the subsets. */
 
     std::vector< H5::Group > _groups; /** list of groups, if opened. */
 

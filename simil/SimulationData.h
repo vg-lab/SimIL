@@ -33,11 +33,11 @@
 #include "SubsetEventManager.h"
 #include "loaders/auxiliar/H5Network.h"
 #include "loaders/auxiliar/CSVNetwork.h"
-#include <simil/api.h>
+#include <simil/simil_export.h>
 
 namespace simil
 {
-  class SIMIL_API SimulationData
+  class SIMIL_EXPORT SimulationData
   {
   public:
     SimulationData( );
@@ -54,7 +54,7 @@ namespace simil
 
     const TPosVect& positions( void ) const;
     void setPositions( TPosVect positions );
-    void setPosition( vmml::Vector3f position );
+    void setPosition( glm::vec3 position );
 
     void setSubset( SubsetEventManager subsets );
     SubsetEventManager* subsetsEvents( void );

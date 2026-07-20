@@ -1,91 +1,167 @@
-# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
-#
-#   SimIL
-#   2016 (c) VG-Lab / Universidad Rey Juan Carlos
-#   www.vg-lab.es
-#
-# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
-cmake_minimum_required( VERSION 3.1 FATAL_ERROR )
-project( SimIL VERSION 0.4.0 )
-set( SimIL_VERSION_ABI 2)
+cmake_minimum_required(VERSION 3.25)
 
-# Disable in source building
-if( "${PROJECT_SOURCE_DIR}" STREQUAL "${PROJECT_BINARY_DIR}" )
-  message( FATAL "no in source building allowed." )
+project(SimIL
+  VERSION 0.4.0
+  LANGUAGES CXX
+  DESCRIPTION "Simulation Input/Output Library"
+)
+string(TOLOWER ${PROJECT_NAME} PROJECT_NAME_LOWER)
+string(TOUPPER ${PROJECT_NAME} PROJECT_NAME_UPPER)
+
+# Prevent in-source builds
+if(CMAKE_CURRENT_SOURCE_DIR STREQUAL CMAKE_BINARY_DIR)
+  message(FATAL_ERROR "In-source builds are not allowed. Please create a separate build directory.")
 endif()
 
-list( APPEND CMAKE_MODULE_PATH
-  ${PROJECT_SOURCE_DIR}/CMake
-  ${CMAKE_SOURCE_DIR}/CMake/common )
-
-
-# Default build type is Debug
-if( NOT CMAKE_BUILD_TYPE )
-  set( CMAKE_BUILD_TYPE Debug )
-endif( NOT CMAKE_BUILD_TYPE )
-
-if ( CMAKE_BUILD_TYPE MATCHES "Debug" )
-  add_definitions( -DDEBUG )
-endif( )
-
-include(GitExternal)
-
-set( CMAKECOMMONTEMPLATE_DESCRIPTION "SimIL - Simulation Input/Output Library" )
-set( COMMON_PROJECT_DOMAIN es.vg-lab )
-
-option( SIMIL_BRION_ENABLED
-  "Use Brion library to read BlueBrain data structures" OFF )
-
-option( SIMIL_WITH_REST_API
-  "Enable REST API for data streaming input" OFF )
-  
-include( Common )
-
-common_find_package( vmmlib REQUIRED SYSTEM )
-if( SIMIL_BRION_ENABLED )
-  common_find_package( Brion REQUIRED )
-endif()
-common_find_package( HDF5 REQUIRED COMPONENTS C CXX SYSTEM )
-common_find_package( Boost REQUIRED COMPONENTS system )
-common_find_package( ZeroEQ )
-common_find_package( Qt5Core SYSTEM )
-common_find_package( Qt5Widgets SYSTEM )
-
-list( APPEND SIMIL_DEPENDENT_LIBRARIES HDF5 vmmlib Boost )
-
-if( BRION_FOUND )
-  list( APPEND SIMIL_DEPENDENT_LIBRARIES Brion )
+# Set default build type if not specified
+if(NOT CMAKE_BUILD_TYPE)
+  set(CMAKE_BUILD_TYPE Debug CACHE STRING "" FORCE)
 endif()
 
-if( ZEROEQ_FOUND )
+# Include custom modules
+list(APPEND CMAKE_MODULE_PATH "${PROJECT_SOURCE_DIR}/cmake")
 
-  list( APPEND SIMIL_DEPENDENT_LIBRARIES ZeroEQ )
+# Options
+option(BUILD_SHARED_LIBS "Build using shared libraries" ON)
+option(BUILD_DOCS "Build documentation" ON)
+option(SIMIL_WITH_EXAMPLES "Build examples" ON)
+option(SIMIL_WITH_EXPORTERS "Build exporters" ON)
+option(SIMIL_WITH_TESTS "Build tests" ON)
+option(SIMIL_OPTIONALS_AS_REQUIRED "Force optional dependencies as required" OFF)
 
-  common_find_package( Threads REQUIRED )
-  list( APPEND SIMIL_DEPENDENT_LIBRARIES Threads )
+option(SIMIL_BRION_ENABLED "Use Brion library to read BlueBrain data structures" OFF)
+option(SIMIL_WITH_REST_API "Enable REST API for data streaming input" OFF)
 
-  common_find_package( Lexis )
-  if( LEXIS_FOUND )
-    list( APPEND SIMIL_DEPENDENT_LIBRARIES Lexis )
-  endif( )
+# Dependencies
+find_package(Boost REQUIRED CONFIG COMPONENTS)
+find_package(HDF5 REQUIRED COMPONENTS C CXX)
+find_package(glm REQUIRED)
+find_package(Qt5 REQUIRED COMPONENTS Core)
+find_package(Qt5 OPTIONAL COMPONENTS Widgets)
 
-  common_find_package( gmrvlex )
-  if( GMRVLEX_FOUND )
-    list( APPEND SIMIL_DEPENDENT_LIBRARIES gmrvlex )
-  endif( )
+# find_package(Threads)
+# find_package(ZeroEQ)
+# find_package(Lexis)
+# find_package(gmrvlex)
 
-endif( )
-
-common_find_package_post( )
-
-add_subdirectory( simil )
-
-if( QT5CORE_FOUND )
-  add_subdirectory( qsimil )
+# Optional dependencies
+set(SIMIL_OPTS_FIND_ARGS "")
+if(SIMIL_OPTIONALS_AS_REQUIRED)
+  set(SIMIL_OPTS_FIND_ARGS REQUIRED)
 endif()
 
-add_subdirectory( examples )
-add_subdirectory( exporters )
+include(FetchContent)
 
-include( CPackConfig )
-include( DoxygenRule )
+if(SIMIL_BRION_ENABLED)
+  FetchContent_Declare(
+      Brion
+      GIT_REPOSITORY https://github.com/vg-lab/Brion.git
+      GIT_SHALLOW ON
+      FIND_PACKAGE_ARGS
+  )
+  FetchContent_MakeAvailable(Brion)
+endif()
+
+# FetchContent_Declare(
+#     glm
+#     GIT_REPOSITORY https://github.com/g-truc/glm.git
+#     GIT_TAG 1.0.1
+#     GIT_SHALLOW ON
+#     GIT_SUBMODULES_RECURSE OFF
+#     FIND_PACKAGE_ARGS
+# )
+# # set(GLM_BUILD_INSTALL CACHE BOOL "" FORCE ON)
+# FetchContent_MakeAvailable(glm)
+
+# Definitions
+option(SIMIL_USE_BRION "" ${Brion_FOUND})
+# option(SIMIL_USE_ZEROEQ "" ${ZeroEQ_FOUND})
+# option(SIMIL_USE_LEXIS "" ${Lexis_FOUND})
+# option(SIMIL_USE_GMRVLEX "" ${gmrvlex_FOUND})
+
+# Add subdirectories
+add_subdirectory(${PROJECT_NAME_LOWER})
+
+if(Qt5Widgets_FOUND)
+  add_subdirectory(qsimil)
+endif()
+
+# # Don't build tests when others include the library
+# if(CMAKE_PROJECT_NAME STREQUAL PROJECT_NAME AND SIMIL_WITH_TESTS)
+#   include(CTest)
+#   add_subdirectory(tests)
+# endif()
+
+# Don't build examples when others include the library
+if(CMAKE_PROJECT_NAME STREQUAL PROJECT_NAME AND SIMIL_WITH_EXAMPLES)
+  add_subdirectory(examples)
+endif()
+
+# Don't build exporters when others include the library
+if(CMAKE_PROJECT_NAME STREQUAL PROJECT_NAME AND SIMIL_WITH_EXPORTERS)
+  add_subdirectory(exporters)
+endif()
+
+# Define installation directory variables
+include(GNUInstallDirs)
+
+# Include the CMake module that provides helpers for creating package config files
+include(CMakePackageConfigHelpers)
+
+# Generate the project-specific cmake config file
+configure_package_config_file(${CMAKE_CURRENT_SOURCE_DIR}/cmake/project-config.cmake.in
+  "${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME_LOWER}-config.cmake"
+  INSTALL_DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/${PROJECT_NAME_LOWER}
+)
+
+# Generate the project-specific cmake config file
+write_basic_package_version_file(
+  "${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME_LOWER}-config-version.cmake"
+  VERSION ${PROJECT_VERSION}
+  COMPATIBILITY SameMajorVersion
+)
+
+# Generate the project-specific cmake config version file
+install(FILES
+  "${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME_LOWER}-config.cmake"
+  "${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME_LOWER}-config-version.cmake"
+  DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/${PROJECT_NAME_LOWER}
+)
+
+# Install repo data
+install(FILES
+  "${CMAKE_CURRENT_SOURCE_DIR}/README.md"
+  "${CMAKE_CURRENT_SOURCE_DIR}/LICENSE.txt"
+  DESTINATION ${CMAKE_INSTALL_DATADIR}/${PROJECT_NAME_LOWER}
+)
+
+# Generate documentation
+find_package(Doxygen)
+if(DOXYGEN_FOUND AND BUILD_DOCS)
+  set(DOXYGEN_OUTPUT_DIR ${CMAKE_CURRENT_BINARY_DIR}/docs_doxygen)
+  set(DOXYFILE_IN ${PROJECT_SOURCE_DIR}/cmake/Doxyfile.in)
+  set(DOXYFILE_OUT ${CMAKE_CURRENT_BINARY_DIR}/Doxyfile)
+
+  configure_file(${DOXYFILE_IN} ${DOXYFILE_OUT} @ONLY)
+
+  doxygen_add_docs(
+    ${PROJECT_NAME}_doxygen
+    CONFIG_FILE ${DOXYFILE_OUT}
+  )
+
+  install(DIRECTORY
+    ${DOXYGEN_OUTPUT_DIR}/html
+    DESTINATION ${CMAKE_INSTALL_DOCDIR}
+    COMPONENT ${PROJECT_NAME}_documentation
+    OPTIONAL
+  )
+endif()
+
+# Packaging
+set(CPACK_PACKAGE_VERSION_MAJOR ${PROJECT_VERSION_MAJOR})
+set(CPACK_PACKAGE_VERSION_MINOR ${PROJECT_VERSION_MINOR})
+set(CPACK_PACKAGE_VERSION_PATCH ${PROJECT_VERSION_PATCH})
+set(CPACK_RESOURCE_FILE_LICENSE "${PROJECT_SOURCE_DIR}/LICENSE.txt")
+set(CPACK_RESOURCE_FILE_README "${PROJECT_SOURCE_DIR}/README.md")
+set(CPACK_SOURCE_GENERATOR "TGZ")
+include(CPack)

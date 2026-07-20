@@ -33,13 +33,13 @@
 
 // SimIL
 #include <simil/simil.h>
-#include <qsimil/api.h>
+#include <qsimil/qsimil_export.h>
 
 // TODO: Add zeroeq
 
 namespace qsimil
 {
-  class QSIMIL_API QSimulationPlayer: public QWidget
+  class QSIMIL_EXPORT QSimulationPlayer: public QWidget
   {
     Q_OBJECT
   public:

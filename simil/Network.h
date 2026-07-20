@@ -27,7 +27,7 @@
 #include "SubsetEventManager.h"
 #include "loaders/auxiliar/H5Network.h"
 #include "loaders/auxiliar/CSVNetwork.h"
-#include <simil/api.h>
+#include <simil/simil_export.h>
 
 #ifdef SIMIL_USE_BRION
 #include <brion/brion.h>
@@ -37,7 +37,7 @@
 
 namespace simil
 {
-  class SIMIL_API Network
+  class SIMIL_EXPORT Network
   {
   public:
     Network( );

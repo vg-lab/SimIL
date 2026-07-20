@@ -43,7 +43,7 @@
 #include "DataSet.h"
 #include "SimulationPlayer.h"
 
-#include <simil/api.h>
+#include <simil/simil_export.h>
 
 namespace simil
 {
@@ -53,7 +53,7 @@ namespace simil
   typedef std::pair< SpikesIter , SpikesIter > SpikesRange;
   typedef std::pair< SpikesCIter , SpikesCIter > SpikesCRange;
 
-  class SIMIL_API SpikesPlayer : public SimulationPlayer
+  class SIMIL_EXPORT SpikesPlayer : public SimulationPlayer
   {
   public:
 

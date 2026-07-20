@@ -29,14 +29,14 @@
 #include <QPainter>
 
 // SimIL
-#include <qsimil/api.h>
+#include <qsimil/qsimil_export.h>
 
 // C++
 #include <cmath>
 
 namespace qsimil
 {
-  class QSIMIL_API ClickableSlider : public QSlider
+  class QSIMIL_EXPORT ClickableSlider : public QSlider
   {
     Q_OBJECT
   public:

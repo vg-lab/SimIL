@@ -40,12 +40,12 @@
 #include <boost/signals2.hpp>
 
 #include "QSimulationPlayer.h"
-#include <qsimil/api.h>
+#include <qsimil/qsimil_export.h>
 
 
 namespace qsimil
 {
-  class QSIMIL_API QSimControlWidget: public QWidget
+  class QSIMIL_EXPORT QSimControlWidget: public QWidget
   {
       Q_OBJECT
   public:

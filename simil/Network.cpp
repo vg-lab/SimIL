@@ -37,7 +37,6 @@ namespace simil
     , _h5Network( nullptr )
     , _csvNetwork( nullptr )
   {
-    target.size( ); // TODO remove this workaround to unused variable error
     switch ( dataType )
     {
       case TBlueConfig:
@@ -105,7 +104,7 @@ namespace simil
   , _csvNetwork( nullptr )
   {
     _gids.insert( 0 );
-    _positions.push_back( vmml::Vector3f( 0, 0, 0 ) );
+    _positions.push_back( glm::vec3( 0, 0, 0 ) );
     _gidsV.push_back( 0 );
     _gidSize = 1;
   }
@@ -149,7 +148,7 @@ namespace simil
 
         if ( generatePos )
         {
-          _positions.push_back( vmml::Vector3f( i % width, i / width, 0 ) );
+          _positions.push_back( glm::vec3( i % width, i / width, 0 ) );
           ++i;
         }
       }

@@ -29,22 +29,22 @@ const char CONNECTIONS_TAG[]="cells/connections";
 const std::string CA1_NEURONS_TAG = "nodes/hippocampus_neurons/0/";
 const std::string CA1_LIBRARY_TAG = "nodes/hippocampus_neurons/0/@library";
 
-const std::vector<vmml::Vector3f> groupsColors = {
-    vmml::Vector3f{  1,   0,   0},
-    vmml::Vector3f{  0,   1,   0},
-    vmml::Vector3f{  0,   0,   1},
-    vmml::Vector3f{  1,   0,   1},
-    vmml::Vector3f{  1,   1,   0},
-    vmml::Vector3f{  1,   0, 0.5},
-    vmml::Vector3f{  1, 0.5,   0},
-    vmml::Vector3f{  1, 0.5, 0.5},
-    vmml::Vector3f{  1, 0.5,   1},
-    vmml::Vector3f{  1,   1, 0.5},
-    vmml::Vector3f{0.5, 0.5,   0},
-    vmml::Vector3f{0.5,   0, 0.5},
-    vmml::Vector3f{  0, 0.5,   0},
-    vmml::Vector3f{  0,   0, 0.5},
-    vmml::Vector3f{  0,   0.5, 0.5}
+const std::vector<glm::vec3> groupsColors = {
+    glm::vec3{  1,   0,   0},
+    glm::vec3{  0,   1,   0},
+    glm::vec3{  0,   0,   1},
+    glm::vec3{  1,   0,   1},
+    glm::vec3{  1,   1,   0},
+    glm::vec3{  1,   0, 0.5},
+    glm::vec3{  1, 0.5,   0},
+    glm::vec3{  1, 0.5, 0.5},
+    glm::vec3{  1, 0.5,   1},
+    glm::vec3{  1,   1, 0.5},
+    glm::vec3{0.5, 0.5,   0},
+    glm::vec3{0.5,   0, 0.5},
+    glm::vec3{  0, 0.5,   0},
+    glm::vec3{  0,   0, 0.5},
+    glm::vec3{  0,   0.5, 0.5}
 };
 
 namespace simil
@@ -204,7 +204,7 @@ namespace simil
             {
               _gids.emplace_back(static_cast<uint32_t>(bufferF[idx]));
               idx += dims[1]-3;
-              subset.emplace_back(vmml::Vector3f{bufferF[idx+0],bufferF[idx+1],bufferF[idx+2]});
+              subset.emplace_back(glm::vec3{bufferF[idx+0],bufferF[idx+1],bufferF[idx+2]});
               idx+=3;
             }
           }
@@ -215,7 +215,7 @@ namespace simil
             {
               _gids.emplace_back(static_cast<uint32_t>(bufferD[idx]));
               idx += dims[1]-3;
-              subset.emplace_back(vmml::Vector3f{static_cast<float>(bufferD[idx+0]),
+              subset.emplace_back(glm::vec3{static_cast<float>(bufferD[idx+0]),
                                                  static_cast<float>(bufferD[idx+1]),
                                                  static_cast<float>(bufferD[idx+2])});
               idx+=3;
@@ -287,7 +287,7 @@ namespace simil
         for(auto bit = buffer.cbegin(); bit != buffer.cend(); )
         {
           bit += dims[1]-3;
-          subset.emplace_back(vmml::Vector3f{*bit++, *bit++, *bit++});
+          subset.emplace_back(glm::vec3{*bit++, *bit++, *bit++});
         }
 
         _positions.insert( _positions.end( ), subset.begin( ), subset.end( ));
@@ -337,7 +337,7 @@ namespace simil
     return std::make_pair( _subsets.begin( ), _subsets.end( ));
   }
 
-  std::map<std::string, vmml::Vector3f> &H5Network::getSubsetsColors()
+  std::map<std::string, glm::vec3> &H5Network::getSubsetsColors()
   {
     return _subsetsColors;
   }
@@ -373,7 +373,7 @@ namespace simil
       {
         _gids.emplace_back(static_cast<uint32_t>(bufferF[idx]));
         idx += dims[1]-3;
-        subset.emplace_back(vmml::Vector3f{bufferF[idx+0],bufferF[idx+1],bufferF[idx+2]});
+        subset.emplace_back(glm::vec3{bufferF[idx+0],bufferF[idx+1],bufferF[idx+2]});
         idx+=3;
       }
     }
@@ -384,7 +384,7 @@ namespace simil
       {
         _gids.emplace_back(static_cast<uint32_t>(bufferD[idx]));
         idx += dims[1]-3;
-        subset.emplace_back(vmml::Vector3f{static_cast<float>(bufferD[idx+0]),
+        subset.emplace_back(glm::vec3{static_cast<float>(bufferD[idx+0]),
                                            static_cast<float>(bufferD[idx+1]),
                                            static_cast<float>(bufferD[idx+2])});
         idx+=3;
@@ -442,22 +442,22 @@ namespace simil
 
         GIDVec gids;
         if (byteSize == 4) {
-            auto bufferI = reinterpret_cast<int*>(&buffer[0]);
+          auto bufferI = reinterpret_cast<int*>(&buffer[0]);
             for (size_t idx = 0; idx < dims[0];) {
-                gids.emplace_back(static_cast<uint32_t>(bufferI[idx]));
-                ++idx;
-            }
+            gids.emplace_back(static_cast<uint32_t>(bufferI[idx]));
+            ++idx;
+          }
         } else {
-            auto bufferL = reinterpret_cast<long*>(&buffer[0]);
+          auto bufferL = reinterpret_cast<long*>(&buffer[0]);
             for (size_t idx = 0; idx < dims[0];) {
-                gids.emplace_back(static_cast<uint32_t>(bufferL[idx]));
-                ++idx;
-            }
+            gids.emplace_back(static_cast<uint32_t>(bufferL[idx]));
+            ++idx;
+          }
         }
         delete[] buffer;
         const auto groupName = "group " + name;
         _subsets.insert(std::make_pair(groupName, gids));
-        _subsetsColors.insert(std::make_pair(groupName, vmml::Vector3f{0, 0, 0}));
+        _subsetsColors.insert(std::make_pair(groupName, glm::vec3{0, 0, 0}));
         innerDs.close();
       }
     }
@@ -525,7 +525,7 @@ namespace simil
         delete [] buffer;
         const auto groupName = "connection " + name;
         _subsets.insert(std::make_pair(groupName, gids));
-        _subsetsColors.insert(std::make_pair(groupName, vmml::Vector3f{0,0,0}));
+        _subsetsColors.insert(std::make_pair(groupName, glm::vec3{0,0,0}));
         innerDs.close();
       }
     }
@@ -564,7 +564,7 @@ namespace simil
 
       for (size_t idx = 0; idx < dims[0]; ++idx) {
           _gids.emplace_back(idx);
-          _positions.emplace_back(vmml::Vector3f{static_cast<float>(bufferX[idx]), static_cast<float>(bufferY[idx]),
+          _positions.emplace_back(glm::vec3{static_cast<float>(bufferX[idx]), static_cast<float>(bufferY[idx]),
                                                  static_cast<float>(bufferZ[idx])});
       }
 

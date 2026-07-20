@@ -26,11 +26,11 @@
 #include <memory>
 
 #include "../DataSet.h"
-#include <simil/api.h>
+#include <simil/simil_export.h>
 
 namespace simil
 {
-  class SIMIL_API LoaderSimData
+  class SIMIL_EXPORT LoaderSimData
   {
   public:
     LoaderSimData( )

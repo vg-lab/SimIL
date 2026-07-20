@@ -25,7 +25,7 @@
 
 #include "../../types.h"
 #include "CSVNetwork.h"
-#include <simil/api.h>
+#include <simil/simil_export.h>
 
 namespace simil
 {
@@ -33,7 +33,7 @@ namespace simil
    * \brief Loads the activity of a network from a CSV file.
    *
    */
-  class SIMIL_API CSVActivity
+  class SIMIL_EXPORT CSVActivity
   {
     public:
       /** \brief CSVActivity class constructor.
@@ -91,7 +91,7 @@ namespace simil
    * format GID,TIME.
    *
    */
-  class SIMIL_API CSVSpikes : public CSVActivity
+  class SIMIL_EXPORT CSVSpikes : public CSVActivity
   {
     public:
       /** \brief CSVSpikes class constructor.
@@ -127,7 +127,7 @@ namespace simil
    *  \brief Loads the network voltage values from a CSV file.
    *
    */
-  class SIMIL_API CSVVoltages : public CSVActivity
+  class SIMIL_EXPORT CSVVoltages : public CSVActivity
   {
     public:
       /** \brief CSVVoltages class constructor.
