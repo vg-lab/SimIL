@@ -106,18 +106,18 @@ const std::map< std::string, std::string >& HTTPSyncClient::get_headers( ) const
  {
    try
    {
-     boost::asio::io_service io_service;
+     boost::asio::io_context io_context;
 
-     // Get a list of endpoints corresponding to the server name.
-     boost::asio::ip::tcp::resolver resolver(io_service);
-     boost::asio::ip::tcp::resolver::query query(_host, std::to_string(_port),
-         boost::asio::ip::tcp::resolver::query::numeric_service);
-     boost::asio::ip::tcp::resolver::iterator endpoint_iterator =
-         resolver.resolve(query);
+     // Resolve the host and port.
+     boost::asio::ip::tcp::resolver resolver(io_context);
+     auto endpoints = resolver.resolve(
+          _host,
+          std::to_string(_port),
+          boost::asio::ip::tcp::resolver::numeric_service);
 
-     // Try each endpoint until we successfully establish a connection.
-     boost::asio::ip::tcp::socket socket(io_service);
-     boost::asio::connect(socket, endpoint_iterator);
+     // Connect to one of the resolved endpoints.
+     boost::asio::ip::tcp::socket socket(io_context);
+     boost::asio::connect(socket, endpoints);
 
      // Form the request. We specify the "Connection: close" header so that the
      // server will close the socket after transmitting the response. This will
