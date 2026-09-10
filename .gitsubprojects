@@ -1,5 +1,0 @@
-# -*- mode: cmake -*-
-git_subproject(vmmlib https://github.com/Eyescale/vmmlib.git 357b8f0)
-if( SIMIL_BRION_ENABLED )
-  git_subproject(Brion https://github.com/BlueBrain/Brion.git 60809ca)
-endif()
